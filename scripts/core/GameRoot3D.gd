@@ -1,5 +1,10 @@
 class_name RVGameRoot3D
 extends Node3D
+const FinalGameHUDScene := preload("res://scenes/ui/GameHUD3D.tscn")
+const FinalUIPanelRootScene := preload("res://scenes/ui/UIPanelRoot3D.tscn")
+var _rf_087r_hud: Node = null
+var _rf_087r_ui: Node = null
+
 
 const GameStateScript := preload("res://scripts/core/GameState3D.gd")
 const SaveSystemScript := preload("res://scripts/systems/SaveSystem3D.gd")
@@ -23,6 +28,7 @@ var state: Object = GameStateScript.new()
 var autosave_timer: float = 0.0
 
 func _ready() -> void:
+	_rf_087r_ensure_final_ui()
 	SaveSystemScript.load_into(state)
 	state.call("ensure_defaults")
 	_return_to_hub(false)
@@ -37,14 +43,15 @@ func _process(delta: float) -> void:
 			pet.call("update_pet", player, combat, state, delta)
 	_update_camera(delta)
 	_update_ui()
+	_rf_087r_update_final_ui(delta)
 	autosave_timer += delta
 	if autosave_timer >= 12.0:
 		autosave_timer = 0.0
 		SaveSystemScript.save(state)
 
 func _update_notice(delta: float) -> void:
-	if float(state.get("notice_time")) > 0.0:
-		state.set("notice_time", max(0.0, float(state.get("notice_time")) - delta))
+	if _rf_087v_float(state.get("notice_time")) > 0.0:
+		state.set("notice_time", max(0.0, _rf_087v_float(state.get("notice_time")) - delta))
 
 func _update_player(delta: float) -> void:
 	if player == null: return
@@ -56,7 +63,7 @@ func _update_player(delta: float) -> void:
 		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): move.x -= 1.0
 		if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): move.x += 1.0
 	if player.has_method("move_world"):
-		player.call("move_world", move, float(state.get("move_speed")), delta)
+		player.call("move_world", move, _rf_087v_float(state.get("move_speed")), delta)
 	if str(state.get("mode")) == "combat" and combat != null and combat.has_method("constrain_player_position"):
 		player.global_position = combat.call("constrain_player_position", player.global_position)
 	state.set("player_pos", player.global_position)
@@ -105,9 +112,9 @@ func _handle_key(keycode: int) -> void:
 		KEY_SPACE:
 			if str(state.get("mode")) == "combat": _cast_selected_skill(_mouse_world())
 		KEY_Q:
-			state.set("selected_skill_slot", wrapi(int(state.get("selected_skill_slot")) - 1, 0, 4))
+			state.set("selected_skill_slot", wrapi(_rf_087v_int(state.get("selected_skill_slot")) - 1, 0, 4))
 		KEY_R:
-			state.set("selected_skill_slot", wrapi(int(state.get("selected_skill_slot")) + 1, 0, 4))
+			state.set("selected_skill_slot", wrapi(_rf_087v_int(state.get("selected_skill_slot")) + 1, 0, 4))
 		KEY_1, KEY_2, KEY_3, KEY_4:
 			state.set("selected_skill_slot", keycode - KEY_1)
 		KEY_I:
@@ -127,7 +134,7 @@ func _handle_key(keycode: int) -> void:
 		KEY_BRACKETRIGHT:
 			_cycle_cursor(1)
 		KEY_U:
-			state.call("equip_backpack_index", int(state.get("inventory_cursor")))
+			state.call("equip_backpack_index", _rf_087v_int(state.get("inventory_cursor")))
 
 func _handle_panel_key(keycode: int) -> void:
 	var mode: String = str(state.get("panel_mode"))
@@ -137,7 +144,7 @@ func _handle_panel_key(keycode: int) -> void:
 	if mode == "inventory":
 		if keycode == KEY_BRACKETLEFT: _cycle_cursor(-1)
 		elif keycode == KEY_BRACKETRIGHT: _cycle_cursor(1)
-		elif keycode == KEY_U: state.call("equip_backpack_index", int(state.get("inventory_cursor")))
+		elif keycode == KEY_U: state.call("equip_backpack_index", _rf_087v_int(state.get("inventory_cursor")))
 	elif mode == "skills":
 		if keycode >= KEY_1 and keycode <= KEY_4: state.set("selected_skill_slot", keycode - KEY_1)
 		elif keycode == KEY_A: SkillGemSystemScript.cycle_active_slot_gem(state, -1)
@@ -148,8 +155,8 @@ func _handle_panel_key(keycode: int) -> void:
 	elif mode == "maps":
 		var maps: Array = Array(state.get("map_stash"))
 		if not maps.is_empty():
-			if keycode == KEY_BRACKETLEFT: state.set("map_cursor", wrapi(int(state.get("map_cursor")) - 1, 0, maps.size()))
-			elif keycode == KEY_BRACKETRIGHT: state.set("map_cursor", wrapi(int(state.get("map_cursor")) + 1, 0, maps.size()))
+			if keycode == KEY_BRACKETLEFT: state.set("map_cursor", wrapi(_rf_087v_int(state.get("map_cursor")) - 1, 0, maps.size()))
+			elif keycode == KEY_BRACKETRIGHT: state.set("map_cursor", wrapi(_rf_087v_int(state.get("map_cursor")) + 1, 0, maps.size()))
 			elif keycode == KEY_T: state.set("panel_mode", ""); _start_map()
 	elif mode == "crafting":
 		if keycode == KEY_1: CraftingSystemScript.craft_selected(state, "seal")
@@ -159,7 +166,7 @@ func _handle_panel_key(keycode: int) -> void:
 func _cycle_cursor(dir: int) -> void:
 	var backpack: Array = Array(state.get("backpack"))
 	if backpack.is_empty(): return
-	state.set("inventory_cursor", wrapi(int(state.get("inventory_cursor")) + dir, 0, backpack.size()))
+	state.set("inventory_cursor", wrapi(_rf_087v_int(state.get("inventory_cursor")) + dir, 0, backpack.size()))
 
 func _toggle_panel(mode_name: String) -> void:
 	state.set("panel_mode", "" if str(state.get("panel_mode")) == mode_name else mode_name)
@@ -202,8 +209,8 @@ func _mouse_world() -> Vector3:
 
 func _update_ui() -> void:
 	var cast: Dictionary = SkillGemSystemScript.selected_cast_data(state)
-	status_label.text = "Lv " + str(state.get("level")) + " " + str(state.get("class_display_name")) + " | HP " + str(int(state.get("player_hp"))) + "/" + str(int(state.get("max_hp"))) + " | Mana " + str(int(state.get("player_mana"))) + "/" + str(int(state.get("max_mana"))) + " | Spirit " + str(state.get("spirit_reserved")) + "/" + str(state.get("spirit_max")) + " | Gold " + str(state.get("gold")) + " | Skill " + str(cast.get("name", ""))
-	if float(state.get("notice_time")) > 0.0:
+	status_label.text = "Lv " + str(state.get("level")) + " " + str(state.get("class_display_name")) + " | HP " + str(_rf_087v_int(state.get("player_hp"))) + "/" + str(_rf_087v_int(state.get("max_hp"))) + " | Mana " + str(_rf_087v_int(state.get("player_mana"))) + "/" + str(_rf_087v_int(state.get("max_mana"))) + " | Spirit " + str(state.get("spirit_reserved")) + "/" + str(state.get("spirit_max")) + " | Gold " + str(state.get("gold")) + " | Skill " + str(cast.get("name", ""))
+	if _rf_087v_float(state.get("notice_time")) > 0.0:
 		help_label.text = str(state.get("notice_text"))
 	else:
 		help_label.text = "T/E map · LeftClick/Space cast · I inventory · K skills · F forge · M maps · C character · H help"
@@ -226,7 +233,7 @@ func _inventory_text() -> String:
 		text += "  " + str(slot_key) + ": " + str(item.get("display_name", "—")) + "\n"
 	text += "\nBackpack:\n"
 	var backpack: Array = Array(state.get("backpack"))
-	var cursor: int = int(state.get("inventory_cursor"))
+	var cursor: int = _rf_087v_int(state.get("inventory_cursor"))
 	if backpack.is_empty():
 		text += "  empty\n"
 	else:
@@ -238,11 +245,129 @@ func _inventory_text() -> String:
 
 func _character_text() -> String:
 	var text: String = "CHARACTER\n"
-	text += str(state.get("class_display_name")) + " · Level " + str(state.get("level")) + " · XP " + str(int(state.get("xp"))) + "/" + str(int(state.call("xp_to_next"))) + "\n"
-	text += "HP " + str(int(state.get("max_hp"))) + " · Mana " + str(int(state.get("max_mana"))) + " · Armor " + str(int(state.get("armor"))) + " · Speed " + str(snappedf(float(state.get("move_speed")), 0.01)) + "\n\nBuild Stats:\n"
+	text += str(state.get("class_display_name")) + " · Level " + str(state.get("level")) + " · XP " + str(_rf_087v_int(state.get("xp"))) + "/" + str(_rf_087v_int(state.call("xp_to_next"))) + "\n"
+	text += "HP " + str(_rf_087v_int(state.get("max_hp"))) + " · Mana " + str(_rf_087v_int(state.get("max_mana"))) + " · Armor " + str(_rf_087v_int(state.get("armor"))) + " · Speed " + str(snappedf(_rf_087v_float(state.get("move_speed")), 0.01)) + "\n\nBuild Stats:\n"
 	for key_value: Variant in Dictionary(state.get("build_stats")).keys():
 		text += "  " + str(key_value) + ": " + str(Dictionary(state.get("build_stats"))[key_value]) + "\n"
 	return text
 
 func _help_text() -> String:
 	return "HELP\nWASD move\nLeftClick/Space cast\n1-4 select skill\nQ/R cycle skill\nZ/X flasks\nT start/leave map\nE interact/pickup/exit\nI inventory\nK skill gems\nF forge\nM maps\nC character\n"
+
+func _rf_087r_ensure_final_ui() -> void:
+	if _rf_087r_hud == null or not is_instance_valid(_rf_087r_hud):
+		_rf_087r_hud = get_node_or_null("FinalGameHUD3D")
+		if _rf_087r_hud == null:
+			_rf_087r_hud = FinalGameHUDScene.instantiate()
+			_rf_087r_hud.name = "FinalGameHUD3D"
+			add_child(_rf_087r_hud)
+	if _rf_087r_ui == null or not is_instance_valid(_rf_087r_ui):
+		_rf_087r_ui = get_node_or_null("FinalUIPanelRoot3D")
+		if _rf_087r_ui == null:
+			_rf_087r_ui = FinalUIPanelRootScene.instantiate()
+			_rf_087r_ui.name = "FinalUIPanelRoot3D"
+			add_child(_rf_087r_ui)
+	if _rf_087r_hud != null and _rf_087r_hud.has_method("bind_state"):
+		_rf_087r_hud.call("bind_state", state)
+	if _rf_087r_ui != null and _rf_087r_ui.has_method("bind_state"):
+		_rf_087r_ui.call("bind_state", state)
+
+func _rf_087r_update_final_ui(_delta: float) -> void:
+	_rf_087r_ensure_final_ui()
+	if _rf_087r_hud != null and _rf_087r_hud.has_method("update_from_state"):
+		_rf_087r_hud.call("update_from_state", state)
+	if _rf_087r_ui != null and _rf_087r_ui.has_method("update_from_state"):
+		_rf_087r_ui.call("update_from_state", state)
+	_rf_087r_hide_legacy_text_ui()
+
+func _rf_087r_hide_legacy_text_ui() -> void:
+	for name_value: Variant in ["PanelRoot", "UIPanelRoot", "SkillLoadoutPanel", "HUD"]:
+		var node: Node = get_node_or_null(str(name_value))
+		if node == null:
+			continue
+		if node == _rf_087r_hud or node == _rf_087r_ui:
+			continue
+		if node is CanvasItem:
+			(node as CanvasItem).visible = false
+		if node is Control:
+			(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _rf_087u_float(value: Variant, fallback: float = 0.0) -> float:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_FLOAT:
+			return value
+		TYPE_INT:
+			return float(value)
+		TYPE_BOOL:
+			return 1.0 if bool(value) else 0.0
+		TYPE_STRING:
+			var s: String = str(value)
+			if s.is_valid_float():
+				return s.to_float()
+			if s.is_valid_int():
+				return float(s.to_int())
+			return fallback
+		_:
+			return fallback
+
+func _rf_087u_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT:
+			return value
+		TYPE_FLOAT:
+			return int(round(value))
+		TYPE_BOOL:
+			return 1 if bool(value) else 0
+		TYPE_STRING:
+			var s: String = str(value)
+			if s.is_valid_int():
+				return s.to_int()
+			if s.is_valid_float():
+				return int(round(s.to_float()))
+			return fallback
+		_:
+			return fallback
+
+func _rf_087v_float(value: Variant, fallback: float = 0.0) -> float:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_FLOAT:
+			return value
+		TYPE_INT:
+			return float(value)
+		TYPE_BOOL:
+			return 1.0 if bool(value) else 0.0
+		TYPE_STRING:
+			var s: String = str(value)
+			if s.is_valid_float():
+				return s.to_float()
+			if s.is_valid_int():
+				return float(s.to_int())
+			return fallback
+		_:
+			return fallback
+
+func _rf_087v_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT:
+			return value
+		TYPE_FLOAT:
+			return int(round(value))
+		TYPE_BOOL:
+			return 1 if bool(value) else 0
+		TYPE_STRING:
+			var s: String = str(value)
+			if s.is_valid_int():
+				return s.to_int()
+			if s.is_valid_float():
+				return int(round(s.to_float()))
+			return fallback
+		_:
+			return fallback

@@ -1,0 +1,50 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/panels/MapPanel3D.gd" id="1_script"]
+
+[node name="MapPanel3D" type="PanelContainer"]
+script = ExtResource("1_script")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 120.0
+offset_top = 100.0
+offset_right = -120.0
+offset_bottom = -100.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="MainVBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Header" type="Label" parent="Margin/MainVBox"]
+layout_mode = 2
+text = "Maps"
+
+[node name="BodyHBox" type="HBoxContainer" parent="Margin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MapList" type="ItemList" parent="Margin/MainVBox/BodyHBox" unique_name_in_owner=true]
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 3
+
+[node name="RightVBox" type="VBoxContainer" parent="Margin/MainVBox/BodyHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DetailsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox/RightVBox" unique_name_in_owner=true]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="ActivateButton" type="Button" parent="Margin/MainVBox/BodyHBox/RightVBox" unique_name_in_owner=true]
+layout_mode = 2
+text = "Activate Selected Map"

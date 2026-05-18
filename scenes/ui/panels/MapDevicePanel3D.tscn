@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/ui/panels/MapDevicePanel3D.gd" id="1_script"]
+
+[node name="MapDevicePanel3D" type="Control"]
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+[node name="MapBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 3
+[node name="MapVBox" type="VBoxContainer" parent="HBox/MapBox"]
+[node name="MapTitle" type="Label" parent="HBox/MapBox/MapVBox"]
+text = "Map Stash"
+[node name="MapScroll" type="ScrollContainer" parent="HBox/MapBox/MapVBox"]
+size_flags_vertical = 3
+[node name="MapGrid" type="GridContainer" parent="HBox/MapBox/MapVBox/MapScroll" unique_name_in_owner=true]
+columns = 3
+[node name="DeviceBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 2
+[node name="DeviceVBox" type="VBoxContainer" parent="HBox/DeviceBox"]
+[node name="DeviceTitle" type="Label" parent="HBox/DeviceBox/DeviceVBox"]
+text = "Map Device"
+[node name="DeviceSlot" type="VBoxContainer" parent="HBox/DeviceBox/DeviceVBox" unique_name_in_owner=true]
+[node name="StartButton" type="Button" parent="HBox/DeviceBox/DeviceVBox" unique_name_in_owner=true]
+text = "Start Selected Map"
+[node name="ReenterButton" type="Button" parent="HBox/DeviceBox/DeviceVBox" unique_name_in_owner=true]
+text = "Re-enter Active Map"
+[node name="DetailBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 3
+[node name="DetailLabel" type="RichTextLabel" parent="HBox/DetailBox" unique_name_in_owner=true]
+bbcode_enabled = true
+

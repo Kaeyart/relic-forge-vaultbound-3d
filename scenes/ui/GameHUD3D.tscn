@@ -1,83 +1,140 @@
-[gd_scene format=3 uid="uid://cu0q8er6r8wkj"]
+[gd_scene format=3 uid="uid://bsaarr6yr2r5v"]
 
-[ext_resource type="Script" uid="uid://csefdtx5k5rbs" path="res://scripts/ui/GameHUD3D.gd" id="1"]
+[ext_resource type="Script" uid="uid://csefdtx5k5rbs" path="res://scripts/ui/GameHUD3D.gd" id="1_script"]
 
-[node name="GameHUD3D" type="CanvasLayer" unique_id=533760308]
-unique_name_in_owner = true
-script = ExtResource("1")
+[node name="GameHUD3D" type="CanvasLayer" unique_id=668263378]
+layer = 5
+script = ExtResource("1_script")
 
-[node name="Root" type="Control" parent="." unique_id=1375619790]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+[node name="TopLeft" type="PanelContainer" parent="." unique_id=667467520]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 340.0
+offset_bottom = 160.0
 
-[node name="StatusPanel" type="PanelContainer" parent="Root" unique_id=1792960593]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.01
-anchor_top = 0.01
-anchor_right = 0.99
-anchor_bottom = 0.065
-mouse_filter = 2
-
-[node name="StatusLabel" type="Label" parent="Root/StatusPanel" unique_id=1858671631]
-unique_name_in_owner = true
+[node name="VBox" type="VBoxContainer" parent="TopLeft" unique_id=1623438161]
 layout_mode = 2
-text = "Status"
 
-[node name="SkillPanel" type="PanelContainer" parent="Root" unique_id=890786924]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.18
-anchor_top = 0.9
-anchor_right = 0.82
-anchor_bottom = 0.985
-mouse_filter = 2
+[node name="HPLabel" type="Label" parent="TopLeft/VBox" unique_id=1491863516]
+layout_mode = 2
+text = "HP"
 
-[node name="SkillLabel" type="Label" parent="Root/SkillPanel" unique_id=699941834]
-unique_name_in_owner = true
+[node name="HPBar" type="ProgressBar" parent="TopLeft/VBox" unique_id=1552970584]
+layout_mode = 2
+show_percentage = false
+
+[node name="ManaLabel" type="Label" parent="TopLeft/VBox" unique_id=883106710]
+layout_mode = 2
+text = "Mana"
+
+[node name="ManaBar" type="ProgressBar" parent="TopLeft/VBox" unique_id=1730869688]
+layout_mode = 2
+show_percentage = false
+
+[node name="XPLabel" type="Label" parent="TopLeft/VBox" unique_id=689759347]
+layout_mode = 2
+text = "XP"
+
+[node name="XPBar" type="ProgressBar" parent="TopLeft/VBox" unique_id=2136939158]
+layout_mode = 2
+show_percentage = false
+
+[node name="ObjectivePanel" type="PanelContainer" parent="." unique_id=459882153]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -240.0
+offset_top = 16.0
+offset_right = 240.0
+offset_bottom = 80.0
+
+[node name="VBox" type="VBoxContainer" parent="ObjectivePanel" unique_id=2026805294]
+layout_mode = 2
+
+[node name="ObjectiveLabel" type="Label" parent="ObjectivePanel/VBox" unique_id=1887185201]
+layout_mode = 2
+text = "Objective"
+horizontal_alignment = 1
+
+[node name="NoticeLabel" type="Label" parent="ObjectivePanel/VBox" unique_id=512230530]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="MenuPanel" type="PanelContainer" parent="." unique_id=675883534]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -354.0
+offset_top = 16.0
+offset_right = -51.0
+offset_bottom = 64.0
+grow_horizontal = 0
+
+[node name="HBox" type="HBoxContainer" parent="MenuPanel" unique_id=1280189766]
+layout_mode = 2
+
+[node name="InventoryButton" type="Button" parent="MenuPanel/HBox" unique_id=1124950975]
+layout_mode = 2
+text = "Inventory"
+
+[node name="SkillsButton" type="Button" parent="MenuPanel/HBox" unique_id=2012065193]
 layout_mode = 2
 text = "Skills"
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="PromptLabel" type="Label" parent="Root" unique_id=1815818502]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.02
-anchor_top = 0.84
-anchor_right = 0.98
-anchor_bottom = 0.89
-text = "Prompt"
-horizontal_alignment = 1
-
-[node name="NoticeLabel" type="Label" parent="Root" unique_id=2056076404]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.32
-anchor_top = 0.08
-anchor_right = 0.68
-anchor_bottom = 0.13
-text = "Notice"
-horizontal_alignment = 1
-
-[node name="PanelBack" type="PanelContainer" parent="Root" unique_id=772505526]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.05
-anchor_top = 0.1
-anchor_right = 0.43
-anchor_bottom = 0.82
-mouse_filter = 2
-
-[node name="PanelLabel" type="RichTextLabel" parent="Root/PanelBack" unique_id=801615942]
-unique_name_in_owner = true
+[node name="ForgeButton" type="Button" parent="MenuPanel/HBox" unique_id=440645035]
 layout_mode = 2
-bbcode_enabled = true
-text = "Panel"
+text = "Forge"
+
+[node name="MapsButton" type="Button" parent="MenuPanel/HBox" unique_id=1398661485]
+layout_mode = 2
+text = "Maps"
+
+[node name="CharacterButton" type="Button" parent="MenuPanel/HBox" unique_id=1737692665]
+layout_mode = 2
+text = "Char"
+
+[node name="BottomPanel" type="PanelContainer" parent="." unique_id=406844814]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -390.0
+offset_top = -118.0
+offset_right = 390.0
+offset_bottom = -18.0
+
+[node name="HBox" type="HBoxContainer" parent="BottomPanel" unique_id=915848876]
+layout_mode = 2
+
+[node name="HealthFlask" type="Button" parent="BottomPanel/HBox" unique_id=540209898]
+custom_minimum_size = Vector2(92, 78)
+layout_mode = 2
+text = "Health
+Flask"
+
+[node name="Skill1" type="Button" parent="BottomPanel/HBox" unique_id=2138995923]
+custom_minimum_size = Vector2(110, 78)
+layout_mode = 2
+text = "1"
+
+[node name="Skill2" type="Button" parent="BottomPanel/HBox" unique_id=1619962284]
+custom_minimum_size = Vector2(110, 78)
+layout_mode = 2
+text = "2"
+
+[node name="Skill3" type="Button" parent="BottomPanel/HBox" unique_id=335919594]
+custom_minimum_size = Vector2(110, 78)
+layout_mode = 2
+text = "3"
+
+[node name="Skill4" type="Button" parent="BottomPanel/HBox" unique_id=549562780]
+custom_minimum_size = Vector2(110, 78)
+layout_mode = 2
+text = "4"
+
+[node name="ManaFlask" type="Button" parent="BottomPanel/HBox" unique_id=309305517]
+custom_minimum_size = Vector2(92, 78)
+layout_mode = 2
+text = "Mana
+Flask"

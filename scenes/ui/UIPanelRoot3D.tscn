@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://cg8kje1831a38"]
+
+[ext_resource type="Script" uid="uid://u7fs1gdpg6f6" path="res://scripts/ui/UIPanelRoot3D.gd" id="1_root"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/InventoryPanel3D.tscn" id="2_inv"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/ForgePanel3D.tscn" id="3_forge"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/SkillGemPanel3D.tscn" id="4_skill"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/MapDevicePanel3D.tscn" id="5_map"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/CharacterPanel3D.tscn" id="6_char"]
+
+[node name="UIPanelRoot3D" type="CanvasLayer" unique_id=1923931723]
+layer = 20
+script = ExtResource("1_root")
+
+[node name="Blocker" type="ColorRect" parent="." unique_id=718042658]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+color = Color(0, 0, 0, 0.58)
+
+[node name="Shell" type="PanelContainer" parent="." unique_id=1838467940]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = 72.0
+offset_right = -64.0
+offset_bottom = -64.0
+
+[node name="VBox" type="VBoxContainer" parent="Shell" unique_id=490836992]
+visible = false
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Shell/VBox" unique_id=2121111793]
+visible = false
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Shell/VBox/Header" unique_id=961739163]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Panel"
+
+[node name="CloseButton" type="Button" parent="Shell/VBox/Header" unique_id=1864465100]
+visible = false
+layout_mode = 2
+text = "Close"
+
+[node name="Tabs" type="HBoxContainer" parent="Shell/VBox" unique_id=1842901754]
+visible = false
+layout_mode = 2
+
+[node name="TabInventory" type="Button" parent="Shell/VBox/Tabs" unique_id=2073627100]
+visible = false
+layout_mode = 2
+text = "Inventory"
+
+[node name="TabForge" type="Button" parent="Shell/VBox/Tabs" unique_id=1604610227]
+visible = false
+layout_mode = 2
+text = "Forge"
+
+[node name="TabSkills" type="Button" parent="Shell/VBox/Tabs" unique_id=1090249216]
+visible = false
+layout_mode = 2
+text = "Skills"
+
+[node name="TabMaps" type="Button" parent="Shell/VBox/Tabs" unique_id=611461287]
+visible = false
+layout_mode = 2
+text = "Maps"
+
+[node name="TabCharacter" type="Button" parent="Shell/VBox/Tabs" unique_id=2048422985]
+visible = false
+layout_mode = 2
+text = "Character"
+
+[node name="Content" type="Control" parent="Shell/VBox" unique_id=1533483615]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InventoryPanel" parent="Shell/VBox/Content" unique_id=492754564 instance=ExtResource("2_inv")]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ForgePanel" parent="Shell/VBox/Content" unique_id=1840093150 instance=ExtResource("3_forge")]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="SkillsPanel" parent="Shell/VBox/Content" unique_id=1337650698 instance=ExtResource("4_skill")]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="MapsPanel" parent="Shell/VBox/Content" unique_id=1265347749 instance=ExtResource("5_map")]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CharacterPanel" parent="Shell/VBox/Content" unique_id=868194436 instance=ExtResource("6_char")]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0

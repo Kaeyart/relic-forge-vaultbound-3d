@@ -1,0 +1,60 @@
+extends Control
+
+var identity_label: RichTextLabel = null
+var offense_label: RichTextLabel = null
+var defense_label: RichTextLabel = null
+var utility_label: RichTextLabel = null
+var equipment_label: RichTextLabel = null
+
+var state_ref: Object = null
+
+func _ready() -> void:
+	_bind_nodes()
+
+func _bind_nodes() -> void:
+	identity_label = get_node_or_null("Grid/IdentityBox/IdentityLabel") as RichTextLabel
+	offense_label = get_node_or_null("Grid/OffenseBox/OffenseLabel") as RichTextLabel
+	defense_label = get_node_or_null("Grid/DefenseBox/DefenseLabel") as RichTextLabel
+	utility_label = get_node_or_null("Grid/UtilityBox/UtilityLabel") as RichTextLabel
+	equipment_label = get_node_or_null("Grid/EquipmentBox/EquipmentLabel") as RichTextLabel
+
+func _state_get(key: String, fallback: Variant = null) -> Variant:
+	if state_ref == null:
+		return fallback
+	var value: Variant = state_ref.get(key)
+	return fallback if value == null else value
+
+func update_from_state(state: Object) -> void:
+	state_ref = state
+	if identity_label == null:
+		_bind_nodes()
+	if state_ref == null:
+		return
+
+	var stats: Dictionary = Dictionary(_state_get("build_stats", {}))
+	if identity_label != null:
+		identity_label.text = "[b]%s[/b]\nLevel %s\nXP %s\nGold %s\nSpirit %s / %s" % [str(_state_get("class_display_name", "Adventurer")), str(_state_get("level", 1)), str(_state_get("xp", 0)), str(_state_get("gold", 0)), str(_state_get("spirit_reserved", 0)), str(_state_get("spirit_max", 0))]
+	if offense_label != null:
+		offense_label.text = _stat_block("Offense", stats, ["Weapon Damage", "Spell Damage", "Attack Damage", "Fire Damage", "Lightning Damage", "Void Damage", "Projectile Damage", "Cast Speed", "Attack Speed"])
+	if defense_label != null:
+		defense_label.text = _stat_block("Defense", stats, ["Max Life", "Armor", "Fire Resistance", "Lightning Resistance", "Void Resistance"])
+	if utility_label != null:
+		utility_label.text = _stat_block("Utility", stats, ["Movement Speed", "Cooldown Recovery", "Max Mana"])
+	if equipment_label != null:
+		equipment_label.text = _equipment_text()
+
+func _stat_block(title: String, stats: Dictionary, keys: Array) -> String:
+	var lines: PackedStringArray = ["[b]" + title + "[/b]"]
+	for key: Variant in keys:
+		var k: String = str(key)
+		if stats.has(k):
+			lines.append("%s: %s" % [k, str(stats[k])])
+	return "\n".join(lines)
+
+func _equipment_text() -> String:
+	var eq: Dictionary = Dictionary(_state_get("equipped", {}))
+	var lines: PackedStringArray = ["[b]Equipment[/b]"]
+	for key: Variant in eq.keys():
+		var item: Dictionary = Dictionary(eq[key])
+		lines.append("%s: %s" % [str(key), str(item.get("display_name", item.get("name", "Empty")))])
+	return "\n".join(lines)

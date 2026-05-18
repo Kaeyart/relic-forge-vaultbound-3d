@@ -1,0 +1,67 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/panels/CraftingPanel3D.gd" id="1_script"]
+
+[node name="CraftingPanel3D" type="PanelContainer"]
+script = ExtResource("1_script")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 110.0
+offset_top = 90.0
+offset_right = -110.0
+offset_bottom = -90.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="MainVBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="Header" type="Label" parent="Margin/MainVBox"]
+layout_mode = 2
+text = "Forge"
+
+[node name="BodyHBox" type="HBoxContainer" parent="Margin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ItemList" type="ItemList" parent="Margin/MainVBox/BodyHBox" unique_name_in_owner=true]
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 3
+
+[node name="CenterVBox" type="VBoxContainer" parent="Margin/MainVBox/BodyHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DetailsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox/CenterVBox" unique_name_in_owner=true]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="ButtonRow" type="HBoxContainer" parent="Margin/MainVBox/BodyHBox/CenterVBox"]
+layout_mode = 2
+
+[node name="SealButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_name_in_owner=true]
+layout_mode = 2
+text = "Seal"
+
+[node name="ReforgeButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_name_in_owner=true]
+layout_mode = 2
+text = "Reforge"
+
+[node name="PolishButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_name_in_owner=true]
+layout_mode = 2
+text = "Polish"
+
+[node name="MaterialsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox" unique_name_in_owner=true]
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 3
+bbcode_enabled = true

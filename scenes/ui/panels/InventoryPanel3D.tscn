@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/ui/panels/InventoryPanel3D.gd" id="1_script"]
+
+[node name="InventoryPanel3D" type="Control"]
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+[node name="EquipmentBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 2
+[node name="EquipmentVBox" type="VBoxContainer" parent="HBox/EquipmentBox"]
+[node name="EquipmentTitle" type="Label" parent="HBox/EquipmentBox/EquipmentVBox"]
+text = "Equipment"
+[node name="EquipmentGrid" type="GridContainer" parent="HBox/EquipmentBox/EquipmentVBox" unique_name_in_owner=true]
+columns = 2
+[node name="BackpackBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 3
+[node name="BackpackVBox" type="VBoxContainer" parent="HBox/BackpackBox"]
+[node name="BackpackTitle" type="Label" parent="HBox/BackpackBox/BackpackVBox"]
+text = "Backpack"
+[node name="BackpackScroll" type="ScrollContainer" parent="HBox/BackpackBox/BackpackVBox"]
+size_flags_vertical = 3
+[node name="BackpackGrid" type="GridContainer" parent="HBox/BackpackBox/BackpackVBox/BackpackScroll" unique_name_in_owner=true]
+columns = 4
+[node name="DetailsBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 2
+[node name="DetailsVBox" type="VBoxContainer" parent="HBox/DetailsBox"]
+[node name="DetailsLabel" type="RichTextLabel" parent="HBox/DetailsBox/DetailsVBox" unique_name_in_owner=true]
+size_flags_vertical = 3
+bbcode_enabled = true
+[node name="CompareLabel" type="RichTextLabel" parent="HBox/DetailsBox/DetailsVBox" unique_name_in_owner=true]
+size_flags_vertical = 2
+bbcode_enabled = true
+[node name="EquipButton" type="Button" parent="HBox/DetailsBox/DetailsVBox" unique_name_in_owner=true]
+text = "Equip Selected"
+

@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/ui/panels/ForgePanel3D.gd" id="1_script"]
+
+[node name="ForgePanel3D" type="Control"]
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+[node name="ItemsBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 3
+[node name="ItemsVBox" type="VBoxContainer" parent="HBox/ItemsBox"]
+[node name="ItemsTitle" type="Label" parent="HBox/ItemsBox/ItemsVBox"]
+text = "Craftable Items"
+[node name="ItemsScroll" type="ScrollContainer" parent="HBox/ItemsBox/ItemsVBox"]
+size_flags_vertical = 3
+[node name="CraftableGrid" type="GridContainer" parent="HBox/ItemsBox/ItemsVBox/ItemsScroll" unique_name_in_owner=true]
+columns = 3
+[node name="ForgeBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 2
+[node name="ForgeVBox" type="VBoxContainer" parent="HBox/ForgeBox"]
+[node name="ForgeTitle" type="Label" parent="HBox/ForgeBox/ForgeVBox"]
+text = "Forge Input"
+[node name="ForgeSlot" type="VBoxContainer" parent="HBox/ForgeBox/ForgeVBox" unique_name_in_owner=true]
+[node name="SealButton" type="Button" parent="HBox/ForgeBox/ForgeVBox" unique_name_in_owner=true]
+text = "Seal"
+[node name="ReforgeButton" type="Button" parent="HBox/ForgeBox/ForgeVBox" unique_name_in_owner=true]
+text = "Reforge"
+[node name="PolishButton" type="Button" parent="HBox/ForgeBox/ForgeVBox" unique_name_in_owner=true]
+text = "Polish"
+[node name="ApplyButton" type="Button" parent="HBox/ForgeBox/ForgeVBox" unique_name_in_owner=true]
+text = "Apply"
+[node name="InfoBox" type="PanelContainer" parent="HBox"]
+size_flags_horizontal = 3
+[node name="InfoVBox" type="VBoxContainer" parent="HBox/InfoBox"]
+[node name="PreviewLabel" type="RichTextLabel" parent="HBox/InfoBox/InfoVBox" unique_name_in_owner=true]
+size_flags_vertical = 3
+bbcode_enabled = true
+[node name="MaterialsLabel" type="RichTextLabel" parent="HBox/InfoBox/InfoVBox" unique_name_in_owner=true]
+size_flags_vertical = 2
+bbcode_enabled = true
+
