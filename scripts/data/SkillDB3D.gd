@@ -67,20 +67,34 @@ static func compute_skill(state: Object, skill_id: String) -> Dictionary:
 	var damage: float = float(data.get("damage", 1.0))
 	var speed: float = float(data.get("speed", 0.0))
 	var radius: float = float(data.get("radius", 0.5))
+	var cooldown: float = float(data.get("cooldown", 0.2))
+	var cost: float = float(data.get("cost", 0.0))
 	var extra_projectiles: int = 0
 	var chain_count: int = 0
 	var build_stats: Dictionary = _collect_build_stats(state)
+
+	# Flat additive power. Early 3D itemization intentionally uses flat values so changes are visible.
 	damage += float(build_stats.get("generic_damage", 0.0))
 	if tags.has("spell"):
 		damage += float(build_stats.get("spell_damage", 0.0))
 	if tags.has("attack"):
 		damage += float(build_stats.get("attack_damage", 0.0))
+	if tags.has("projectile"):
+		damage += float(build_stats.get("projectile_damage", 0.0))
 	if tags.has("fire"):
 		damage += float(build_stats.get("fire_damage", 0.0))
 	if tags.has("lightning"):
 		damage += float(build_stats.get("lightning_damage", 0.0))
 	if tags.has("void"):
 		damage += float(build_stats.get("void_damage", 0.0))
+
+	# Speed/cooldown stats are fractional bonuses.
+	if tags.has("spell"):
+		cooldown /= max(0.25, 1.0 + float(build_stats.get("cast_speed", 0.0)))
+	if tags.has("attack"):
+		cooldown /= max(0.25, 1.0 + float(build_stats.get("attack_speed", 0.0)))
+	cooldown /= max(0.25, 1.0 + float(build_stats.get("cooldown_recovery", 0.0)))
+
 	var mods_for_skill: Array = []
 	if state != null:
 		var all_mods: Dictionary = Dictionary(state.get("skill_mods"))
@@ -100,20 +114,26 @@ static func compute_skill(state: Object, skill_id: String) -> Dictionary:
 	data["damage"] = max(1.0, damage)
 	data["speed"] = max(0.0, speed)
 	data["radius"] = max(0.1, radius)
+	data["cooldown"] = max(0.05, cooldown)
+	data["cost"] = max(0.0, cost)
 	data["tags"] = tags
 	data["extra_projectiles"] = extra_projectiles
 	data["chain_count"] = chain_count
 	return data
 
 static func _collect_build_stats(state: Object) -> Dictionary:
-	var result: Dictionary = {}
 	if state == null:
-		return result
+		return {}
+	var direct: Variant = state.get("build_stats")
+	if typeof(direct) == TYPE_DICTIONARY and not Dictionary(direct).is_empty():
+		return Dictionary(direct).duplicate(true)
+	var result: Dictionary = {}
 	var equipped: Dictionary = Dictionary(state.get("equipped"))
 	for slot_value: Variant in equipped.values():
 		if typeof(slot_value) != TYPE_DICTIONARY:
 			continue
-		var stats: Dictionary = Dictionary(Dictionary(slot_value).get("stats", {}))
+		var item: Dictionary = Dictionary(slot_value)
+		var stats: Dictionary = Dictionary(item.get("total_stats", item.get("stats", {})))
 		for stat_value: Variant in stats.keys():
 			var stat: String = str(stat_value)
 			result[stat] = float(result.get(stat, 0.0)) + float(stats[stat_value])

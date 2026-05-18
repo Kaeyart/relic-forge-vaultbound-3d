@@ -1,7 +1,8 @@
 class_name RVGameState3D
 extends RefCounted
 
-const SAVE_VERSION: int = 3
+const SAVE_VERSION: int = 4
+const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 
 var mode: String = "hub" # hub / combat
 var notice_text: String = ""
@@ -27,6 +28,11 @@ var player_hp: float = 120.0
 var max_hp: float = 120.0
 var player_mana: float = 100.0
 var max_mana: float = 100.0
+var armor: float = 0.0
+var fire_resist: float = 0.0
+var lightning_resist: float = 0.0
+var void_resist: float = 0.0
+var build_stats: Dictionary = {}
 var invuln: float = 0.0
 
 var health_flask_charges: int = 3
@@ -97,7 +103,16 @@ func ensure_defaults() -> void:
 	if map_entries_remaining <= 0:
 		current_map.clear()
 		active_map_snapshot.clear()
+	_normalize_inventory()
 	recompute_stats()
+
+func _normalize_inventory() -> void:
+	for slot_name: String in equipped.keys():
+		if typeof(equipped[slot_name]) == TYPE_DICTIONARY and not Dictionary(equipped[slot_name]).is_empty():
+			equipped[slot_name] = ItemDBScript.normalize_item(Dictionary(equipped[slot_name]))
+	for i: int in range(backpack.size()):
+		backpack[i] = ItemDBScript.normalize_item(Dictionary(backpack[i]))
+	inventory_cursor = clampi(inventory_cursor, 0, max(0, backpack.size() - 1))
 
 func recompute_stats() -> void:
 	var old_hp_ratio: float = 1.0 if max_hp <= 0.0 else player_hp / max_hp
@@ -105,16 +120,35 @@ func recompute_stats() -> void:
 	max_hp = 120.0 + float(level - 1) * 6.0
 	max_mana = 100.0 + float(level - 1) * 4.0
 	player_speed = 6.4
+	armor = 0.0
+	fire_resist = 0.0
+	lightning_resist = 0.0
+	void_resist = 0.0
+	build_stats = {}
 	for slot_name: String in equipped.keys():
 		var item_value: Variant = equipped[slot_name]
 		if typeof(item_value) != TYPE_DICTIONARY:
 			continue
-		var stats: Dictionary = Dictionary(Dictionary(item_value).get("stats", {}))
-		max_hp += float(stats.get("max_life", 0.0))
-		max_mana += float(stats.get("max_mana", 0.0))
-		player_speed += float(stats.get("move_speed_flat", 0.0))
+		var item: Dictionary = ItemDBScript.normalize_item(Dictionary(item_value))
+		if item.is_empty():
+			continue
+		equipped[slot_name] = item
+		_merge_build_stats(Dictionary(item.get("total_stats", item.get("stats", {}))))
+	max_hp += float(build_stats.get("max_life", 0.0))
+	max_mana += float(build_stats.get("max_mana", 0.0))
+	player_speed += float(build_stats.get("move_speed_flat", 0.0))
+	armor = float(build_stats.get("armor", 0.0))
+	fire_resist = float(build_stats.get("fire_resist", 0.0))
+	lightning_resist = float(build_stats.get("lightning_resist", 0.0))
+	void_resist = float(build_stats.get("void_resist", 0.0))
+	player_speed = clampf(player_speed, 3.5, 10.5)
 	player_hp = clampf(max_hp * old_hp_ratio, 1.0, max_hp)
 	player_mana = clampf(max_mana * old_mana_ratio, 0.0, max_mana)
+
+func _merge_build_stats(stats: Dictionary) -> void:
+	for key_value: Variant in stats.keys():
+		var key: String = str(key_value)
+		build_stats[key] = float(build_stats.get(key, 0.0)) + float(stats[key_value])
 
 func full_restore() -> void:
 	recompute_stats()
@@ -155,7 +189,8 @@ func use_health_flask() -> bool:
 	if health_flask_charges <= 0 or player_hp >= max_hp:
 		return false
 	health_flask_charges -= 1
-	player_hp = min(max_hp, player_hp + max_hp * 0.45)
+	var recovery_more: float = 1.0 + float(build_stats.get("flask_recovery", 0.0))
+	player_hp = min(max_hp, player_hp + max_hp * 0.45 * recovery_more)
 	add_notice("Health flask")
 	return true
 
@@ -163,7 +198,8 @@ func use_mana_flask() -> bool:
 	if mana_flask_charges <= 0 or player_mana >= max_mana:
 		return false
 	mana_flask_charges -= 1
-	player_mana = min(max_mana, player_mana + max_mana * 0.55)
+	var recovery_more: float = 1.0 + float(build_stats.get("flask_recovery", 0.0))
+	player_mana = min(max_mana, player_mana + max_mana * 0.55 * recovery_more)
 	add_notice("Mana flask")
 	return true
 
@@ -177,8 +213,10 @@ func refill_flasks_from_kill(is_elite: bool, is_boss: bool) -> void:
 			mana_flask_charges += 1
 
 func add_item(item: Dictionary) -> void:
-	backpack.append(item.duplicate(true))
-	last_loot_text = "+ " + str(item.get("name", "Item"))
+	var normalized: Dictionary = ItemDBScript.normalize_item(item)
+	backpack.append(normalized)
+	inventory_cursor = clampi(inventory_cursor, 0, max(0, backpack.size() - 1))
+	last_loot_text = "+ " + str(normalized.get("name", "Item"))
 
 func add_material(id: String, amount: int) -> void:
 	materials[id] = int(materials.get(id, 0)) + amount
@@ -242,7 +280,7 @@ func apply_save_dict(data: Dictionary) -> void:
 		backpack.clear()
 		for item_value: Variant in Array(data.get("backpack", [])):
 			if typeof(item_value) == TYPE_DICTIONARY:
-				backpack.append(Dictionary(item_value))
+				backpack.append(ItemDBScript.normalize_item(Dictionary(item_value)))
 	if typeof(data.get("materials", {})) == TYPE_DICTIONARY:
 		materials.merge(Dictionary(data.get("materials", {})), true)
 	if typeof(data.get("map_stash", [])) == TYPE_ARRAY:

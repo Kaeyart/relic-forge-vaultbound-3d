@@ -1,95 +1,135 @@
 class_name RVAffixDB3D
 extends RefCounted
 
-static var _cache_ready: bool = false
-static var _affixes: Dictionary = {}
+# Strict 3D ARPG affix database.
+# Affixes are domain-gated by item_type / slot / tags / item level.
+# This is intentionally conservative: no projectile stats on chest armor, no armor rolls on weapons, etc.
 
-static func all_affixes() -> Dictionary:
-	_ensure_cache()
-	return _affixes
+static func prefixes() -> Array[Dictionary]:
+	return [
+		# Weapons / offensive focuses
+		{"id": "p_weapon_phys_01", "name": "Tempered", "kind": "prefix", "group": "weapon_physical_damage", "item_types": ["weapon"], "tags": ["attack", "melee", "weapon"], "stats": {"attack_damage": [5.0, 12.0]}, "level": 1, "weight": 110},
+		{"id": "p_weapon_spell_01", "name": "Runed", "kind": "prefix", "group": "weapon_spell_damage", "item_types": ["weapon", "offhand"], "tags": ["spell", "caster"], "stats": {"spell_damage": [5.0, 12.0]}, "level": 1, "weight": 115},
+		{"id": "p_weapon_fire_01", "name": "Cindered", "kind": "prefix", "group": "element_fire_damage", "item_types": ["weapon", "offhand", "jewelry"], "tags": ["fire"], "stats": {"fire_damage": [5.0, 13.0]}, "level": 1, "weight": 95},
+		{"id": "p_weapon_lightning_01", "name": "Storm-Etched", "kind": "prefix", "group": "element_lightning_damage", "item_types": ["weapon", "offhand", "jewelry"], "tags": ["lightning"], "stats": {"lightning_damage": [5.0, 14.0]}, "level": 2, "weight": 90},
+		{"id": "p_weapon_void_01", "name": "Hollow", "kind": "prefix", "group": "element_void_damage", "item_types": ["weapon", "offhand", "jewelry"], "tags": ["void"], "stats": {"void_damage": [6.0, 15.0]}, "level": 3, "weight": 80},
+		{"id": "p_weapon_projectile_01", "name": "Splintering", "kind": "prefix", "group": "projectile_damage", "item_types": ["weapon", "offhand", "jewelry"], "tags": ["projectile"], "stats": {"projectile_damage": [4.0, 10.0]}, "level": 2, "weight": 70},
 
-static func affix(affix_id: String) -> Dictionary:
-	_ensure_cache()
-	return Dictionary(_affixes.get(affix_id, {})).duplicate(true)
+		# Armor / defense
+		{"id": "p_armor_life_01", "name": "Stalwart", "kind": "prefix", "group": "maximum_life", "item_types": ["armor", "jewelry", "relic"], "tags": ["life", "defense"], "stats": {"max_life": [16.0, 38.0]}, "level": 1, "weight": 130},
+		{"id": "p_armor_armor_01", "name": "Plated", "kind": "prefix", "group": "armor_rating", "item_types": ["armor", "relic"], "tags": ["armor", "defense"], "stats": {"armor": [12.0, 34.0]}, "level": 1, "weight": 120},
+		{"id": "p_mana_01", "name": "Lucid", "kind": "prefix", "group": "maximum_mana", "item_types": ["armor", "jewelry", "offhand", "relic"], "tags": ["mana", "caster"], "stats": {"max_mana": [12.0, 32.0]}, "level": 1, "weight": 110},
+		{"id": "p_hybrid_life_mana_01", "name": "Bound", "kind": "prefix", "group": "hybrid_life_mana", "item_types": ["jewelry", "relic"], "tags": ["life", "mana"], "stats": {"max_life": [8.0, 18.0], "max_mana": [8.0, 18.0]}, "level": 2, "weight": 75},
+		{"id": "p_boot_speed_01", "name": "Swift", "kind": "prefix", "group": "movement_speed", "slots": ["boots"], "tags": ["speed"], "stats": {"move_speed_flat": [0.25, 0.65]}, "level": 1, "weight": 125},
 
-static func roll_affixes(item: Dictionary, rarity: String, rng: RandomNumberGenerator) -> Array[Dictionary]:
-	var count: int = 0
-	match rarity:
-		"Magic": count = rng.randi_range(1, 2)
-		"Rare": count = rng.randi_range(3, 5)
-		_: count = 0
-	var rolled: Array[Dictionary] = []
-	var used_groups: Array[String] = []
-	for i: int in range(count):
-		var next_affix: Dictionary = roll_affix(item, used_groups, rng)
-		if next_affix.is_empty():
-			break
-		rolled.append(next_affix)
-		used_groups.append(str(next_affix.get("group", next_affix.get("id", ""))))
+		# Jewelry / utility
+		{"id": "p_jewel_generic_damage_01", "name": "Potent", "kind": "prefix", "group": "generic_damage", "item_types": ["jewelry", "relic"], "tags": ["damage"], "stats": {"generic_damage": [3.0, 8.0]}, "level": 1, "weight": 95},
+		{"id": "p_jewel_cooldown_01", "name": "Quickened", "kind": "prefix", "group": "cooldown_recovery", "item_types": ["jewelry", "relic", "offhand"], "tags": ["cooldown", "device"], "stats": {"cooldown_recovery": [0.03, 0.08]}, "level": 3, "weight": 55}
+	]
+
+static func suffixes() -> Array[Dictionary]:
+	return [
+		# Resists and survival suffixes
+		{"id": "s_fire_res_01", "name": "of Ash Ward", "kind": "suffix", "group": "fire_resist", "item_types": ["armor", "jewelry", "relic", "offhand"], "tags": ["resistance", "fire", "defense"], "stats": {"fire_resist": [8.0, 22.0]}, "level": 1, "weight": 110},
+		{"id": "s_lightning_res_01", "name": "of Grounding", "kind": "suffix", "group": "lightning_resist", "item_types": ["armor", "jewelry", "relic", "offhand"], "tags": ["resistance", "lightning", "defense"], "stats": {"lightning_resist": [8.0, 22.0]}, "level": 1, "weight": 105},
+		{"id": "s_void_res_01", "name": "of the Veil", "kind": "suffix", "group": "void_resist", "item_types": ["armor", "jewelry", "relic", "offhand"], "tags": ["resistance", "void", "defense"], "stats": {"void_resist": [8.0, 22.0]}, "level": 2, "weight": 85},
+		{"id": "s_all_res_01", "name": "of Warding", "kind": "suffix", "group": "all_resist", "item_types": ["jewelry", "relic", "offhand"], "tags": ["resistance", "defense"], "stats": {"fire_resist": [4.0, 10.0], "lightning_resist": [4.0, 10.0], "void_resist": [4.0, 10.0]}, "level": 3, "weight": 55},
+
+		# Weapon / caster suffixes
+		{"id": "s_cast_speed_01", "name": "of Invocation", "kind": "suffix", "group": "cast_speed", "item_types": ["weapon", "offhand", "jewelry"], "tags": ["spell", "caster"], "stats": {"cast_speed": [0.04, 0.10]}, "level": 1, "weight": 85},
+		{"id": "s_attack_speed_01", "name": "of Readiness", "kind": "suffix", "group": "attack_speed", "item_types": ["weapon", "jewelry"], "tags": ["attack", "melee"], "stats": {"attack_speed": [0.04, 0.11]}, "level": 1, "weight": 85},
+		{"id": "s_crit_01", "name": "of Precision", "kind": "suffix", "group": "critical_chance", "item_types": ["weapon", "jewelry", "offhand"], "tags": ["damage"], "stats": {"crit_chance": [0.02, 0.06]}, "level": 2, "weight": 65},
+
+		# Flask and utility suffixes
+		{"id": "s_flask_life_01", "name": "of Recovery", "kind": "suffix", "group": "flask_recovery", "slots": ["belt", "relic", "amulet"], "item_types": ["relic", "jewelry"], "tags": ["flask", "utility"], "stats": {"flask_recovery": [0.06, 0.14]}, "level": 2, "weight": 65},
+		{"id": "s_resource_regen_01", "name": "of Flow", "kind": "suffix", "group": "mana_regen", "item_types": ["jewelry", "offhand", "relic"], "tags": ["mana", "caster"], "stats": {"mana_regen": [0.8, 2.2]}, "level": 1, "weight": 75}
+	]
+
+static func affixes_for(item: Dictionary, kind: String) -> Array[Dictionary]:
+	var source: Array[Dictionary] = prefixes() if kind == "prefix" else suffixes()
+	var result: Array[Dictionary] = []
+	var item_level: int = int(item.get("item_level", item.get("level", 1)))
+	var item_type: String = str(item.get("item_type", item.get("type", "")))
+	var slot: String = str(item.get("slot", ""))
+	var tags: Array = Array(item.get("tags", item.get("base_tags", [])))
+	for affix: Dictionary in source:
+		if int(affix.get("level", 1)) > item_level:
+			continue
+		if not _domain_matches(affix, item_type, slot):
+			continue
+		if not _tags_match(affix, tags):
+			continue
+		result.append(affix.duplicate(true))
+	return result
+
+static func roll_affix(item: Dictionary, kind: String, used_groups: Array, rng: RandomNumberGenerator) -> Dictionary:
+	var pool: Array[Dictionary] = []
+	for affix: Dictionary in affixes_for(item, kind):
+		if used_groups.has(str(affix.get("group", affix.get("id", "")))):
+			continue
+		pool.append(affix)
+	if pool.is_empty():
+		return {}
+	var total_weight: int = 0
+	for affix2: Dictionary in pool:
+		total_weight += max(1, int(affix2.get("weight", 100)))
+	var roll: int = rng.randi_range(1, max(1, total_weight))
+	var cursor: int = 0
+	for chosen: Dictionary in pool:
+		cursor += max(1, int(chosen.get("weight", 100)))
+		if roll <= cursor:
+			return chosen.duplicate(true)
+	return pool[0].duplicate(true)
+
+static func apply_affix_roll(item: Dictionary, affix: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+	if affix.is_empty():
+		return {}
+	var rolled: Dictionary = {
+		"id": str(affix.get("id", "")),
+		"name": str(affix.get("name", "")),
+		"kind": str(affix.get("kind", "prefix")),
+		"group": str(affix.get("group", affix.get("id", ""))),
+		"tier": _tier_for_level(int(item.get("item_level", item.get("level", 1)))) ,
+		"stats": {}
+	}
+	var out_stats: Dictionary = {}
+	var stat_ranges: Dictionary = Dictionary(affix.get("stats", {}))
+	for stat_key: Variant in stat_ranges.keys():
+		var stat_name: String = str(stat_key)
+		var range_value: Variant = stat_ranges[stat_key]
+		var amount: float = 0.0
+		if typeof(range_value) == TYPE_ARRAY:
+			var arr: Array = Array(range_value)
+			var min_value: float = float(arr[0]) if arr.size() > 0 else 0.0
+			var max_value: float = float(arr[1]) if arr.size() > 1 else min_value
+			amount = rng.randf_range(min_value, max_value)
+		else:
+			amount = float(range_value)
+		out_stats[stat_name] = snappedf(amount, 0.01)
+	rolled["stats"] = out_stats
 	return rolled
 
-static func roll_affix(item: Dictionary, used_groups: Array[String], rng: RandomNumberGenerator) -> Dictionary:
-	_ensure_cache()
-	var candidates: Array[Dictionary] = []
-	var allowed_tags: Array = Array(item.get("allowed_affix_tags", []))
-	var item_level: int = int(item.get("item_level", 1))
-	var slot: String = str(item.get("slot", ""))
-	var item_type: String = str(item.get("item_type", ""))
-	for key: Variant in _affixes.keys():
-		var data: Dictionary = Dictionary(_affixes[key])
-		if int(data.get("min_item_level", 1)) > item_level:
-			continue
-		if used_groups.has(str(data.get("group", data.get("id", "")))):
-			continue
-		if not _slot_allowed(data, slot, item_type):
-			continue
-		if not _tags_intersect(allowed_tags, Array(data.get("tags", []))):
-			continue
-		candidates.append(data)
-	if candidates.is_empty():
-		return {}
-	var picked: Dictionary = candidates[rng.randi_range(0, candidates.size() - 1)].duplicate(true)
-	var value_min: float = float(picked.get("value_min", 1.0))
-	var value_max: float = float(picked.get("value_max", value_min))
-	picked["value"] = snappedf(rng.randf_range(value_min, value_max), 0.1)
-	return picked
+static func _domain_matches(affix: Dictionary, item_type: String, slot: String) -> bool:
+	var types: Array = Array(affix.get("item_types", []))
+	var slots: Array = Array(affix.get("slots", []))
+	var type_ok: bool = types.is_empty() or types.has(item_type)
+	var slot_ok: bool = slots.is_empty() or slots.has(slot)
+	return type_ok and slot_ok
 
-static func apply_affixes_to_stats(base_stats: Dictionary, affixes: Array) -> Dictionary:
-	var out: Dictionary = base_stats.duplicate(true)
-	for value: Variant in affixes:
-		if typeof(value) != TYPE_DICTIONARY:
-			continue
-		var data: Dictionary = Dictionary(value)
-		var stat: String = str(data.get("stat", ""))
-		if stat == "":
-			continue
-		out[stat] = float(out.get(stat, 0.0)) + float(data.get("value", 0.0))
-	return out
-
-static func _slot_allowed(data: Dictionary, slot: String, item_type: String) -> bool:
-	var slots: Array = Array(data.get("slots", []))
-	var types: Array = Array(data.get("item_types", []))
-	return slots.has(slot) or types.has(item_type)
-
-static func _tags_intersect(a: Array, b: Array) -> bool:
-	for tag_value: Variant in a:
-		if b.has(str(tag_value)):
+static func _tags_match(affix: Dictionary, item_tags: Array) -> bool:
+	var required_tags: Array = Array(affix.get("tags", []))
+	if required_tags.is_empty():
+		return true
+	for tag_value: Variant in required_tags:
+		if item_tags.has(str(tag_value)):
 			return true
 	return false
 
-static func _ensure_cache() -> void:
-	if _cache_ready:
-		return
-	_cache_ready = true
-	_affixes = {
-		"life_flat": {"id":"life_flat", "name":"of Vitality", "group":"life", "stat":"max_hp", "value_min":18, "value_max":45, "min_item_level":1, "slots":["head","chest","gloves","boots","amulet","ring1","ring2","relic"], "item_types":["armor","jewelry"], "tags":["life","defense"]},
-		"mana_flat": {"id":"mana_flat", "name":"of Focus", "group":"mana", "stat":"max_mana", "value_min":12, "value_max":38, "min_item_level":1, "slots":["weapon","offhand","amulet","ring1","ring2","relic"], "item_types":["weapon","jewelry"], "tags":["mana","caster"]},
-		"fire_damage": {"id":"fire_damage", "name":"Scorched", "group":"fire_damage", "stat":"fire_damage_pct", "value_min":6, "value_max":22, "min_item_level":1, "slots":["weapon","offhand","amulet","ring1","ring2"], "item_types":["weapon","jewelry"], "tags":["fire","elemental","damage","spell"]},
-		"lightning_damage": {"id":"lightning_damage", "name":"Stormbound", "group":"lightning_damage", "stat":"lightning_damage_pct", "value_min":6, "value_max":22, "min_item_level":1, "slots":["weapon","offhand","amulet","ring1","ring2"], "item_types":["weapon","jewelry"], "tags":["lightning","elemental","damage","spell"]},
-		"void_damage": {"id":"void_damage", "name":"Hollow", "group":"void_damage", "stat":"void_damage_pct", "value_min":7, "value_max":24, "min_item_level":3, "slots":["weapon","offhand","amulet","ring1","ring2","relic"], "item_types":["weapon","jewelry"], "tags":["void","damage","spell"]},
-		"spell_damage": {"id":"spell_damage", "name":"Arcanist's", "group":"spell_damage", "stat":"spell_damage_pct", "value_min":5, "value_max":18, "min_item_level":1, "slots":["weapon","offhand","amulet"], "item_types":["weapon","jewelry"], "tags":["spell","damage","caster"]},
-		"attack_damage": {"id":"attack_damage", "name":"Bloodied", "group":"attack_damage", "stat":"attack_damage_pct", "value_min":5, "value_max":20, "min_item_level":1, "slots":["weapon","gloves","amulet","ring1","ring2"], "item_types":["weapon","armor","jewelry"], "tags":["attack","melee","damage"]},
-		"armor_flat": {"id":"armor_flat", "name":"Plated", "group":"armor", "stat":"armor", "value_min":15, "value_max":60, "min_item_level":1, "slots":["head","chest","gloves","boots"], "item_types":["armor"], "tags":["armor","defense"]},
-		"move_speed": {"id":"move_speed", "name":"Fleet", "group":"move_speed", "stat":"move_speed", "value_min":0.15, "value_max":0.55, "min_item_level":1, "slots":["boots"], "item_types":["armor"], "tags":["speed","movement"]},
-		"cooldown_recovery": {"id":"cooldown_recovery", "name":"Quickened", "group":"cooldown", "stat":"cooldown_recovery_pct", "value_min":4, "value_max":14, "min_item_level":4, "slots":["boots","gloves","amulet","relic"], "item_types":["armor","jewelry"], "tags":["cooldown","skill"]}
-	}
+static func _tier_for_level(item_level: int) -> int:
+	if item_level >= 20:
+		return 4
+	if item_level >= 12:
+		return 3
+	if item_level >= 6:
+		return 2
+	return 1
