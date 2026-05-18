@@ -1,32 +1,86 @@
 [gd_scene load_steps=2 format=3]
+
 [ext_resource type="Script" path="res://scripts/ui/panels/CharacterPanel3D.gd" id="1_script"]
 
 [node name="CharacterPanel3D" type="Control"]
 script = ExtResource("1_script")
-
-[node name="Grid" type="GridContainer" parent="."]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-columns = 3
-[node name="IdentityBox" type="PanelContainer" parent="Grid"]
-[node name="IdentityLabel" type="RichTextLabel" parent="Grid/IdentityBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(280, 220)
-bbcode_enabled = true
-[node name="OffenseBox" type="PanelContainer" parent="Grid"]
-[node name="OffenseLabel" type="RichTextLabel" parent="Grid/OffenseBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(280, 220)
-bbcode_enabled = true
-[node name="DefenseBox" type="PanelContainer" parent="Grid"]
-[node name="DefenseLabel" type="RichTextLabel" parent="Grid/DefenseBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(280, 220)
-bbcode_enabled = true
-[node name="UtilityBox" type="PanelContainer" parent="Grid"]
-[node name="UtilityLabel" type="RichTextLabel" parent="Grid/UtilityBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(280, 220)
-bbcode_enabled = true
-[node name="EquipmentBox" type="PanelContainer" parent="Grid"]
-[node name="EquipmentLabel" type="RichTextLabel" parent="Grid/EquipmentBox" unique_name_in_owner=true]
-custom_minimum_size = Vector2(560, 220)
-bbcode_enabled = true
+grow_horizontal = 2
+grow_vertical = 2
 
+[node name="Grid" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 3
+
+[node name="IdentityBox" type="PanelContainer" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="IdentityLabel" type="RichTextLabel" parent="Grid/IdentityBox"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Identity"
+
+[node name="OffenseBox" type="PanelContainer" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="OffenseLabel" type="RichTextLabel" parent="Grid/OffenseBox"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Offense"
+
+[node name="DefenseBox" type="PanelContainer" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DefenseLabel" type="RichTextLabel" parent="Grid/DefenseBox"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Defense"
+
+[node name="UtilityBox" type="PanelContainer" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="UtilityLabel" type="RichTextLabel" parent="Grid/UtilityBox"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Utility"
+
+[node name="EquipmentBox" type="PanelContainer" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EquipmentLabel" type="RichTextLabel" parent="Grid/EquipmentBox"]
+custom_minimum_size = Vector2(560, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Equipment"
