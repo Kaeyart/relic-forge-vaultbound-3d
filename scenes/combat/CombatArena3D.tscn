@@ -2,3 +2,7 @@
 [ext_resource type="Script" path="res://scripts/combat/CombatArena3D.gd" id="1"]
 [node name="CombatArena3D" type="Node3D"]
 script = ExtResource("1")
+[node name="DecorRoot" type="Node3D" parent="."]
+[node name="EnemiesRoot" type="Node3D" parent="."]
+[node name="ProjectilesRoot" type="Node3D" parent="."]
+[node name="LootRoot" type="Node3D" parent="."]

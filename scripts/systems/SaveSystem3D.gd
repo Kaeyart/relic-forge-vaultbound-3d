@@ -1,26 +1,25 @@
-class_name RVSaveSystem3D
+# PATCH_087L: class_name removed to avoid Godot global-class collision. Use preload aliases.
 extends RefCounted
 
-const SAVE_PATH: String = "user://relic_forge_vaultbound_3d.save"
+const SAVE_PATH: String = "user://relic_forge_3d_save.json"
 
 static func save(state: Object) -> void:
-	if state == null or not state.has_method("to_save_dict"):
-		return
+	if state == null: return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file == null:
-		return
+	if file == null: return
 	file.store_string(JSON.stringify(state.call("to_save_dict"), "\t"))
 
-static func load_into(state: Object) -> bool:
-	if state == null or not FileAccess.file_exists(SAVE_PATH):
-		return false
+static func load_into(state: Object) -> void:
+	if state == null: return
+	if not FileAccess.file_exists(SAVE_PATH):
+		state.call("init_new")
+		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if file == null:
-		return false
+		state.call("init_new")
+		return
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return false
-	if state.has_method("apply_save_dict"):
+	if typeof(parsed) == TYPE_DICTIONARY:
 		state.call("apply_save_dict", Dictionary(parsed))
-		return true
-	return false
+	else:
+		state.call("init_new")

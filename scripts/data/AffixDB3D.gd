@@ -1,74 +1,70 @@
 class_name RVAffixDB3D
 extends RefCounted
 
-static func affixes() -> Dictionary:
-	return {
-		"squire_life": {"name":"Squire's", "type":"prefix", "tags":["armor","jewelry","life"], "min_level":1, "stats":{"maximum_life":18.0}},
-		"knight_life": {"name":"Knight's", "type":"prefix", "tags":["armor","jewelry","life"], "min_level":5, "stats":{"maximum_life":34.0}},
-		"mana_thread": {"name":"Threaded", "type":"prefix", "tags":["caster","jewelry","mana"], "min_level":1, "stats":{"maximum_mana":16.0}},
-		"mana_font": {"name":"Fonted", "type":"prefix", "tags":["caster","jewelry","mana"], "min_level":6, "stats":{"maximum_mana":32.0}},
-		"ironhide": {"name":"Ironhide", "type":"prefix", "tags":["armor","defense"], "min_level":1, "stats":{"armor":16.0}},
-		"bastion": {"name":"Bastion", "type":"prefix", "tags":["armor","defense"], "min_level":8, "stats":{"armor":38.0}},
-		"ember_spell": {"name":"Embercall", "type":"prefix", "tags":["weapon","caster","fire"], "min_level":1, "stats":{"spell_damage":0.09,"fire_damage":0.08}},
-		"storm_spell": {"name":"Stormcall", "type":"prefix", "tags":["weapon","caster","lightning"], "min_level":1, "stats":{"spell_damage":0.08,"lightning_damage":0.09}},
-		"void_spell": {"name":"Abyssal", "type":"prefix", "tags":["weapon","caster","void"], "min_level":1, "stats":{"spell_damage":0.08,"void_damage":0.09}},
-		"blade_damage": {"name":"Sharpened", "type":"prefix", "tags":["weapon","melee","attack"], "min_level":1, "stats":{"attack_damage":0.12}},
-		"projectile_focus": {"name":"Piercer's", "type":"suffix", "tags":["weapon","projectile"], "min_level":1, "stats":{"projectile_damage":0.11}},
-		"cast_speed": {"name":"of Quickening", "type":"suffix", "tags":["weapon","caster","jewelry"], "min_level":1, "stats":{"cast_speed":0.08}},
-		"attack_speed": {"name":"of Tempo", "type":"suffix", "tags":["weapon","attack"], "min_level":1, "stats":{"attack_speed":0.08}},
-		"fire_res": {"name":"of Ash Warding", "type":"suffix", "tags":["armor","jewelry","resistance"], "min_level":1, "stats":{"fire_resistance":0.11}},
-		"lightning_res": {"name":"of Copper Warding", "type":"suffix", "tags":["armor","jewelry","resistance"], "min_level":1, "stats":{"lightning_resistance":0.11}},
-		"void_res": {"name":"of Hollow Warding", "type":"suffix", "tags":["armor","jewelry","resistance"], "min_level":1, "stats":{"void_resistance":0.11}},
-		"move_speed": {"name":"of the Strider", "type":"suffix", "tags":["boots","movement"], "min_level":1, "stats":{"movement_speed":0.08}},
-	}
+static func affixes() -> Array[Dictionary]:
+	return [
+		{"id":"weapon_added_fire", "name":"Ember", "domain":["weapon"], "tags":["fire","attack","spell"], "slot":"prefix", "min_level":1, "stats":{"Fire Damage":0.10}},
+		{"id":"weapon_spell_power", "name":"Runic", "domain":["weapon","offhand","relic","amulet"], "tags":["spell"], "slot":"prefix", "min_level":1, "stats":{"Spell Damage":0.12}},
+		{"id":"weapon_attack_power", "name":"Honed", "domain":["weapon"], "tags":["attack","melee"], "slot":"prefix", "min_level":1, "stats":{"Attack Damage":0.12}},
+		{"id":"weapon_projectile", "name":"Piercing", "domain":["weapon","amulet","ring"], "tags":["projectile"], "slot":"suffix", "min_level":2, "stats":{"Projectile Damage":0.10}},
+		{"id":"weapon_cast_speed", "name":"Quickened", "domain":["weapon","offhand","ring","amulet"], "tags":["caster"], "slot":"suffix", "min_level":2, "stats":{"Cast Speed":0.07}},
+		{"id":"weapon_attack_speed", "name":"Razor", "domain":["weapon","gloves","ring"], "tags":["attack"], "slot":"suffix", "min_level":2, "stats":{"Attack Speed":0.07}},
+		{"id":"all_lightning", "name":"Stormbound", "domain":["weapon","offhand","ring","amulet","relic"], "tags":["lightning"], "slot":"prefix", "min_level":1, "stats":{"Lightning Damage":0.12}},
+		{"id":"all_void", "name":"Hollow", "domain":["weapon","offhand","ring","amulet","relic"], "tags":["void"], "slot":"prefix", "min_level":3, "stats":{"Void Damage":0.13}},
+		{"id":"armor_life", "name":"Stalwart", "domain":["head","chest","gloves","boots","ring","amulet","relic"], "tags":["life"], "slot":"prefix", "min_level":1, "stats":{"Maximum Life":22.0}},
+		{"id":"armor_mana", "name":"Lucid", "domain":["head","chest","gloves","boots","ring","amulet","relic","offhand"], "tags":["mana"], "slot":"prefix", "min_level":1, "stats":{"Maximum Mana":18.0}},
+		{"id":"armor_rating", "name":"Plated", "domain":["head","chest","gloves","boots"], "tags":["armor"], "slot":"prefix", "min_level":1, "stats":{"Armor":28.0}},
+		{"id":"boots_speed", "name":"Fleet", "domain":["boots"], "tags":["movement"], "slot":"suffix", "min_level":1, "stats":{"Movement Speed":0.08}},
+		{"id":"res_fire", "name":"Ashproof", "domain":["head","chest","gloves","boots","ring","amulet","relic"], "tags":["resistance","fire"], "slot":"suffix", "min_level":1, "stats":{"Fire Resistance":0.12}},
+		{"id":"res_lightning", "name":"Grounded", "domain":["head","chest","gloves","boots","ring","amulet","relic"], "tags":["resistance","lightning"], "slot":"suffix", "min_level":1, "stats":{"Lightning Resistance":0.12}},
+		{"id":"res_void", "name":"Warded", "domain":["head","chest","gloves","boots","ring","amulet","relic"], "tags":["resistance","void"], "slot":"suffix", "min_level":3, "stats":{"Void Resistance":0.12}},
+		{"id":"cooldown", "name":"Measured", "domain":["boots","gloves","ring","amulet","relic"], "tags":["cooldown"], "slot":"suffix", "min_level":4, "stats":{"Cooldown Recovery":0.06}},
+		{"id":"spirit", "name":"Consecrated", "domain":["amulet","relic","offhand"], "tags":["spirit"], "slot":"prefix", "min_level":4, "stats":{"Maximum Spirit":5.0}}
+	]
 
-static func roll_affixes(base_tags: Array, item_level: int, rarity: String, rng: RandomNumberGenerator) -> Dictionary:
-	var prefixes: Array[Dictionary] = []
-	var suffixes: Array[Dictionary] = []
+static func roll_affixes(base: Dictionary, rarity: String, item_level: int, rng: RandomNumberGenerator) -> Array[Dictionary]:
+	var slot: String = str(base.get("slot", ""))
 	var count: int = 0
 	match rarity:
-		"normal": count = 0
 		"magic": count = rng.randi_range(1, 2)
 		"rare": count = rng.randi_range(3, 5)
 		"unique": count = 0
-		_: count = 1
-	var attempts: int = 0
-	while count > 0 and attempts < 80:
-		attempts += 1
-		var affix: Dictionary = _random_valid_affix(base_tags, item_level, rng)
-		if affix.is_empty():
-			break
-		var target: Array[Dictionary] = prefixes if str(affix.get("type", "prefix")) == "prefix" else suffixes
-		if target.size() >= 3:
-			continue
-		if _has_affix(target, str(affix.get("id", ""))):
-			continue
-		target.append(affix)
-		count -= 1
-	return {"prefixes": prefixes, "suffixes": suffixes}
-
-static func _random_valid_affix(base_tags: Array, item_level: int, rng: RandomNumberGenerator) -> Dictionary:
+		_: count = 0
+	var out: Array[Dictionary] = []
+	var used: Dictionary = {}
+	var prefix_count: int = 0
+	var suffix_count: int = 0
 	var pool: Array[Dictionary] = []
-	for id_value: Variant in affixes().keys():
-		var data: Dictionary = Dictionary(affixes()[id_value]).duplicate(true)
-		if int(data.get("min_level", 1)) > item_level:
+	for affix: Dictionary in affixes():
+		if int(affix.get("min_level", 1)) > item_level:
 			continue
-		if not _tags_overlap(base_tags, Array(data.get("tags", []))):
+		if not Array(affix.get("domain", [])).has(slot):
 			continue
-		data["id"] = str(id_value)
-		pool.append(data)
-	if pool.is_empty():
-		return {}
-	return pool[rng.randi_range(0, pool.size() - 1)].duplicate(true)
+		pool.append(affix)
+	for i: int in range(count * 5):
+		if out.size() >= count or pool.is_empty():
+			break
+		var pick: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
+		var id: String = str(pick.get("id", ""))
+		if id == "" or used.has(id):
+			continue
+		var kind: String = str(pick.get("slot", "prefix"))
+		if kind == "prefix" and prefix_count >= 3:
+			continue
+		if kind == "suffix" and suffix_count >= 3:
+			continue
+		used[id] = true
+		if kind == "prefix": prefix_count += 1
+		else: suffix_count += 1
+		var rolled: Dictionary = pick.duplicate(true)
+		rolled["tier"] = max(1, int(ceil(float(item_level) / 8.0)))
+		rolled["stats"] = _scale_stats(Dictionary(pick.get("stats", {})), int(rolled["tier"]))
+		out.append(rolled)
+	return out
 
-static func _tags_overlap(a: Array, b: Array) -> bool:
-	for av: Variant in a:
-		if b.has(str(av)):
-			return true
-	return false
-
-static func _has_affix(list: Array, id: String) -> bool:
-	for affix: Dictionary in list:
-		if str(affix.get("id", "")) == id:
-			return true
-	return false
+static func _scale_stats(stats: Dictionary, tier: int) -> Dictionary:
+	var out: Dictionary = {}
+	var mult: float = 1.0 + float(max(0, tier - 1)) * 0.18
+	for key_value: Variant in stats.keys():
+		out[str(key_value)] = float(stats[key_value]) * mult
+	return out

@@ -4,67 +4,68 @@ extends Node3D
 const GameStateScript := preload("res://scripts/core/GameState3D.gd")
 const SaveSystemScript := preload("res://scripts/systems/SaveSystem3D.gd")
 const SkillGemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
+const CraftingSystemScript := preload("res://scripts/systems/CraftingSystem3D.gd")
+const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
+const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
+const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 
 @onready var hub: Node3D = $Hub
-@onready var combat: RVCombatArena3D = $Combat
-@onready var player: RVPlayerActor3D = $Player
+@onready var combat: Node3D = $Combat
+@onready var player: Node3D = $Player
 @onready var camera: Camera3D = $Camera3D
-@onready var hud: Node = $HUD
-@onready var skill_panel: Node = $SkillLoadoutPanel
+@onready var pet: Node3D = $PickupPet
+@onready var status_label: Label = $UI/Root/StatusLabel
+@onready var help_label: Label = $UI/Root/HelpLabel
+@onready var panel_root: PanelContainer = $UI/Root/PanelRoot
+@onready var panel_text: Label = $UI/Root/PanelRoot/PanelText
 
-var state: RVGameState3D = GameStateScript.new()
+var state: Object = GameStateScript.new()
 var autosave_timer: float = 0.0
 
 func _ready() -> void:
-	if not SaveSystemScript.load_into(state):
-		state.init_new()
-	state.ensure_defaults()
-	state.mode = "hub"
-	state.player_pos = Vector3(0, 0, 2.5)
-	if hub.has_method("setup"):
-		hub.call("setup")
-	combat.visible = false
-	player.sync_from_state(state)
-	_update_camera(0.0)
+	SaveSystemScript.load_into(state)
+	state.call("ensure_defaults")
+	_return_to_hub(false)
 	set_process(true)
 
 func _process(delta: float) -> void:
-	state.update_resources(delta)
+	_update_notice(delta)
 	_update_player(delta)
-	if state.mode == "hub":
-		state.prompt_text = hub.call("prompt_for_player", player.global_position) if hub.has_method("prompt_for_player") else "Hub"
-	elif state.mode == "combat":
-		combat.update_combat(state, player, delta)
-		if float(state.player_hp) <= 0.0:
-			_return_to_hub("Returned to hub after death")
+	if str(state.get("mode")) == "combat":
+		combat.call("update_combat", state, player, delta)
+		if pet != null and pet.has_method("update_pet"):
+			pet.call("update_pet", player, combat, state, delta)
+	_update_camera(delta)
+	_update_ui()
 	autosave_timer += delta
-	if autosave_timer >= 15.0:
+	if autosave_timer >= 12.0:
 		autosave_timer = 0.0
 		SaveSystemScript.save(state)
-	_update_ui()
-	_update_camera(delta)
+
+func _update_notice(delta: float) -> void:
+	if float(state.get("notice_time")) > 0.0:
+		state.set("notice_time", max(0.0, float(state.get("notice_time")) - delta))
 
 func _update_player(delta: float) -> void:
-	if state.panel_mode != "":
-		player.sync_from_state(state)
-		return
+	if player == null: return
+	var blocked: bool = str(state.get("panel_mode")) != ""
 	var move: Vector3 = Vector3.ZERO
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
-		move.z -= 1.0
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
-		move.z += 1.0
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		move.x -= 1.0
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		move.x += 1.0
-	if move.length() > 0.01:
-		move = move.normalized()
-		state.player_pos += move * float(state.player_speed) * float(state.movement_speed_mult) * delta
-	if state.mode == "combat":
-		state.player_pos = combat.constrain_player_position(state.player_pos)
-	else:
-		state.player_pos = Vector3(clampf(state.player_pos.x, -8.0, 8.0), 0.0, clampf(state.player_pos.z, -8.0, 8.0))
-	player.sync_from_state(state)
+	if not blocked:
+		if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP): move.z -= 1.0
+		if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN): move.z += 1.0
+		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): move.x -= 1.0
+		if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): move.x += 1.0
+	if player.has_method("move_world"):
+		player.call("move_world", move, float(state.get("move_speed")), delta)
+	if str(state.get("mode")) == "combat" and combat != null and combat.has_method("constrain_player_position"):
+		player.global_position = combat.call("constrain_player_position", player.global_position)
+	state.set("player_pos", player.global_position)
+
+func _update_camera(delta: float) -> void:
+	if camera == null or player == null: return
+	var target: Vector3 = player.global_position + Vector3(0, 10.5, 9.5)
+	camera.global_position = camera.global_position.lerp(target, clampf(delta * 6.0, 0.0, 1.0))
+	camera.look_at(player.global_position + Vector3(0, 0.5, 0), Vector3.UP)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
@@ -73,114 +74,175 @@ func _unhandled_input(event: InputEvent) -> void:
 			_handle_key(key_event.keycode)
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
-		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT and state.panel_mode == "" and state.mode == "combat":
-			_cast_selected_skill()
+		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT and str(state.get("mode")) == "combat" and str(state.get("panel_mode")) == "":
+			_cast_selected_skill(_mouse_world())
 
 func _handle_key(keycode: int) -> void:
+	if str(state.get("panel_mode")) != "":
+		_handle_panel_key(keycode)
+		return
 	match keycode:
-		KEY_F8:
-			state.panel_mode = ""
-			state.add_notice("UI lock cleared")
 		KEY_F5:
 			SaveSystemScript.save(state)
-			state.add_notice("Saved")
-		KEY_ESCAPE:
-			if state.panel_mode != "":
-				state.panel_mode = ""
-			elif state.mode == "combat":
-				_return_to_hub("Returned to hub")
-		KEY_H:
-			_toggle_panel("help")
+			state.call("add_notice", "Saved")
+		KEY_F8:
+			state.set("panel_mode", "")
+		KEY_Z:
+			state.call("use_health_flask")
+		KEY_X:
+			state.call("use_mana_flask")
+		KEY_T:
+			if str(state.get("mode")) == "hub": _start_map()
+			else: _return_to_hub(true)
+		KEY_E:
+			if str(state.get("mode")) == "combat":
+				if bool(combat.get("room_clear")):
+					_return_to_hub(true)
+				else:
+					combat.call("manual_pickup_near", state, player.global_position)
+			else:
+				_start_map()
+		KEY_SPACE:
+			if str(state.get("mode")) == "combat": _cast_selected_skill(_mouse_world())
+		KEY_Q:
+			state.set("selected_skill_slot", wrapi(int(state.get("selected_skill_slot")) - 1, 0, 4))
+		KEY_R:
+			state.set("selected_skill_slot", wrapi(int(state.get("selected_skill_slot")) + 1, 0, 4))
+		KEY_1, KEY_2, KEY_3, KEY_4:
+			state.set("selected_skill_slot", keycode - KEY_1)
 		KEY_I:
 			_toggle_panel("inventory")
+		KEY_K:
+			_toggle_panel("skills")
 		KEY_C:
 			_toggle_panel("character")
 		KEY_M:
 			_toggle_panel("maps")
-		KEY_K:
-			_toggle_panel("skills")
-		KEY_Z:
-			state.use_health_flask()
-		KEY_X:
-			state.use_mana_flask()
-		KEY_Q:
-			state.selected_skill_slot = wrapi(state.selected_skill_slot - 1, 0, 4)
-		KEY_R:
-			state.selected_skill_slot = wrapi(state.selected_skill_slot + 1, 0, 4)
-		KEY_1, KEY_2, KEY_3, KEY_4:
-			state.selected_skill_slot = keycode - KEY_1
-		KEY_SPACE:
-			if state.mode == "combat" and state.panel_mode == "":
-				_cast_selected_skill()
-		KEY_E:
-			if state.mode == "hub":
-				_start_map()
-			elif state.mode == "combat" and combat.room_clear:
-				_return_to_hub("Map complete")
-		KEY_T:
-			if state.mode == "hub":
-				_start_map()
-			elif state.mode == "combat":
-				_return_to_hub("Town portal")
+		KEY_F:
+			_toggle_panel("crafting")
+		KEY_H:
+			_toggle_panel("help")
 		KEY_BRACKETLEFT:
-			state.inventory_cursor = clampi(state.inventory_cursor - 1, 0, max(0, state.inventory.size() - 1))
+			_cycle_cursor(-1)
 		KEY_BRACKETRIGHT:
-			state.inventory_cursor = clampi(state.inventory_cursor + 1, 0, max(0, state.inventory.size() - 1))
+			_cycle_cursor(1)
 		KEY_U:
-			state.equip_inventory_item(state.inventory_cursor)
+			state.call("equip_backpack_index", int(state.get("inventory_cursor")))
+
+func _handle_panel_key(keycode: int) -> void:
+	var mode: String = str(state.get("panel_mode"))
+	if keycode == KEY_ESCAPE or keycode == KEY_I or keycode == KEY_K or keycode == KEY_C or keycode == KEY_M or keycode == KEY_F or keycode == KEY_H:
+		state.set("panel_mode", "")
+		return
+	if mode == "inventory":
+		if keycode == KEY_BRACKETLEFT: _cycle_cursor(-1)
+		elif keycode == KEY_BRACKETRIGHT: _cycle_cursor(1)
+		elif keycode == KEY_U: state.call("equip_backpack_index", int(state.get("inventory_cursor")))
+	elif mode == "skills":
+		if keycode >= KEY_1 and keycode <= KEY_4: state.set("selected_skill_slot", keycode - KEY_1)
+		elif keycode == KEY_A: SkillGemSystemScript.cycle_active_slot_gem(state, -1)
+		elif keycode == KEY_D: SkillGemSystemScript.cycle_active_slot_gem(state, 1)
+		elif keycode == KEY_S: SkillGemSystemScript.add_next_valid_support(state)
+		elif keycode == KEY_W: SkillGemSystemScript.remove_last_support(state)
+		elif keycode == KEY_G: SkillGemSystemScript.toggle_next_spirit(state)
+	elif mode == "maps":
+		var maps: Array = Array(state.get("map_stash"))
+		if not maps.is_empty():
+			if keycode == KEY_BRACKETLEFT: state.set("map_cursor", wrapi(int(state.get("map_cursor")) - 1, 0, maps.size()))
+			elif keycode == KEY_BRACKETRIGHT: state.set("map_cursor", wrapi(int(state.get("map_cursor")) + 1, 0, maps.size()))
+			elif keycode == KEY_T: state.set("panel_mode", ""); _start_map()
+	elif mode == "crafting":
+		if keycode == KEY_1: CraftingSystemScript.craft_selected(state, "seal")
+		elif keycode == KEY_2: CraftingSystemScript.craft_selected(state, "reforge")
+		elif keycode == KEY_3: CraftingSystemScript.craft_selected(state, "polish")
+
+func _cycle_cursor(dir: int) -> void:
+	var backpack: Array = Array(state.get("backpack"))
+	if backpack.is_empty(): return
+	state.set("inventory_cursor", wrapi(int(state.get("inventory_cursor")) + dir, 0, backpack.size()))
 
 func _toggle_panel(mode_name: String) -> void:
-	state.panel_mode = "" if state.panel_mode == mode_name else mode_name
+	state.set("panel_mode", "" if str(state.get("panel_mode")) == mode_name else mode_name)
 
 func _start_map() -> void:
-	state.ensure_defaults()
-	state.mode = "combat"
-	state.panel_mode = ""
-	state.player_pos = Vector3(0, 0, -7)
+	var activity: Dictionary = MapLoopSystemScript.start_selected_map(state)
+	if activity.is_empty(): return
+	state.set("mode", "combat")
 	hub.visible = false
 	combat.visible = true
-	combat.start_map(state, {"map_level": max(1, state.level)})
-	player.sync_from_state(state)
-	state.add_notice("Entered Ash Vault")
+	player.global_position = Vector3(0, 0, -7.0)
+	pet.global_position = player.global_position + Vector3(-1, 0.5, 0.5)
+	combat.call("start_map", state, activity)
+	state.call("full_restore")
+	state.call("add_notice", "Entered " + str(activity.get("display_name", "Map")))
 
-func _return_to_hub(message: String) -> void:
-	state.mode = "hub"
-	state.panel_mode = ""
-	state.player_pos = Vector3(0, 0, 2.5)
-	state.full_restore()
+func _return_to_hub(save_now: bool) -> void:
+	state.set("mode", "hub")
+	state.set("panel_mode", "")
 	hub.visible = true
-	combat.stop_map()
-	player.sync_from_state(state)
-	state.add_notice(message)
-	SaveSystemScript.save(state)
+	combat.call("stop_map")
+	combat.visible = false
+	player.global_position = Vector3(0, 0, 0)
+	pet.global_position = player.global_position + Vector3(-1, 0.5, 0.5)
+	state.call("full_restore")
+	if save_now: SaveSystemScript.save(state)
 
-func _cast_selected_skill() -> void:
-	var cast_data: Dictionary = SkillGemSystemScript.build_cast_data(state, state.selected_skill_slot)
-	if cast_data.is_empty():
-		state.add_notice("No active gem in slot")
-		return
-	if not SkillGemSystemScript.pay_cost(state, cast_data):
-		return
-	var aim: Vector3 = _mouse_to_world()
-	combat.cast_skill(state, player.global_position, aim, cast_data)
+func _cast_selected_skill(aim: Vector3) -> void:
+	var cast_data: Dictionary = SkillGemSystemScript.selected_cast_data(state)
+	combat.call("cast_skill", state, player.global_position, aim, cast_data)
 
-func _mouse_to_world() -> Vector3:
-	var viewport := get_viewport()
-	var mouse_pos: Vector2 = viewport.get_mouse_position()
-	var from: Vector3 = camera.project_ray_origin(mouse_pos)
-	var dir: Vector3 = camera.project_ray_normal(mouse_pos)
+func _mouse_world() -> Vector3:
+	var mouse: Vector2 = get_viewport().get_mouse_position()
+	var from: Vector3 = camera.project_ray_origin(mouse)
+	var dir: Vector3 = camera.project_ray_normal(mouse)
 	if abs(dir.y) < 0.001:
-		return player.global_position + Vector3.FORWARD * 4.0
+		return player.global_position + Vector3(0, 0, -3)
 	var t: float = -from.y / dir.y
 	return from + dir * t
 
 func _update_ui() -> void:
-	if hud != null and hud.has_method("update_from_state"):
-		hud.call("update_from_state", state)
-	if skill_panel != null and skill_panel.has_method("update_from_state"):
-		skill_panel.call("update_from_state", state)
+	var cast: Dictionary = SkillGemSystemScript.selected_cast_data(state)
+	status_label.text = "Lv " + str(state.get("level")) + " " + str(state.get("class_display_name")) + " | HP " + str(int(state.get("player_hp"))) + "/" + str(int(state.get("max_hp"))) + " | Mana " + str(int(state.get("player_mana"))) + "/" + str(int(state.get("max_mana"))) + " | Spirit " + str(state.get("spirit_reserved")) + "/" + str(state.get("spirit_max")) + " | Gold " + str(state.get("gold")) + " | Skill " + str(cast.get("name", ""))
+	if float(state.get("notice_time")) > 0.0:
+		help_label.text = str(state.get("notice_text"))
+	else:
+		help_label.text = "T/E map · LeftClick/Space cast · I inventory · K skills · F forge · M maps · C character · H help"
+	var mode: String = str(state.get("panel_mode"))
+	panel_root.visible = mode != ""
+	if mode == "": return
+	match mode:
+		"inventory": panel_text.text = _inventory_text()
+		"skills": panel_text.text = SkillGemSystemScript.panel_text(state)
+		"character": panel_text.text = _character_text()
+		"maps": panel_text.text = MapLoopSystemScript.panel_text(state)
+		"crafting": panel_text.text = CraftingSystemScript.panel_text(state)
+		_: panel_text.text = _help_text()
 
-func _update_camera(delta: float) -> void:
-	var target: Vector3 = player.global_position + Vector3(0, 10.5, 9.5)
-	camera.global_position = camera.global_position.lerp(target, min(1.0, delta * 8.0)) if delta > 0.0 else target
-	camera.look_at(player.global_position, Vector3.UP)
+func _inventory_text() -> String:
+	var text: String = "INVENTORY\n[ / ] Select · U Equip · F Forge\n\nEquipped:\n"
+	var equipped: Dictionary = Dictionary(state.get("equipped"))
+	for slot_key: Variant in equipped.keys():
+		var item: Dictionary = Dictionary(equipped[slot_key])
+		text += "  " + str(slot_key) + ": " + str(item.get("display_name", "—")) + "\n"
+	text += "\nBackpack:\n"
+	var backpack: Array = Array(state.get("backpack"))
+	var cursor: int = int(state.get("inventory_cursor"))
+	if backpack.is_empty():
+		text += "  empty\n"
+	else:
+		for i: int in range(backpack.size()):
+			var item2: Dictionary = Dictionary(backpack[i])
+			text += ("> " if i == cursor else "  ") + str(i + 1) + ". " + str(item2.get("display_name", "Item")) + "\n"
+	text += "\nSelected:\n" + ItemDBScript.item_detail(state.call("selected_backpack_item"))
+	return text
+
+func _character_text() -> String:
+	var text: String = "CHARACTER\n"
+	text += str(state.get("class_display_name")) + " · Level " + str(state.get("level")) + " · XP " + str(int(state.get("xp"))) + "/" + str(int(state.call("xp_to_next"))) + "\n"
+	text += "HP " + str(int(state.get("max_hp"))) + " · Mana " + str(int(state.get("max_mana"))) + " · Armor " + str(int(state.get("armor"))) + " · Speed " + str(snappedf(float(state.get("move_speed")), 0.01)) + "\n\nBuild Stats:\n"
+	for key_value: Variant in Dictionary(state.get("build_stats")).keys():
+		text += "  " + str(key_value) + ": " + str(Dictionary(state.get("build_stats"))[key_value]) + "\n"
+	return text
+
+func _help_text() -> String:
+	return "HELP\nWASD move\nLeftClick/Space cast\n1-4 select skill\nQ/R cycle skill\nZ/X flasks\nT start/leave map\nE interact/pickup/exit\nI inventory\nK skill gems\nF forge\nM maps\nC character\n"

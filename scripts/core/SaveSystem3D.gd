@@ -1,4 +1,4 @@
-class_name RVSaveSystem3D
+# PATCH_087L: class_name removed to avoid Godot global-class collision. Use preload aliases.
 extends RefCounted
 
 const SAVE_PATH := "user://relic_forge_3d_save.json"

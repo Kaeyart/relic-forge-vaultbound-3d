@@ -1,54 +1,76 @@
 class_name RVEnemyActor3D
 extends CharacterBody3D
 
+var alive: bool = true
 var enemy_level: int = 1
-var max_hp: float = 50.0
-var hp: float = 50.0
-var damage: float = 8.0
-var speed: float = 2.3
-var radius: float = 0.55
 var is_elite: bool = false
 var is_boss: bool = false
-var alive: bool = true
+var max_hp: float = 40.0
+var hp: float = 40.0
+var damage: float = 8.0
+var speed: float = 2.1
+var radius: float = 0.45
 
-func setup(level: int, elite: bool = false, boss: bool = false) -> void:
-	enemy_level = level
+func _ready() -> void:
+	if get_child_count() == 0:
+		var shape := CollisionShape3D.new()
+		var capsule := CapsuleShape3D.new()
+		capsule.radius = radius
+		capsule.height = 1.2
+		shape.shape = capsule
+		shape.position.y = 0.6
+		add_child(shape)
+		var mesh := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.8, 1.1, 0.8)
+		mesh.mesh = box
+		mesh.position.y = 0.55
+		add_child(mesh)
+
+func setup(level: int, elite: bool, boss: bool) -> void:
+	enemy_level = max(1, level)
 	is_elite = elite
 	is_boss = boss
-	max_hp = (58.0 + float(level) * 12.0) * (3.0 if boss else (1.8 if elite else 1.0))
+	max_hp = 38.0 + float(enemy_level) * 9.0
+	damage = 7.0 + float(enemy_level) * 1.8
+	speed = 2.0 + min(1.2, float(enemy_level) * 0.04)
+	if elite:
+		max_hp *= 2.1
+		damage *= 1.35
+	if boss:
+		max_hp *= 5.0
+		damage *= 1.65
+		speed *= 0.82
 	hp = max_hp
-	damage = (8.0 + float(level) * 2.0) * (1.8 if boss else (1.35 if elite else 1.0))
-	speed = 1.6 if boss else (2.05 if elite else 2.35)
-	_refresh_visual()
+	_update_color()
+
+func _update_color() -> void:
+	for child: Node in get_children():
+		if child is MeshInstance3D:
+			var mat := StandardMaterial3D.new()
+			if is_boss: mat.albedo_color = Color(0.85, 0.18, 0.12)
+			elif is_elite: mat.albedo_color = Color(0.82, 0.45, 0.12)
+			else: mat.albedo_color = Color(0.32, 0.30, 0.28)
+			(child as MeshInstance3D).material_override = mat
 
 func update_ai(player_pos: Vector3, delta: float) -> void:
-	if not alive:
-		return
-	var diff: Vector3 = player_pos - global_position
-	diff.y = 0.0
-	if diff.length() > 0.05:
-		velocity = diff.normalized() * speed
+	if not alive: return
+	var dir: Vector3 = player_pos - global_position
+	dir.y = 0.0
+	if dir.length() > 0.75:
+		dir = dir.normalized()
+		velocity.x = dir.x * speed
+		velocity.z = dir.z * speed
+		velocity.y = 0.0
 		move_and_slide()
+		look_at(global_position + dir, Vector3.UP)
+	else:
+		velocity = Vector3.ZERO
 
 func take_damage(amount: float) -> bool:
-	if not alive:
-		return false
+	if not alive: return false
 	hp -= max(0.0, amount)
-	_refresh_visual()
 	if hp <= 0.0:
 		alive = false
 		return true
 	return false
-
-func _refresh_visual() -> void:
-	var mesh_node: MeshInstance3D = get_node_or_null("Body") as MeshInstance3D
-	if mesh_node == null:
-		return
-	var mat := StandardMaterial3D.new()
-	if is_boss:
-		mat.albedo_color = Color(0.65, 0.08, 0.06)
-	elif is_elite:
-		mat.albedo_color = Color(0.8, 0.42, 0.12)
-	else:
-		mat.albedo_color = Color(0.45, 0.12, 0.08)
-	mesh_node.material_override = mat
