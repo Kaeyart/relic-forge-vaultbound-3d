@@ -1,0 +1,115 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/SkillLoadoutPanel3D.gd" id="1"]
+
+[node name="SkillLoadoutPanel3D" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="Root" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+
+[node name="Dim" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.62)
+
+[node name="Panel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.05
+anchor_top = 0.07
+anchor_right = 0.95
+anchor_bottom = 0.93
+mouse_filter = 1
+
+[node name="VBox" type="VBoxContainer" parent="Root/Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Panel/VBox"]
+layout_mode = 2
+text = "SKILL GEMS — ACTIVE / SUPPORT / SPIRIT"
+horizontal_alignment = 1
+
+[node name="SummaryLabel" type="Label" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 44.0
+offset_right = 850.0
+offset_bottom = 70.0
+text = "Spirit: 0 / 0"
+
+[node name="Columns" type="HBoxContainer" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 82.0
+offset_right = 1120.0
+offset_bottom = 480.0
+
+[node name="SlotsColumn" type="VBoxContainer" parent="Root/Panel/Columns"]
+layout_mode = 2
+custom_minimum_size = Vector2(230, 380)
+
+[node name="SlotsTitle" type="Label" parent="Root/Panel/Columns/SlotsColumn"]
+layout_mode = 2
+text = "Active Slots"
+
+[node name="SlotButtons" type="VBoxContainer" parent="Root/Panel/Columns/SlotsColumn"]
+layout_mode = 2
+
+[node name="ActiveColumn" type="VBoxContainer" parent="Root/Panel/Columns"]
+layout_mode = 2
+custom_minimum_size = Vector2(230, 380)
+
+[node name="ActiveTitle" type="Label" parent="Root/Panel/Columns/ActiveColumn"]
+layout_mode = 2
+text = "Active Gems"
+
+[node name="ActiveButtons" type="VBoxContainer" parent="Root/Panel/Columns/ActiveColumn"]
+layout_mode = 2
+
+[node name="SupportColumn" type="VBoxContainer" parent="Root/Panel/Columns"]
+layout_mode = 2
+custom_minimum_size = Vector2(260, 380)
+
+[node name="SupportTitle" type="Label" parent="Root/Panel/Columns/SupportColumn"]
+layout_mode = 2
+text = "Support Gems"
+
+[node name="SupportButtons" type="VBoxContainer" parent="Root/Panel/Columns/SupportColumn"]
+layout_mode = 2
+
+[node name="SpiritColumn" type="VBoxContainer" parent="Root/Panel/Columns"]
+layout_mode = 2
+custom_minimum_size = Vector2(260, 380)
+
+[node name="SpiritTitle" type="Label" parent="Root/Panel/Columns/SpiritColumn"]
+layout_mode = 2
+text = "Spirit Gems"
+
+[node name="SpiritButtons" type="VBoxContainer" parent="Root/Panel/Columns/SpiritColumn"]
+layout_mode = 2
+
+[node name="DetailText" type="RichTextLabel" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 500.0
+offset_right = 1000.0
+offset_bottom = 610.0
+bbcode_enabled = true
+text = "Detail"
+
+[node name="CloseButton" type="Button" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 1030.0
+offset_top = 568.0
+offset_right = 1140.0
+offset_bottom = 610.0
+text = "Close"

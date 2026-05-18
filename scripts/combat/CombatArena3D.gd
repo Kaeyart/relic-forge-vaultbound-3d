@@ -3,283 +3,229 @@ extends Node3D
 
 const EnemyScene := preload("res://scenes/prefabs/enemies/Enemy3D.tscn")
 const ProjectileScene := preload("res://scenes/prefabs/projectiles/Projectile3D.tscn")
-const SkillDBScript := preload("res://scripts/data/SkillDB3D.gd")
 const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd")
-const ProgressionSystemScript := preload("res://scripts/systems/ProgressionSystem3D.gd")
-const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
 
 var enemies_root: Node3D
 var projectiles_root: Node3D
-var loot_root: Node3D
-var layout_root: Node3D
-var blockers: Array = []
+var decor_root: Node3D
 var active: bool = false
-var map_item: Dictionary = {}
 var room_clear: bool = false
+var map_level: int = 1
+var exit_pos: Vector3 = Vector3(0, 0, 8)
 
 func _ready() -> void:
 	_ensure_roots()
-	visible = false
 
-func start_map(state: Object, map_data: Dictionary) -> void:
+func _ensure_roots() -> void:
+	decor_root = get_node_or_null("DecorRoot") as Node3D
+	if decor_root == null:
+		decor_root = Node3D.new()
+		decor_root.name = "DecorRoot"
+		add_child(decor_root)
+	enemies_root = get_node_or_null("EnemiesRoot") as Node3D
+	if enemies_root == null:
+		enemies_root = Node3D.new()
+		enemies_root.name = "EnemiesRoot"
+		add_child(enemies_root)
+	projectiles_root = get_node_or_null("ProjectilesRoot") as Node3D
+	if projectiles_root == null:
+		projectiles_root = Node3D.new()
+		projectiles_root.name = "ProjectilesRoot"
+		add_child(projectiles_root)
+
+func start_map(state: Object, activity: Dictionary = {}) -> void:
 	_ensure_roots()
-	clear_arena()
 	active = true
-	visible = true
 	room_clear = false
-	map_item = map_data.duplicate(true)
-	_build_layout()
-	_spawn_encounter(state)
+	map_level = max(1, int(activity.get("map_level", state.get("level") if state != null else 1)))
+	visible = true
+	_clear_children(enemies_root)
+	_clear_children(projectiles_root)
+	_clear_children(decor_root)
+	_build_arena()
+	_spawn_pack(Vector3(-5, 0, -4), 4, false)
+	_spawn_pack(Vector3(5, 0, -2), 4, false)
+	_spawn_pack(Vector3(-3, 0, 3), 3, true)
+	_spawn_enemy(Vector3(0, 0, 6), true, true)
 
 func stop_map() -> void:
 	active = false
 	visible = false
-	clear_arena()
+	_clear_children(enemies_root)
+	_clear_children(projectiles_root)
 
-func clear_arena() -> void:
-	_ensure_roots()
-	for root: Node in [enemies_root, projectiles_root, loot_root, layout_root]:
-		for child: Node in root.get_children():
-			child.queue_free()
-	blockers.clear()
-
-func update_combat(state: Object, player_node: Node3D, delta: float) -> void:
-	if not active or state == null or player_node == null:
+func update_combat(state: Object, player: Node3D, delta: float) -> void:
+	if not active or state == null or player == null:
 		return
-	var player_pos: Vector3 = Vector3(state.get("player_pos"))
+	var player_pos: Vector3 = player.global_position
 	for enemy_node: Node in enemies_root.get_children():
-		if not is_instance_valid(enemy_node):
-			continue
-		if enemy_node.has_method("update_enemy"):
-			enemy_node.call("update_enemy", state, player_pos, delta, blockers)
+		if enemy_node is RVEnemyActor3D:
+			var enemy: RVEnemyActor3D = enemy_node
+			enemy.update_ai(player_pos, delta)
+			if enemy.alive and enemy.global_position.distance_to(player_pos) < 0.85:
+				state.set("player_hp", max(0.0, float(state.get("player_hp")) - enemy.damage * delta))
+				if float(state.get("player_hp")) <= 0.0:
+					state.set("deaths", int(state.get("deaths")) + 1)
+					state.call("add_notice", "You died. Returning to hub.")
 	for projectile_node: Node in projectiles_root.get_children():
-		if not is_instance_valid(projectile_node):
-			continue
-		if projectile_node.has_method("update_projectile"):
-			projectile_node.call("update_projectile", delta)
-		_check_projectile_hits(projectile_node, state)
-	_check_loot_pickups(state, player_pos)
-	if state != null:
-		state.set("prompt_text", "Clear the map." if not room_clear else "Map clear. Press E to return to hub.")
-	if enemies_root.get_child_count() == 0 and not room_clear:
+		if projectile_node is RVProjectileActor3D:
+			_check_projectile_hits(projectile_node as RVProjectileActor3D, state)
+	if _living_enemy_count() <= 0 and not room_clear:
 		room_clear = true
-		MapLoopSystemScript.complete_current_map(state)
-		_spawn_exit_marker()
+		state.call("add_notice", "Map clear. Press E to return.")
 
-func cast_selected_skill(state: Object, origin: Vector3, aim: Vector3) -> bool:
-	if not active or state == null:
-		return false
-	var skill_id: String = str(state.call("get_selected_skill"))
-	if skill_id == "":
-		return false
-	var skill: Dictionary = SkillDBScript.compute_skill(state, skill_id)
-	var cooldowns: Dictionary = Dictionary(state.get("skill_cooldowns"))
-	if float(cooldowns.get(skill_id, 0.0)) > 0.0:
-		return false
-	var cost: float = float(skill.get("cost", 0.0))
-	if float(state.get("player_mana")) < cost:
-		state.call("add_notice", "Not enough mana")
-		return false
-	state.set("player_mana", float(state.get("player_mana")) - cost)
-	cooldowns[skill_id] = float(skill.get("cooldown", 0.25))
-	state.set("skill_cooldowns", cooldowns)
-	var dir: Vector3 = aim - origin
+func cast_skill(state: Object, origin: Vector3, aim_world: Vector3, cast_data: Dictionary) -> void:
+	if cast_data.is_empty():
+		return
+	var dir: Vector3 = aim_world - origin
 	dir.y = 0.0
 	if dir.length() < 0.05:
 		dir = Vector3.FORWARD
-	else:
-		dir = dir.normalized()
-	match str(skill.get("kind", "projectile")):
-		"projectile":
-			_spawn_projectile(origin + dir * 0.8 + Vector3(0, 0.55, 0), dir * float(skill.get("speed", 14.0)), float(skill.get("damage", 1.0)), float(skill.get("radius", 0.3)), Array(skill.get("tags", [])))
-			var extra: int = int(skill.get("extra_projectiles", 0))
-			if extra > 0:
-				for angle: float in [-0.22, 0.22, -0.38, 0.38].slice(0, min(extra, 4)):
-					var side: Vector3 = dir.rotated(Vector3.UP, angle)
-					_spawn_projectile(origin + side * 0.8 + Vector3(0, 0.55, 0), side * float(skill.get("speed", 14.0)), float(skill.get("damage", 1.0)) * 0.65, float(skill.get("radius", 0.3)), Array(skill.get("tags", [])))
-		"lance":
-			_damage_line(origin, dir, float(skill.get("range", 10.0)), float(skill.get("radius", 0.6)), float(skill.get("damage", 1.0)), Array(skill.get("tags", [])))
-		"area", "area_target":
-			var center: Vector3 = origin + dir * float(skill.get("range", 2.2))
-			if str(skill.get("kind", "")) == "area_target":
-				center = aim
-			_damage_radius(center, float(skill.get("radius", 2.0)), float(skill.get("damage", 1.0)), Array(skill.get("tags", [])))
+	dir = dir.normalized()
+	var active_id: String = str(cast_data.get("active_id", ""))
+	match active_id:
+		"fireball":
+			_spawn_projectile(origin + dir * 0.9 + Vector3.UP * 0.45, dir, cast_data)
+			var extra: int = int(cast_data.get("extra_projectiles", 0))
+			var angles: Array[float] = [-0.22, 0.22, -0.38, 0.38]
+			for i: int in range(min(extra, angles.size())):
+				_spawn_projectile(origin + dir * 0.9 + Vector3.UP * 0.45, dir.rotated(Vector3.UP, angles[i]), cast_data)
+		"storm_lance":
+			_damage_line(origin, dir, 8.0, 0.7, float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])))
+		"arc_slash":
+			_damage_cone(origin, dir, 2.4 * float(cast_data.get("area_mult", 1.0)), 1.4, float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])))
+		"void_rift":
+			_damage_area(aim_world, 2.1 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])))
+			if int(cast_data.get("echo_count", 0)) > 0:
+				_damage_area(aim_world + dir * 0.9, 1.6 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)) * 0.45, state, Array(cast_data.get("tags", [])))
+		"ember_mine":
+			_damage_area(origin + dir * 2.2, 2.0 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])))
 		_:
-			_spawn_projectile(origin + dir * 0.8 + Vector3(0, 0.55, 0), dir * 14.0, float(skill.get("damage", 1.0)), 0.3, Array(skill.get("tags", [])))
-	return true
+			_spawn_projectile(origin + dir * 0.9 + Vector3.UP * 0.45, dir, cast_data)
 
-func constrain_player_position(old_pos: Vector3, target: Vector3, radius: float) -> Vector3:
-	if not active:
-		return target
-	target.x = clampf(target.x, -14.0, 14.0)
-	target.z = clampf(target.z, -16.0, 16.0)
-	for blocker_value: Variant in blockers:
-		if typeof(blocker_value) != TYPE_DICTIONARY:
-			continue
-		var b: Dictionary = blocker_value
-		var min_v: Vector3 = Vector3(b.get("min", Vector3.ZERO))
-		var max_v: Vector3 = Vector3(b.get("max", Vector3.ZERO))
-		if target.x > min_v.x - radius and target.x < max_v.x + radius and target.z > min_v.z - radius and target.z < max_v.z + radius:
-			return old_pos
-	return target
+func _spawn_projectile(pos: Vector3, dir: Vector3, cast_data: Dictionary) -> void:
+	var projectile: RVProjectileActor3D = ProjectileScene.instantiate()
+	projectiles_root.add_child(projectile)
+	projectile.setup(pos, dir.normalized() * 13.0, float(cast_data.get("damage", 1.0)), 0.45, Array(cast_data.get("tags", [])))
 
-func interact(state: Object) -> Dictionary:
-	if room_clear:
-		return {"action": "return_hub"}
-	return {}
-
-func _check_projectile_hits(projectile_node: Node, state: Object) -> void:
-	if projectile_node == null or not is_instance_valid(projectile_node):
-		return
-	if projectile_node.get("alive") == false:
-		return
-	var p_pos: Vector3 = projectile_node.global_position
+func _check_projectile_hits(projectile: RVProjectileActor3D, state: Object) -> void:
 	for enemy_node: Node in enemies_root.get_children():
-		if not is_instance_valid(enemy_node):
+		if not (enemy_node is RVEnemyActor3D):
 			continue
-		var e_pos: Vector3 = (enemy_node as Node3D).global_position
-		var hit_radius: float = float(projectile_node.get("radius")) + float(enemy_node.get("radius"))
-		if p_pos.distance_to(e_pos) <= hit_radius:
-			var died: bool = bool(enemy_node.call("take_damage", float(projectile_node.get("damage"))))
-			projectile_node.set("alive", false)
-			projectile_node.queue_free()
-			if died:
-				_on_enemy_died(enemy_node, state)
+		var enemy: RVEnemyActor3D = enemy_node
+		if not enemy.alive:
+			continue
+		if projectile.global_position.distance_to(enemy.global_position + Vector3.UP * 0.55) <= projectile.radius + enemy.radius:
+			_damage_enemy(enemy, projectile.damage, state, projectile.tags)
+			projectile.queue_free()
 			return
 
-func _damage_radius(center: Vector3, radius: float, damage: float, tags: Array) -> void:
+func _damage_line(origin: Vector3, dir: Vector3, length: float, width: float, damage: float, state: Object, tags: Array) -> void:
 	for enemy_node: Node in enemies_root.get_children():
-		if not is_instance_valid(enemy_node):
-			continue
-		var enemy: Node3D = enemy_node as Node3D
-		if enemy.global_position.distance_to(center) <= radius + float(enemy_node.get("radius")):
-			var died: bool = bool(enemy_node.call("take_damage", damage))
-			if died:
-				_on_enemy_died(enemy_node, get_parent().get("state") if get_parent() != null else null)
+		if enemy_node is RVEnemyActor3D:
+			var enemy: RVEnemyActor3D = enemy_node
+			var rel: Vector3 = enemy.global_position - origin
+			rel.y = 0.0
+			var along: float = rel.dot(dir)
+			if along >= 0.0 and along <= length:
+				var closest: Vector3 = origin + dir * along
+				if closest.distance_to(enemy.global_position) <= width:
+					_damage_enemy(enemy, damage, state, tags)
 
-func _damage_line(origin: Vector3, dir: Vector3, length: float, width: float, damage: float, tags: Array) -> void:
+func _damage_cone(origin: Vector3, dir: Vector3, radius: float, half_width: float, damage: float, state: Object, tags: Array) -> void:
 	for enemy_node: Node in enemies_root.get_children():
-		if not is_instance_valid(enemy_node):
-			continue
-		var to_enemy: Vector3 = (enemy_node as Node3D).global_position - origin
-		to_enemy.y = 0.0
-		var along: float = to_enemy.dot(dir)
-		if along < 0.0 or along > length:
-			continue
-		var closest: Vector3 = origin + dir * along
-		var lateral: float = closest.distance_to((enemy_node as Node3D).global_position)
-		if lateral <= width + float(enemy_node.get("radius")):
-			var died: bool = bool(enemy_node.call("take_damage", damage))
-			if died:
-				_on_enemy_died(enemy_node, get_parent().get("state") if get_parent() != null else null)
+		if enemy_node is RVEnemyActor3D:
+			var enemy: RVEnemyActor3D = enemy_node
+			var rel: Vector3 = enemy.global_position - origin
+			rel.y = 0.0
+			if rel.length() <= radius and rel.normalized().dot(dir) > 0.35:
+				_damage_enemy(enemy, damage, state, tags)
 
-func _on_enemy_died(enemy_node: Node, state: Object) -> void:
-	if enemy_node == null or not is_instance_valid(enemy_node):
-		return
-	var enemy_data: Dictionary = enemy_node.call("death_data") if enemy_node.has_method("death_data") else {}
-	if state != null:
-		ProgressionSystemScript.award_enemy_kill(state, enemy_data)
-		for drop: Dictionary in LootSystemScript.roll_enemy_loot(state, enemy_data, map_item):
-			_spawn_loot(enemy_node.global_position, drop)
-	enemy_node.queue_free()
+func _damage_area(center: Vector3, radius: float, damage: float, state: Object, tags: Array) -> void:
+	for enemy_node: Node in enemies_root.get_children():
+		if enemy_node is RVEnemyActor3D:
+			var enemy: RVEnemyActor3D = enemy_node
+			if enemy.global_position.distance_to(Vector3(center.x, enemy.global_position.y, center.z)) <= radius:
+				_damage_enemy(enemy, damage, state, tags)
 
-func _check_loot_pickups(state: Object, player_pos: Vector3) -> void:
-	if state == null:
-		return
-	for loot_node: Node in loot_root.get_children():
-		if not is_instance_valid(loot_node):
-			continue
-		var n3: Node3D = loot_node as Node3D
-		if n3.global_position.distance_to(player_pos) <= 1.15:
-			var drop: Dictionary = Dictionary(loot_node.get_meta("drop", {}))
-			LootSystemScript.apply_pickup(state, drop)
-			loot_node.queue_free()
+func _damage_enemy(enemy: RVEnemyActor3D, damage: float, state: Object, tags: Array) -> void:
+	if enemy.take_damage(damage):
+		_on_enemy_died(enemy, state)
 
-func _spawn_projectile(pos: Vector3, vel: Vector3, damage: float, radius: float, tags: Array) -> void:
-	var projectile: Node = ProjectileScene.instantiate()
-	projectiles_root.add_child(projectile)
-	projectile.call("setup", pos, vel, damage, radius, tags)
+func _on_enemy_died(enemy: RVEnemyActor3D, state: Object) -> void:
+	state.call("on_enemy_killed", enemy.enemy_level, enemy.is_elite, enemy.is_boss)
+	var drops: Array[Dictionary] = LootSystemScript.enemy_drop_bundle(state, enemy.enemy_level, enemy.is_elite, enemy.is_boss)
+	for drop: Dictionary in drops:
+		LootSystemScript.apply_drop_to_state(state, drop)
+	if enemy.is_boss:
+		var completed: Dictionary = Dictionary(state.get("completed_maps"))
+		completed["ash_vault"] = true
+		state.set("completed_maps", completed)
+	enemy.queue_free()
 
-func _spawn_loot(pos: Vector3, drop: Dictionary) -> void:
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.45, 0.18, 0.45)
-	var mat := StandardMaterial3D.new()
-	match str(drop.get("kind", "")):
-		"gold": mat.albedo_color = Color(0.95, 0.72, 0.18)
-		"material": mat.albedo_color = Color(0.9, 0.25, 0.08)
-		"map": mat.albedo_color = Color(0.25, 0.65, 1.0)
-		_: mat.albedo_color = Color(0.65, 0.85, 0.55)
-	var inst := MeshInstance3D.new()
-	inst.mesh = mesh
-	inst.set_surface_override_material(0, mat)
-	inst.position = pos + Vector3(randf_range(-0.5, 0.5), 0.18, randf_range(-0.5, 0.5))
-	inst.set_meta("drop", drop.duplicate(true))
-	loot_root.add_child(inst)
+func constrain_player_position(pos: Vector3) -> Vector3:
+	return Vector3(clampf(pos.x, -8.5, 8.5), 0.0, clampf(pos.z, -8.5, 8.5))
 
-func _spawn_encounter(state: Object) -> void:
-	var level: int = max(1, int(map_item.get("level", 1)))
-	var positions: Array[Vector3] = [
-		Vector3(-7, 0, -6), Vector3(-4, 0, -2), Vector3(4, 0, -3), Vector3(7, 0, -7),
-		Vector3(-6, 0, 4), Vector3(4, 0, 5), Vector3(8, 0, 1)
-	]
-	for i: int in range(positions.size()):
-		var elite: bool = i == 2 or i == 5
-		_spawn_enemy(positions[i], {"name": "Ash Wretch", "level": level, "hp": 34.0 + level * 8.0 + (26.0 if elite else 0.0), "damage": 8.0 + level * 1.6, "speed": 2.3, "radius": 0.45, "elite": elite})
-	_spawn_enemy(Vector3(0, 0, 10), {"name": "Vault Keeper", "level": level + 1, "hp": 180.0 + level * 35.0, "damage": 18.0 + level * 2.0, "speed": 1.9, "radius": 0.8, "boss": true, "elite": true})
+func _living_enemy_count() -> int:
+	var count: int = 0
+	for enemy_node: Node in enemies_root.get_children():
+		if enemy_node is RVEnemyActor3D and (enemy_node as RVEnemyActor3D).alive:
+			count += 1
+	return count
 
-func _spawn_enemy(pos: Vector3, enemy_data: Dictionary) -> void:
-	var enemy: Node = EnemyScene.instantiate()
+func _spawn_pack(center: Vector3, count: int, elite: bool) -> void:
+	for i: int in range(count):
+		_spawn_enemy(center + Vector3(randf_range(-1.6, 1.6), 0, randf_range(-1.6, 1.6)), elite and i == 0, false)
+
+func _spawn_enemy(pos: Vector3, elite: bool, boss: bool) -> void:
+	var enemy: RVEnemyActor3D = EnemyScene.instantiate()
 	enemies_root.add_child(enemy)
-	(enemy as Node3D).global_position = pos
-	enemy.call("setup", enemy_data)
+	enemy.global_position = pos
+	enemy.setup(map_level, elite, boss)
 
-func _build_layout() -> void:
-	_add_box(layout_root, "MapFloor", Vector3(0, -0.08, 0), Vector3(30, 0.12, 34), Color(0.10, 0.09, 0.08))
-	_add_wall(Vector3(0, 0.9, -17), Vector3(30, 1.8, 0.7))
-	_add_wall(Vector3(0, 0.9, 17), Vector3(30, 1.8, 0.7))
-	_add_wall(Vector3(-15, 0.9, 0), Vector3(0.7, 1.8, 34))
-	_add_wall(Vector3(15, 0.9, 0), Vector3(0.7, 1.8, 34))
-	_add_wall(Vector3(-4.5, 0.8, 0.5), Vector3(1.0, 1.6, 8.0))
-	_add_wall(Vector3(4.5, 0.8, -0.5), Vector3(1.0, 1.6, 8.0))
-	_add_wall(Vector3(0, 0.8, 4.2), Vector3(4.5, 1.6, 1.0))
-	_add_wall(Vector3(0, 0.8, -7.8), Vector3(5.5, 1.6, 1.0))
-	_add_box(layout_root, "BossSeal", Vector3(0, 0.03, 10), Vector3(5.0, 0.04, 5.0), Color(0.38, 0.07, 0.04))
+func _build_arena() -> void:
+	# Patch 087I: build arena props with valid Node3D data and real static bodies.
+	# The previous version accidentally read `w.z` from a MeshInstance3D instead of
+	# reading the loop Vector3, causing a runtime crash when starting maps.
+	_make_box_prop("ArenaFloor", Vector3(0.0, -0.08, 0.0), Vector3(20.0, 0.15, 20.0), Color(0.12, 0.10, 0.085), true)
+	_make_box_prop("NorthWall", Vector3(0.0, 0.8, -10.0), Vector3(20.0, 1.8, 0.4), Color(0.18, 0.14, 0.11), true)
+	_make_box_prop("SouthWall", Vector3(0.0, 0.8, 10.0), Vector3(20.0, 1.8, 0.4), Color(0.18, 0.14, 0.11), true)
+	_make_box_prop("WestWall", Vector3(-10.0, 0.8, 0.0), Vector3(0.4, 1.8, 20.0), Color(0.18, 0.14, 0.11), true)
+	_make_box_prop("EastWall", Vector3(10.0, 0.8, 0.0), Vector3(0.4, 1.8, 20.0), Color(0.18, 0.14, 0.11), true)
 
-func _spawn_exit_marker() -> void:
-	_add_box(layout_root, "ExitPortal", Vector3(0, 0.45, -13.5), Vector3(1.2, 0.9, 1.2), Color(0.3, 0.75, 1.0))
+	# A few simple internal blockers so the 3D arena starts feeling less like an empty box.
+	_make_box_prop("VaultBlockerA", Vector3(-3.0, 0.45, 1.2), Vector3(2.0, 0.9, 1.4), Color(0.20, 0.16, 0.12), true)
+	_make_box_prop("VaultBlockerB", Vector3(3.2, 0.45, -1.8), Vector3(1.6, 0.9, 2.2), Color(0.20, 0.16, 0.12), true)
+	_make_box_prop("EmberMarkerA", Vector3(-6.5, 0.08, -6.5), Vector3(0.9, 0.16, 0.9), Color(0.85, 0.28, 0.08), false)
+	_make_box_prop("EmberMarkerB", Vector3(6.5, 0.08, 6.5), Vector3(0.9, 0.16, 0.9), Color(0.85, 0.28, 0.08), false)
 
-func _add_wall(pos: Vector3, size: Vector3) -> void:
-	_add_box(layout_root, "Wall", pos, size, Color(0.22, 0.19, 0.16))
-	blockers.append({"min": pos - size * 0.5, "max": pos + size * 0.5})
+func _make_box_prop(prop_name: String, prop_position: Vector3, prop_size: Vector3, color: Color, solid: bool) -> Node3D:
+	var root: Node3D
+	if solid:
+		var body := StaticBody3D.new()
+		root = body
+		var collision := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = prop_size
+		collision.shape = shape
+		body.add_child(collision)
+	else:
+		root = Node3D.new()
+	root.name = prop_name
+	root.position = prop_position
+	decor_root.add_child(root)
 
-func _add_box(parent: Node, node_name: String, pos: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
+	var mesh_instance := MeshInstance3D.new()
+	mesh_instance.name = prop_name + "Mesh"
 	var mesh := BoxMesh.new()
-	mesh.size = size
+	mesh.size = prop_size
+	mesh_instance.mesh = mesh
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = color
-	mat.roughness = 0.9
-	var inst := MeshInstance3D.new()
-	inst.name = node_name
-	inst.mesh = mesh
-	inst.set_surface_override_material(0, mat)
-	inst.position = pos
-	parent.add_child(inst)
-	return inst
+	mesh_instance.material_override = mat
+	root.add_child(mesh_instance)
+	return root
 
-func _ensure_roots() -> void:
-	if enemies_root == null:
-		enemies_root = Node3D.new()
-		enemies_root.name = "Enemies"
-		add_child(enemies_root)
-	if projectiles_root == null:
-		projectiles_root = Node3D.new()
-		projectiles_root.name = "Projectiles"
-		add_child(projectiles_root)
-	if loot_root == null:
-		loot_root = Node3D.new()
-		loot_root.name = "Loot"
-		add_child(loot_root)
-	if layout_root == null:
-		layout_root = Node3D.new()
-		layout_root.name = "Layout"
-		add_child(layout_root)
+func _clear_children(root: Node) -> void:
+	for child: Node in root.get_children():
+		child.queue_free()

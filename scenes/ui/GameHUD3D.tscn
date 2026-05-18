@@ -1,12 +1,12 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cu0q8er6r8wkj"]
 
-[ext_resource type="Script" path="res://scripts/ui/GameHUD3D.gd" id="1"]
+[ext_resource type="Script" uid="uid://csefdtx5k5rbs" path="res://scripts/ui/GameHUD3D.gd" id="1"]
 
-[node name="GameHUD3D" type="CanvasLayer"]
+[node name="GameHUD3D" type="CanvasLayer" unique_id=533760308]
 unique_name_in_owner = true
 script = ExtResource("1")
 
-[node name="Root" type="Control" parent="."]
+[node name="Root" type="Control" parent="." unique_id=1375619790]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +15,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="StatusPanel" type="PanelContainer" parent="Root"]
+[node name="StatusPanel" type="PanelContainer" parent="Root" unique_id=1792960593]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.01
@@ -24,28 +24,28 @@ anchor_right = 0.99
 anchor_bottom = 0.065
 mouse_filter = 2
 
-[node name="StatusLabel" type="Label" parent="Root/StatusPanel"]
+[node name="StatusLabel" type="Label" parent="Root/StatusPanel" unique_id=1858671631]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Status"
 
-[node name="SkillPanel" type="PanelContainer" parent="Root"]
+[node name="SkillPanel" type="PanelContainer" parent="Root" unique_id=890786924]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.18
-anchor_top = 0.90
+anchor_top = 0.9
 anchor_right = 0.82
 anchor_bottom = 0.985
 mouse_filter = 2
 
-[node name="SkillLabel" type="Label" parent="Root/SkillPanel"]
+[node name="SkillLabel" type="Label" parent="Root/SkillPanel" unique_id=699941834]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Skills"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PromptLabel" type="Label" parent="Root"]
+[node name="PromptLabel" type="Label" parent="Root" unique_id=1815818502]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = -1
@@ -56,9 +56,8 @@ anchor_bottom = 0.89
 text = "Prompt"
 horizontal_alignment = 1
 
-[node name="NoticeLabel" type="Label" parent="Root"]
+[node name="NoticeLabel" type="Label" parent="Root" unique_id=2056076404]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.32
@@ -68,18 +67,17 @@ anchor_bottom = 0.13
 text = "Notice"
 horizontal_alignment = 1
 
-[node name="PanelBack" type="PanelContainer" parent="Root"]
+[node name="PanelBack" type="PanelContainer" parent="Root" unique_id=772505526]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.05
-anchor_top = 0.10
+anchor_top = 0.1
 anchor_right = 0.43
 anchor_bottom = 0.82
 mouse_filter = 2
 
-[node name="PanelLabel" type="RichTextLabel" parent="Root/PanelBack"]
+[node name="PanelLabel" type="RichTextLabel" parent="Root/PanelBack" unique_id=801615942]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 bbcode_enabled = true
 text = "Panel"

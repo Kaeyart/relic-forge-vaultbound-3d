@@ -2,80 +2,75 @@ class_name RVLootSystem3D
 extends RefCounted
 
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
+const GemDBScript := preload("res://scripts/data/GemDB3D.gd")
 
-static func roll_enemy_loot(state: Object, enemy_data: Dictionary, map_item: Dictionary) -> Array[Dictionary]:
-	var drops: Array[Dictionary] = []
-	if state == null:
-		return drops
+static func enemy_drop_bundle(state: Object, enemy_level: int, is_elite: bool, is_boss: bool) -> Array[Dictionary]:
 	var rng: RandomNumberGenerator = state.get("rng")
-	var level: int = max(1, int(map_item.get("level", state.get("level"))))
-	var elite: bool = bool(enemy_data.get("elite", false))
-	var boss: bool = bool(enemy_data.get("boss", false))
-	var preferred_tags: Array = _preferred_drop_tags_for_state(state)
-
-	var gold_min: int = 2 + level
-	var gold_max: int = 6 + level * 3
-	if elite:
-		gold_min += 3
-		gold_max += 14
-	if boss:
-		gold_min += 15
-		gold_max += 55
-	drops.append({"kind": "gold", "amount": rng.randi_range(gold_min, gold_max)})
-
-	var gear_rolls: int = 0
-	var gear_chance: float = 0.20
-	var rarity_bias: float = 0.0
-	if elite:
-		gear_chance = 0.72
-		rarity_bias = 0.10
-	if boss:
-		gear_chance = 1.0
-		gear_rolls = 2
-		rarity_bias = 0.24
+	var drops: Array[Dictionary] = []
+	var gold_amount: int = rng.randi_range(4, 10) + enemy_level * 2
+	if is_elite:
+		gold_amount *= 2
+	if is_boss:
+		gold_amount *= 4
+	drops.append({"kind":"gold", "amount":gold_amount, "label":"Gold " + str(gold_amount)})
+	var gear_chance: float = 0.12 + (0.22 if is_elite else 0.0) + (1.0 if is_boss else 0.0)
 	if rng.randf() < gear_chance:
-		gear_rolls += 1
-	for i: int in range(gear_rolls):
-		var use_preferred: Array = preferred_tags if rng.randf() < 0.55 else []
-		drops.append({"kind": "item", "item": ItemDBScript.make_random_drop(level, rng, rarity_bias, use_preferred)})
-
-	var material_chance: float = 0.05
-	if elite:
-		material_chance = 0.18
-	if boss:
-		material_chance = 1.0
-	if rng.randf() < material_chance:
-		drops.append({"kind": "material", "id": "embers", "amount": rng.randi_range(1, 2 + (3 if boss else 0))})
-	if boss or rng.randf() < (0.08 if elite else 0.015):
-		drops.append({"kind": "material", "id": "shards", "amount": rng.randi_range(1, 1 + (2 if boss else 0))})
-	if boss and rng.randf() < 0.35:
-		drops.append({"kind": "material", "id": "runes", "amount": 1})
-
-	if boss and rng.randf() < 0.78:
-		drops.append({"kind": "map", "map": {"id": "ash_vault_t" + str(level + 1), "name": "Ash Vault", "tier": level + 1, "level": level + 1, "rarity": "normal", "mods": []}})
+		drops.append({"kind":"item", "item":ItemDBScript.make_random_equipment(enemy_level, _rarity_for_drop(rng, is_elite, is_boss), rng), "label":"Equipment"})
+	var gem_chance: float = 0.04 + (0.08 if is_elite else 0.0) + (0.35 if is_boss else 0.0)
+	if rng.randf() < gem_chance:
+		drops.append(_make_gem_drop(state, rng, is_boss))
+	var map_chance: float = 0.025 + (0.08 if is_boss else 0.0)
+	if rng.randf() < map_chance:
+		drops.append({"kind":"map", "item":ItemDBScript.make_map_item("ash_vault", max(1, enemy_level), rng), "label":"Map"})
 	return drops
 
-static func apply_pickup(state: Object, drop: Dictionary) -> void:
-	if state == null or drop.is_empty():
-		return
+static func apply_drop_to_state(state: Object, drop: Dictionary) -> void:
 	match str(drop.get("kind", "")):
 		"gold":
-			state.call("add_gold", int(drop.get("amount", 0)))
-		"material":
-			state.call("add_material", str(drop.get("id", "embers")), int(drop.get("amount", 1)))
+			state.set("gold", int(state.get("gold")) + int(drop.get("amount", 0)))
 		"item":
-			state.call("add_item", Dictionary(drop.get("item", {})))
+			var inv: Array = Array(state.get("inventory"))
+			inv.append(Dictionary(drop.get("item", {})).duplicate(true))
+			state.set("inventory", inv)
 		"map":
-			var stash: Array = Array(state.get("map_stash"))
-			stash.append(Dictionary(drop.get("map", {})))
-			state.set("map_stash", stash)
-			state.set("last_loot_text", "+ map: " + str(Dictionary(drop.get("map", {})).get("name", "Map")))
+			var maps: Array = Array(state.get("map_stash"))
+			maps.append(Dictionary(drop.get("item", {})).duplicate(true))
+			state.set("map_stash", maps)
+		"active_gem":
+			var active: Array = Array(state.get("active_gem_inventory"))
+			active.append(Dictionary(drop.get("gem", {})).duplicate(true))
+			state.set("active_gem_inventory", active)
+		"support_gem":
+			var supports: Array = Array(state.get("support_gem_inventory"))
+			supports.append(Dictionary(drop.get("gem", {})).duplicate(true))
+			state.set("support_gem_inventory", supports)
+		"spirit_gem":
+			var spirits: Array = Array(state.get("spirit_gem_inventory"))
+			spirits.append(Dictionary(drop.get("gem", {})).duplicate(true))
+			state.set("spirit_gem_inventory", spirits)
 
-static func _preferred_drop_tags_for_state(state: Object) -> Array:
-	var class_id: String = str(state.get("character_class_id"))
-	match class_id:
-		"sorceress": return ["spell", "caster", "fire", "lightning", "mana"]
-		"warden": return ["attack", "melee", "life", "armor", "defense"]
-		"voidbinder": return ["spell", "void", "mana", "caster"]
-		"machinist": return ["projectile", "cooldown", "device", "damage"]
-		_: return []
+static func _rarity_for_drop(rng: RandomNumberGenerator, is_elite: bool, is_boss: bool) -> String:
+	var roll: float = rng.randf()
+	if is_boss:
+		return "rare" if roll < 0.72 else "magic"
+	if is_elite:
+		return "rare" if roll < 0.22 else "magic"
+	return "magic" if roll < 0.38 else "normal"
+
+static func _make_gem_drop(state: Object, rng: RandomNumberGenerator, boss: bool) -> Dictionary:
+	var kind_roll: float = rng.randf()
+	var uid_prefix: String = "gemdrop_" + str(Time.get_ticks_usec()) + "_"
+	if boss and kind_roll < 0.25:
+		var spirit_ids: Array = GemDBScript.spirit_gems().keys()
+		var sid: String = str(spirit_ids[rng.randi_range(0, spirit_ids.size() - 1)])
+		var sg: Dictionary = GemDBScript.make_spirit_gem(uid_prefix + "spirit", sid, 1)
+		return {"kind":"spirit_gem", "gem":sg, "label":str(sg.get("name", "Spirit Gem"))}
+	if kind_roll < 0.22:
+		var active_ids: Array = GemDBScript.active_gems().keys()
+		var aid: String = str(active_ids[rng.randi_range(0, active_ids.size() - 1)])
+		var ag: Dictionary = GemDBScript.make_active_gem(uid_prefix + "active", aid, 1)
+		return {"kind":"active_gem", "gem":ag, "label":str(ag.get("name", "Active Gem"))}
+	var support_ids: Array = GemDBScript.support_gems().keys()
+	var suid: String = str(support_ids[rng.randi_range(0, support_ids.size() - 1)])
+	var sup: Dictionary = GemDBScript.make_support_gem(uid_prefix + "support", suid, 1)
+	return {"kind":"support_gem", "gem":sup, "label":str(sup.get("name", "Support Gem"))}
