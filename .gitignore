@@ -1,7 +1,30 @@
+# Godot 4
 .godot/
 .import/
 export_presets.cfg
 *.tmp
 *.bak
-*.log
+*.translation
+
+# OS/editor
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local/runtime
+user://
+*.log
+
+# Python/tools
+__pycache__/
+*.pyc
+
+# Large local scratch/backups
+.local_project_backups/
+.patch_backups/
+.patch*_backups/
+
+# Keep imported 2D snapshot tracked by default, but ignore oversized old cache folders inside it.
+_ported_from_2d_raw/**/.godot/
+_ported_from_2d_raw/**/.import/

@@ -1,0 +1,207 @@
+class_name RVPassiveAtlasPanel
+extends Control
+
+const PassiveDBScript := preload("res://scripts/data/PassiveAtlasDB.gd")
+const PassiveTreeSystemScript := preload("res://scripts/systems/PassiveTreeSystem.gd")
+const NodeButtonScene := preload("res://scenes/ui/components/PassiveTreeNodeButton.tscn")
+
+const TREE_OFFSET: Vector2 = Vector2(80.0, 80.0)
+const TREE_SIZE: Vector2 = Vector2(3400.0, 2400.0)
+
+var state_ref: Object = null
+var selected_node_id: String = PassiveDBScript.START_NODE_ID
+var _tree_scroll: ScrollContainer = null
+var _tree_content: Control = null
+var _connection_canvas: Control = null
+var _detail_text: RichTextLabel = null
+var _summary_label: Label = null
+var _allocate_button: Button = null
+var _refund_button: Button = null
+var _node_buttons: Dictionary = {}
+var _node_cache: Array[Dictionary] = []
+var _built: bool = false
+var _last_signature: String = ""
+var _last_detail_signature: String = ""
+var _panning: bool = false
+var _last_mouse_global: Vector2 = Vector2.ZERO
+
+func _ready() -> void:
+	_resolve_scene_nodes()
+	visible = false
+	set_process(false)
+
+func update_from_state(state: Object) -> void:
+	state_ref = state
+	var should_show: bool = state_ref != null and str(state_ref.get("panel_mode")) == "passive_atlas"
+	visible = should_show
+	if not should_show:
+		_panning = false
+		return
+	PassiveTreeSystemScript.ensure_defaults(state_ref)
+	_resolve_scene_nodes()
+	if not _built:
+		_build_once()
+	_update_visuals_if_needed()
+	_update_detail_if_needed()
+
+func _resolve_scene_nodes() -> void:
+	if _tree_scroll == null:
+		_tree_scroll = find_child("TreeScroll", true, false) as ScrollContainer
+		if _tree_scroll != null:
+			_tree_scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+			if not _tree_scroll.gui_input.is_connected(_on_tree_scroll_gui_input):
+				_tree_scroll.gui_input.connect(_on_tree_scroll_gui_input)
+	if _tree_content == null:
+		_tree_content = find_child("TreeContent", true, false) as Control
+	if _connection_canvas == null:
+		_connection_canvas = find_child("ConnectionCanvas", true, false) as Control
+	if _summary_label == null:
+		_summary_label = find_child("SummaryLabel", true, false) as Label
+	if _detail_text == null:
+		_detail_text = find_child("DetailText", true, false) as RichTextLabel
+	if _allocate_button == null:
+		_allocate_button = find_child("AllocateButton", true, false) as Button
+		if _allocate_button != null and not _allocate_button.pressed.is_connected(_on_allocate_pressed):
+			_allocate_button.pressed.connect(_on_allocate_pressed)
+	if _refund_button == null:
+		_refund_button = find_child("RefundButton", true, false) as Button
+		if _refund_button != null and not _refund_button.pressed.is_connected(_on_refund_pressed):
+			_refund_button.pressed.connect(_on_refund_pressed)
+	if _tree_content != null:
+		_tree_content.custom_minimum_size = TREE_SIZE
+		_tree_content.mouse_filter = Control.MOUSE_FILTER_PASS
+
+func _build_once() -> void:
+	if _tree_content == null:
+		push_warning("PassiveAtlasPanel missing scene-owned TreeContent node.")
+		return
+	_node_cache = PassiveDBScript.nodes()
+	_clear_generated_nodes()
+	_node_buttons.clear()
+	var lookup: Dictionary = PassiveTreeSystemScript.state_lookup(state_ref)
+	for node_data: Dictionary in _node_cache:
+		var node_id: String = str(node_data.get("id", ""))
+		if node_id == "":
+			continue
+		var button_node: Node = NodeButtonScene.instantiate()
+		if not (button_node is Button):
+			button_node.queue_free()
+			continue
+		var button: Button = button_node as Button
+		var state_name: String = str(lookup.get(node_id, "locked"))
+		if button.has_method("setup"):
+			button.call("setup", node_data, state_name, node_id == selected_node_id)
+		else:
+			button.name = "Node_" + node_id
+			button.text = str(node_data.get("name", node_id))
+		button.position = Vector2(node_data.get("pos", Vector2.ZERO)) + TREE_OFFSET
+		button.z_as_relative = false
+		button.z_index = 30
+		button.mouse_filter = Control.MOUSE_FILTER_STOP
+		if button.has_signal("passive_node_pressed"):
+			button.connect("passive_node_pressed", Callable(self, "_on_node_pressed"))
+		else:
+			button.pressed.connect(_on_node_pressed.bind(node_id))
+		if button.has_signal("passive_node_secondary_pressed"):
+			button.connect("passive_node_secondary_pressed", Callable(self, "_on_node_right_pressed"))
+		_tree_content.add_child(button)
+		_node_buttons[node_id] = button
+	if _connection_canvas != null:
+		if _connection_canvas.has_method("update_from_state"):
+			_connection_canvas.call("update_from_state", state_ref)
+		_connection_canvas.queue_redraw()
+	_built = true
+	_last_signature = ""
+	_last_detail_signature = ""
+
+func _clear_generated_nodes() -> void:
+	if _tree_content == null:
+		return
+	for child: Node in _tree_content.get_children():
+		if str(child.name).begins_with("Node_") or str(child.name).begins_with("PassiveNode_"):
+			child.queue_free()
+
+func _update_visuals_if_needed() -> void:
+	var sig: String = _state_signature()
+	if sig == _last_signature:
+		return
+	_last_signature = sig
+	var lookup: Dictionary = PassiveTreeSystemScript.state_lookup(state_ref)
+	for node_id_value: Variant in _node_buttons.keys():
+		var node_id: String = str(node_id_value)
+		var button: Button = _node_buttons[node_id]
+		if button != null and is_instance_valid(button) and button.has_method("set_state"):
+			button.call("set_state", str(lookup.get(node_id, "locked")), node_id == selected_node_id)
+	if _connection_canvas != null:
+		if _connection_canvas.has_method("update_from_state"):
+			_connection_canvas.call("update_from_state", state_ref)
+		_connection_canvas.queue_redraw()
+
+func _update_detail_if_needed() -> void:
+	var sig: String = _state_signature() + "|detail|" + selected_node_id
+	if sig == _last_detail_signature:
+		return
+	_last_detail_signature = sig
+	if _summary_label != null:
+		_summary_label.text = PassiveTreeSystemScript.summary_text(state_ref) if state_ref != null else "Passive Tree"
+	if _detail_text != null:
+		_detail_text.text = PassiveTreeSystemScript.detail_text(state_ref, selected_node_id) if state_ref != null else "Select a passive node."
+	if _allocate_button != null:
+		_allocate_button.disabled = state_ref == null or selected_node_id == "" or not PassiveTreeSystemScript.can_unlock(state_ref, selected_node_id)
+	if _refund_button != null:
+		_refund_button.disabled = state_ref == null or selected_node_id == "" or not PassiveTreeSystemScript.can_refund(state_ref, selected_node_id)
+
+func _state_signature() -> String:
+	if state_ref == null:
+		return "none"
+	return str(state_ref.get("passive_points")) + "|" + str(state_ref.get("mastery_points")) + "|" + str(state_ref.get("passive_refund_points")) + "|" + str(state_ref.get("refund_points")) + "|" + str(state_ref.get("unlocked_passive_nodes")) + "|" + selected_node_id
+
+func _on_node_pressed(node_id: String) -> void:
+	selected_node_id = node_id
+	_last_signature = ""
+	_last_detail_signature = ""
+	_update_visuals_if_needed()
+	_update_detail_if_needed()
+
+func _on_node_right_pressed(node_id: String) -> void:
+	selected_node_id = node_id
+	if state_ref != null and PassiveTreeSystemScript.can_unlock(state_ref, node_id):
+		PassiveTreeSystemScript.unlock_node(state_ref, node_id)
+	_last_signature = ""
+	_last_detail_signature = ""
+	_update_visuals_if_needed()
+	_update_detail_if_needed()
+
+func _on_allocate_pressed() -> void:
+	if state_ref != null and selected_node_id != "":
+		PassiveTreeSystemScript.unlock_node(state_ref, selected_node_id)
+	_last_signature = ""
+	_last_detail_signature = ""
+	_update_visuals_if_needed()
+	_update_detail_if_needed()
+
+func _on_refund_pressed() -> void:
+	if state_ref != null and selected_node_id != "":
+		PassiveTreeSystemScript.refund_node(state_ref, selected_node_id)
+	_last_signature = ""
+	_last_detail_signature = ""
+	_update_visuals_if_needed()
+	_update_detail_if_needed()
+
+func _on_tree_scroll_gui_input(event: InputEvent) -> void:
+	if _tree_scroll == null:
+		return
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			_panning = mb.pressed
+			_last_mouse_global = mb.global_position
+			if mb.pressed:
+				accept_event()
+	elif event is InputEventMouseMotion and _panning:
+		var mm: InputEventMouseMotion = event as InputEventMouseMotion
+		var delta: Vector2 = mm.global_position - _last_mouse_global
+		_last_mouse_global = mm.global_position
+		_tree_scroll.scroll_horizontal = int(max(0, float(_tree_scroll.scroll_horizontal) - delta.x))
+		_tree_scroll.scroll_vertical = int(max(0, float(_tree_scroll.scroll_vertical) - delta.y))
+		accept_event()
