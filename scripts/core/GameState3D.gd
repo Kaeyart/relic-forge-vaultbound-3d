@@ -1,34 +1,48 @@
 class_name RVGameState3D
 extends RefCounted
 
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 3
+
+var mode: String = "hub" # hub / combat
+var notice_text: String = ""
+var notice_time: float = 0.0
+var prompt_text: String = ""
+var panel_mode: String = ""
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
-var mode: String = "hub"
-var panel_mode: String = ""
-var current_map_run: Dictionary = {}
-var active_map_portal: Dictionary = {}
-
+var character_class_id: String = "sorceress"
 var character_name: String = "Vaultbound"
-var class_id: String = "sorceress"
 var level: int = 1
-var xp: int = 0
-var xp_to_next: int = 120
+var xp: float = 0.0
 var passive_points: int = 0
 var gold: int = 0
+var kills: int = 0
+var deaths: int = 0
 
 var player_pos: Vector3 = Vector3.ZERO
+var player_radius: float = 0.42
+var player_speed: float = 6.4
 var player_hp: float = 120.0
-var player_mana: float = 100.0
 var max_hp: float = 120.0
+var player_mana: float = 100.0
 var max_mana: float = 100.0
-var move_speed: float = 7.0
+var invuln: float = 0.0
 
 var health_flask_charges: int = 3
 var health_flask_max_charges: int = 3
 var mana_flask_charges: int = 3
 var mana_flask_max_charges: int = 3
+var flask_kill_counter: int = 0
+
+var active_skills: Array[String] = ["fireball", "storm_lance", "arc_slash"]
+var selected_skill_index: int = 0
+var skill_cooldowns: Dictionary = {}
+var skill_mods: Dictionary = {
+	"fireball": [],
+	"storm_lance": [],
+	"arc_slash": []
+}
 
 var equipped: Dictionary = {
 	"weapon": {},
@@ -42,27 +56,21 @@ var equipped: Dictionary = {
 	"ring2": {},
 	"relic": {}
 }
-var inventory: Array[Dictionary] = []
-var map_inventory: Array[Dictionary] = []
+var backpack: Array[Dictionary] = []
 var materials: Dictionary = {
 	"embers": 0,
 	"shards": 0,
-	"runes": 0,
-	"forge_seals": 0
+	"runes": 0
 }
+var map_stash: Array[Dictionary] = []
+var current_map: Dictionary = {}
+var active_map_snapshot: Dictionary = {}
+var map_entries_remaining: int = 0
+var map_entries_max: int = 6
+var map_completed: bool = false
 
-var active_skill_slots: Array[String] = ["fireball", "storm_lance", "rift_pulse", "arc_slash"]
-var selected_skill_index: int = 0
-var skill_mods: Dictionary = {}
-var skill_cooldowns: Dictionary = {}
-
-var kills: int = 0
-var deaths: int = 0
-var maps_completed: int = 0
-var completed_map_ids: Dictionary = {}
-
-var notice_text: String = ""
-var notice_time: float = 0.0
+var last_loot_text: String = ""
+var inventory_cursor: int = 0
 
 func init_new() -> void:
 	rng.randomize()
@@ -70,42 +78,43 @@ func init_new() -> void:
 	full_restore()
 
 func ensure_defaults() -> void:
-	level = max(1, int(level))
-	xp = max(0, int(xp))
-	xp_to_next = max(1, int(xp_to_next))
-	max_hp = max(1.0, float(max_hp))
-	max_mana = max(1.0, float(max_mana))
-	move_speed = max(1.0, float(move_speed))
-	health_flask_max_charges = max(1, int(health_flask_max_charges))
-	mana_flask_max_charges = max(1, int(mana_flask_max_charges))
-	health_flask_charges = clampi(int(health_flask_charges), 0, health_flask_max_charges)
-	mana_flask_charges = clampi(int(mana_flask_charges), 0, mana_flask_max_charges)
-	selected_skill_index = clampi(int(selected_skill_index), 0, max(0, active_skill_slots.size() - 1))
-	for skill_id: String in active_skill_slots:
+	if active_skills.is_empty():
+		active_skills = ["fireball"]
+	selected_skill_index = clampi(selected_skill_index, 0, max(0, active_skills.size() - 1))
+	for skill_id: String in active_skills:
 		if not skill_cooldowns.has(skill_id):
 			skill_cooldowns[skill_id] = 0.0
-	if inventory.is_empty():
-		inventory.append(RVItemDB3D.make_starter_weapon(class_id))
-	if map_inventory.is_empty():
-		map_inventory.append(RVMapDB3D.make_map_item("ash_vault_01", 1, "Normal"))
+		if not skill_mods.has(skill_id):
+			skill_mods[skill_id] = []
+	if map_stash.is_empty():
+		map_stash.append({"id": "ash_vault_t1", "name": "Ash Vault", "tier": 1, "level": 1, "rarity": "normal", "mods": []})
+	health_flask_max_charges = max(1, health_flask_max_charges)
+	mana_flask_max_charges = max(1, mana_flask_max_charges)
+	health_flask_charges = clampi(health_flask_charges, 0, health_flask_max_charges)
+	mana_flask_charges = clampi(mana_flask_charges, 0, mana_flask_max_charges)
+	map_entries_max = max(1, map_entries_max)
+	map_entries_remaining = clampi(map_entries_remaining, 0, map_entries_max)
+	if map_entries_remaining <= 0:
+		current_map.clear()
+		active_map_snapshot.clear()
 	recompute_stats()
 
 func recompute_stats() -> void:
-	var class_data: Dictionary = RVCharacterClassSystem3D.class_data(class_id)
-	max_hp = 120.0 + float(level - 1) * 6.0 + float(class_data.get("max_hp", 0.0))
-	max_mana = 100.0 + float(level - 1) * 4.0 + float(class_data.get("max_mana", 0.0))
-	move_speed = 7.0 + float(class_data.get("move_speed", 0.0))
+	var old_hp_ratio: float = 1.0 if max_hp <= 0.0 else player_hp / max_hp
+	var old_mana_ratio: float = 1.0 if max_mana <= 0.0 else player_mana / max_mana
+	max_hp = 120.0 + float(level - 1) * 6.0
+	max_mana = 100.0 + float(level - 1) * 4.0
+	player_speed = 6.4
 	for slot_name: String in equipped.keys():
-		var item_value: Variant = equipped.get(slot_name, {})
+		var item_value: Variant = equipped[slot_name]
 		if typeof(item_value) != TYPE_DICTIONARY:
 			continue
-		var item: Dictionary = Dictionary(item_value)
-		var stats: Dictionary = Dictionary(item.get("stats", {}))
-		max_hp += float(stats.get("max_hp", 0.0))
+		var stats: Dictionary = Dictionary(Dictionary(item_value).get("stats", {}))
+		max_hp += float(stats.get("max_life", 0.0))
 		max_mana += float(stats.get("max_mana", 0.0))
-		move_speed += float(stats.get("move_speed", 0.0))
-	player_hp = min(player_hp, max_hp)
-	player_mana = min(player_mana, max_mana)
+		player_speed += float(stats.get("move_speed_flat", 0.0))
+	player_hp = clampf(max_hp * old_hp_ratio, 1.0, max_hp)
+	player_mana = clampf(max_mana * old_mana_ratio, 0.0, max_mana)
 
 func full_restore() -> void:
 	recompute_stats()
@@ -113,101 +122,143 @@ func full_restore() -> void:
 	player_mana = max_mana
 	health_flask_charges = health_flask_max_charges
 	mana_flask_charges = mana_flask_max_charges
-
-func selected_skill_id() -> String:
-	if active_skill_slots.is_empty():
-		return ""
-	selected_skill_index = clampi(selected_skill_index, 0, active_skill_slots.size() - 1)
-	return str(active_skill_slots[selected_skill_index])
-
-func add_xp(amount: int) -> int:
-	var gained_levels: int = 0
-	xp += max(0, amount)
-	while xp >= xp_to_next:
-		xp -= xp_to_next
-		level += 1
-		gained_levels += 1
-		passive_points += 1
-		xp_to_next = RVProgressionSystem3D.xp_to_next(level)
-	if gained_levels > 0:
-		recompute_stats()
-		add_notice("Level Up! Level " + str(level))
-	return gained_levels
+	invuln = 0.0
 
 func add_notice(text: String) -> void:
 	notice_text = text
-	notice_time = 2.25
+	notice_time = 2.2
+
+func xp_to_next() -> float:
+	return 120.0 + pow(float(level), 1.35) * 75.0
+
+func add_xp(amount: float) -> void:
+	xp += max(0.0, amount)
+	while xp >= xp_to_next():
+		xp -= xp_to_next()
+		level += 1
+		passive_points += 1
+		add_notice("Level Up - passive point gained")
+	recompute_stats()
+
+func get_selected_skill() -> String:
+	if active_skills.is_empty():
+		return ""
+	selected_skill_index = clampi(selected_skill_index, 0, active_skills.size() - 1)
+	return str(active_skills[selected_skill_index])
+
+func cycle_skill(delta: int) -> void:
+	if active_skills.is_empty():
+		return
+	selected_skill_index = wrapi(selected_skill_index + delta, 0, active_skills.size())
+
+func use_health_flask() -> bool:
+	if health_flask_charges <= 0 or player_hp >= max_hp:
+		return false
+	health_flask_charges -= 1
+	player_hp = min(max_hp, player_hp + max_hp * 0.45)
+	add_notice("Health flask")
+	return true
+
+func use_mana_flask() -> bool:
+	if mana_flask_charges <= 0 or player_mana >= max_mana:
+		return false
+	mana_flask_charges -= 1
+	player_mana = min(max_mana, player_mana + max_mana * 0.55)
+	add_notice("Mana flask")
+	return true
+
+func refill_flasks_from_kill(is_elite: bool, is_boss: bool) -> void:
+	flask_kill_counter += 4 if is_boss else (2 if is_elite else 1)
+	while flask_kill_counter >= 5:
+		flask_kill_counter -= 5
+		if health_flask_charges < health_flask_max_charges:
+			health_flask_charges += 1
+		elif mana_flask_charges < mana_flask_max_charges:
+			mana_flask_charges += 1
+
+func add_item(item: Dictionary) -> void:
+	backpack.append(item.duplicate(true))
+	last_loot_text = "+ " + str(item.get("name", "Item"))
+
+func add_material(id: String, amount: int) -> void:
+	materials[id] = int(materials.get(id, 0)) + amount
+	last_loot_text = "+ " + str(amount) + " " + id
+
+func add_gold(amount: int) -> void:
+	gold += max(0, amount)
+	last_loot_text = "+ " + str(amount) + " gold"
 
 func enter_hub() -> void:
 	mode = "hub"
-	panel_mode = ""
-	current_map_run.clear()
 	player_pos = Vector3.ZERO
+	prompt_text = "Approach the map device and press E, or press T to run a test map."
 	full_restore()
 
-func enter_map_run(map_item: Dictionary) -> void:
-	mode = "map"
-	panel_mode = ""
-	current_map_run = RVMapLoopSystem3D.start_run(map_item)
-	active_map_portal = current_map_run.duplicate(true)
-	player_pos = Vector3.ZERO
+func enter_combat(map_item: Dictionary) -> void:
+	mode = "combat"
+	current_map = map_item.duplicate(true)
+	map_completed = false
+	if map_entries_remaining <= 0:
+		map_entries_remaining = map_entries_max
+	player_pos = Vector3(0.0, 0.0, -13.0)
+	prompt_text = "Clear the map. T returns to hub."
 	full_restore()
 
 func to_save_dict() -> Dictionary:
 	return {
 		"version": SAVE_VERSION,
+		"character_class_id": character_class_id,
 		"character_name": character_name,
-		"class_id": class_id,
 		"level": level,
 		"xp": xp,
-		"xp_to_next": xp_to_next,
 		"passive_points": passive_points,
 		"gold": gold,
-		"equipped": equipped,
-		"inventory": inventory,
-		"map_inventory": map_inventory,
-		"materials": materials,
-		"active_skill_slots": active_skill_slots,
-		"selected_skill_index": selected_skill_index,
-		"skill_mods": skill_mods,
 		"kills": kills,
 		"deaths": deaths,
-		"maps_completed": maps_completed,
-		"completed_map_ids": completed_map_ids
+		"equipped": equipped,
+		"backpack": backpack,
+		"materials": materials,
+		"map_stash": map_stash,
+		"active_skills": active_skills,
+		"skill_mods": skill_mods,
+		"health_flask_charges": health_flask_charges,
+		"mana_flask_charges": mana_flask_charges,
+		"map_entries_remaining": map_entries_remaining,
+		"current_map": current_map
 	}
 
 func apply_save_dict(data: Dictionary) -> void:
+	character_class_id = str(data.get("character_class_id", character_class_id))
 	character_name = str(data.get("character_name", character_name))
-	class_id = str(data.get("class_id", class_id))
 	level = int(data.get("level", level))
-	xp = int(data.get("xp", xp))
-	xp_to_next = int(data.get("xp_to_next", xp_to_next))
+	xp = float(data.get("xp", xp))
 	passive_points = int(data.get("passive_points", passive_points))
 	gold = int(data.get("gold", gold))
-	if typeof(data.get("equipped", {})) == TYPE_DICTIONARY:
-		equipped.merge(Dictionary(data.get("equipped", {})), true)
-	if typeof(data.get("inventory", [])) == TYPE_ARRAY:
-		inventory = []
-		for value: Variant in Array(data.get("inventory", [])):
-			if typeof(value) == TYPE_DICTIONARY:
-				inventory.append(Dictionary(value))
-	if typeof(data.get("map_inventory", [])) == TYPE_ARRAY:
-		map_inventory = []
-		for map_value: Variant in Array(data.get("map_inventory", [])):
-			if typeof(map_value) == TYPE_DICTIONARY:
-				map_inventory.append(Dictionary(map_value))
-	if typeof(data.get("materials", {})) == TYPE_DICTIONARY:
-		materials.merge(Dictionary(data.get("materials", {})), true)
-	if typeof(data.get("active_skill_slots", [])) == TYPE_ARRAY:
-		active_skill_slots = []
-		for skill_value: Variant in Array(data.get("active_skill_slots", [])):
-			active_skill_slots.append(str(skill_value))
-	selected_skill_index = int(data.get("selected_skill_index", selected_skill_index))
-	if typeof(data.get("skill_mods", {})) == TYPE_DICTIONARY:
-		skill_mods = Dictionary(data.get("skill_mods", {})).duplicate(true)
 	kills = int(data.get("kills", kills))
 	deaths = int(data.get("deaths", deaths))
-	maps_completed = int(data.get("maps_completed", maps_completed))
-	if typeof(data.get("completed_map_ids", {})) == TYPE_DICTIONARY:
-		completed_map_ids = Dictionary(data.get("completed_map_ids", {})).duplicate(true)
+	if typeof(data.get("equipped", {})) == TYPE_DICTIONARY:
+		equipped.merge(Dictionary(data.get("equipped", {})), true)
+	if typeof(data.get("backpack", [])) == TYPE_ARRAY:
+		backpack.clear()
+		for item_value: Variant in Array(data.get("backpack", [])):
+			if typeof(item_value) == TYPE_DICTIONARY:
+				backpack.append(Dictionary(item_value))
+	if typeof(data.get("materials", {})) == TYPE_DICTIONARY:
+		materials.merge(Dictionary(data.get("materials", {})), true)
+	if typeof(data.get("map_stash", [])) == TYPE_ARRAY:
+		map_stash.clear()
+		for map_value: Variant in Array(data.get("map_stash", [])):
+			if typeof(map_value) == TYPE_DICTIONARY:
+				map_stash.append(Dictionary(map_value))
+	if typeof(data.get("active_skills", [])) == TYPE_ARRAY:
+		active_skills.clear()
+		for skill_value: Variant in Array(data.get("active_skills", [])):
+			active_skills.append(str(skill_value))
+	if typeof(data.get("skill_mods", {})) == TYPE_DICTIONARY:
+		skill_mods = Dictionary(data.get("skill_mods", {})).duplicate(true)
+	health_flask_charges = int(data.get("health_flask_charges", health_flask_charges))
+	mana_flask_charges = int(data.get("mana_flask_charges", mana_flask_charges))
+	map_entries_remaining = int(data.get("map_entries_remaining", map_entries_remaining))
+	if typeof(data.get("current_map", {})) == TYPE_DICTIONARY:
+		current_map = Dictionary(data.get("current_map", {})).duplicate(true)
 	ensure_defaults()

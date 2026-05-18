@@ -1,44 +1,34 @@
 class_name RVCraftingSystem3D
 extends RefCounted
 
-static func can_temper(item: Dictionary) -> bool:
-	return not item.is_empty() and str(item.get("rarity", "Normal")) == "Normal" and int(item.get("forge_potential", 0)) >= 2
+static func ash_temper(state: Object, index: int) -> bool:
+	return _upgrade_rarity(state, index, "magic", 2, "Ash Temper")
 
-static func can_alchemy(item: Dictionary) -> bool:
-	return not item.is_empty() and str(item.get("rarity", "Normal")) == "Normal" and int(item.get("forge_potential", 0)) >= 5
+static func vault_alchemy(state: Object, index: int) -> bool:
+	return _upgrade_rarity(state, index, "rare", 5, "Vault Alchemy")
 
-static func can_scour(item: Dictionary) -> bool:
-	return not item.is_empty() and str(item.get("rarity", "Normal")) != "Normal" and int(item.get("forge_potential", 0)) >= 1
-
-static func ash_temper(item: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
-	if not can_temper(item):
-		return item
-	var out: Dictionary = item.duplicate(true)
-	out["rarity"] = "Magic"
-	out["forge_potential"] = max(0, int(out.get("forge_potential", 0)) - 2)
-	out["affixes"] = RVAffixDB3D.roll_affixes(out, "Magic", rng)
-	out["stats"] = RVAffixDB3D.apply_affixes_to_stats(Dictionary(out.get("base_stats", {})), Array(out.get("affixes", [])))
-	out["display_name"] = "Magic " + str(out.get("name", "Item"))
-	return out
-
-static func vault_alchemy(item: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
-	if not can_alchemy(item):
-		return item
-	var out: Dictionary = item.duplicate(true)
-	out["rarity"] = "Rare"
-	out["forge_potential"] = max(0, int(out.get("forge_potential", 0)) - 5)
-	out["affixes"] = RVAffixDB3D.roll_affixes(out, "Rare", rng)
-	out["stats"] = RVAffixDB3D.apply_affixes_to_stats(Dictionary(out.get("base_stats", {})), Array(out.get("affixes", [])))
-	out["display_name"] = "Rare " + str(out.get("name", "Item"))
-	return out
-
-static func scouring_ash(item: Dictionary) -> Dictionary:
-	if not can_scour(item):
-		return item
-	var out: Dictionary = item.duplicate(true)
-	out["rarity"] = "Normal"
-	out["forge_potential"] = max(0, int(out.get("forge_potential", 0)) - 1)
-	out["affixes"] = []
-	out["stats"] = Dictionary(out.get("base_stats", {})).duplicate(true)
-	out["display_name"] = str(out.get("name", "Item"))
-	return out
+static func _upgrade_rarity(state: Object, index: int, rarity: String, cost: int, verb: String) -> bool:
+	if state == null:
+		return false
+	var backpack: Array = Array(state.get("backpack"))
+	if index < 0 or index >= backpack.size():
+		return false
+	var materials: Dictionary = Dictionary(state.get("materials"))
+	if int(materials.get("embers", 0)) < cost:
+		if state.has_method("add_notice"):
+			state.call("add_notice", "Need embers")
+		return false
+	var item: Dictionary = Dictionary(backpack[index])
+	if int(item.get("forge_potential", 0)) <= 0:
+		return false
+	materials["embers"] = int(materials.get("embers", 0)) - cost
+	item["rarity"] = rarity
+	item["name"] = str(item.get("name", "Item")).replace("Tempered ", "").replace("Vaultforged ", "")
+	item["name"] = ("Tempered " if rarity == "magic" else "Vaultforged ") + str(item["name"])
+	item["forge_potential"] = max(0, int(item.get("forge_potential", 0)) - cost)
+	backpack[index] = item
+	state.set("materials", materials)
+	state.set("backpack", backpack)
+	if state.has_method("add_notice"):
+		state.call("add_notice", verb + ": " + str(item.get("name", "item")))
+	return true

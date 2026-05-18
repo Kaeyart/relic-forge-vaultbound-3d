@@ -1,65 +1,120 @@
 class_name RVSkillDB3D
 extends RefCounted
 
-static var _cache_ready: bool = false
-static var _skills: Dictionary = {}
-static var _mods: Dictionary = {}
+static func core(skill_id: String) -> Dictionary:
+	return Dictionary(cores().get(skill_id, cores()["fireball"])).duplicate(true)
 
-static func skill(skill_id: String) -> Dictionary:
-	_ensure_cache()
-	return Dictionary(_skills.get(skill_id, {})).duplicate(true)
+static func cores() -> Dictionary:
+	return {
+		"fireball": {
+			"name": "Fireball",
+			"kind": "projectile",
+			"tags": ["spell", "fire", "projectile"],
+			"cost": 12.0,
+			"damage": 34.0,
+			"speed": 17.0,
+			"radius": 0.35,
+			"cooldown": 0.18,
+			"range": 24.0
+		},
+		"storm_lance": {
+			"name": "Storm Lance",
+			"kind": "lance",
+			"tags": ["spell", "lightning", "line"],
+			"cost": 16.0,
+			"damage": 28.0,
+			"radius": 0.65,
+			"cooldown": 0.28,
+			"range": 12.5
+		},
+		"arc_slash": {
+			"name": "Arc Slash",
+			"kind": "area",
+			"tags": ["attack", "melee", "physical"],
+			"cost": 8.0,
+			"damage": 42.0,
+			"radius": 2.25,
+			"cooldown": 0.24,
+			"range": 2.3
+		},
+		"void_rift": {
+			"name": "Void Rift",
+			"kind": "area_target",
+			"tags": ["spell", "void", "area"],
+			"cost": 24.0,
+			"damage": 50.0,
+			"radius": 2.6,
+			"cooldown": 0.65,
+			"range": 14.0
+		}
+	}
 
 static func mod_data(mod_id: String) -> Dictionary:
-	_ensure_cache()
-	return Dictionary(_mods.get(mod_id, {})).duplicate(true)
+	return Dictionary(mods().get(mod_id, {})).duplicate(true)
 
-static func all_skills() -> Dictionary:
-	_ensure_cache()
-	return _skills
+static func mods() -> Dictionary:
+	return {
+		"burning_core": {"name": "Burning Core", "tags": ["fire"], "damage_more": 0.12, "adds_tag": "burn"},
+		"heavy_orb": {"name": "Heavy Orb", "tags": ["projectile"], "damage_more": 0.22, "speed_more": -0.18, "radius_more": 0.20},
+		"forking_ember": {"name": "Forking Ember", "tags": ["projectile"], "extra_projectiles": 2, "damage_more": -0.18},
+		"conductive_lance": {"name": "Conductive Lance", "tags": ["lightning"], "chain_count": 1, "damage_more": 0.05},
+		"wide_arc": {"name": "Wide Arc", "tags": ["melee", "area"], "radius_more": 0.28, "damage_more": -0.08}
+	}
 
-static func all_mods() -> Dictionary:
-	_ensure_cache()
-	return _mods
-
-static func skill_damage(state: Object, skill_id: String) -> float:
-	var data: Dictionary = skill(skill_id)
-	var base_damage: float = float(data.get("base_damage", 10.0))
-	var tags: Array = Array(data.get("tags", []))
-	var build_stats: Dictionary = {}
-	if state != null:
-		for slot_name: Variant in Dictionary(state.get("equipped")).keys():
-			var item_value: Variant = Dictionary(state.get("equipped")).get(slot_name, {})
-			if typeof(item_value) != TYPE_DICTIONARY:
-				continue
-			var stats: Dictionary = Dictionary(Dictionary(item_value).get("stats", {}))
-			for stat_key: Variant in stats.keys():
-				build_stats[str(stat_key)] = float(build_stats.get(str(stat_key), 0.0)) + float(stats[stat_key])
-	var multiplier: float = 1.0
+static func compute_skill(state: Object, skill_id: String) -> Dictionary:
+	var data: Dictionary = core(skill_id)
+	var tags: Array = Array(data.get("tags", [])).duplicate(true)
+	var damage: float = float(data.get("damage", 1.0))
+	var speed: float = float(data.get("speed", 0.0))
+	var radius: float = float(data.get("radius", 0.5))
+	var extra_projectiles: int = 0
+	var chain_count: int = 0
+	var build_stats: Dictionary = _collect_build_stats(state)
+	damage += float(build_stats.get("generic_damage", 0.0))
 	if tags.has("spell"):
-		multiplier += float(build_stats.get("spell_damage_pct", 0.0)) / 100.0
+		damage += float(build_stats.get("spell_damage", 0.0))
 	if tags.has("attack"):
-		multiplier += float(build_stats.get("attack_damage_pct", 0.0)) / 100.0
+		damage += float(build_stats.get("attack_damage", 0.0))
 	if tags.has("fire"):
-		multiplier += float(build_stats.get("fire_damage_pct", 0.0)) / 100.0
+		damage += float(build_stats.get("fire_damage", 0.0))
 	if tags.has("lightning"):
-		multiplier += float(build_stats.get("lightning_damage_pct", 0.0)) / 100.0
+		damage += float(build_stats.get("lightning_damage", 0.0))
 	if tags.has("void"):
-		multiplier += float(build_stats.get("void_damage_pct", 0.0)) / 100.0
-	return base_damage * multiplier
+		damage += float(build_stats.get("void_damage", 0.0))
+	var mods_for_skill: Array = []
+	if state != null:
+		var all_mods: Dictionary = Dictionary(state.get("skill_mods"))
+		mods_for_skill = Array(all_mods.get(skill_id, []))
+	for mod_value: Variant in mods_for_skill:
+		var mod: Dictionary = mod_data(str(mod_value))
+		if mod.is_empty():
+			continue
+		damage *= 1.0 + float(mod.get("damage_more", 0.0))
+		speed *= 1.0 + float(mod.get("speed_more", 0.0))
+		radius *= 1.0 + float(mod.get("radius_more", 0.0))
+		extra_projectiles += int(mod.get("extra_projectiles", 0))
+		chain_count += int(mod.get("chain_count", 0))
+		var adds_tag: String = str(mod.get("adds_tag", ""))
+		if adds_tag != "" and not tags.has(adds_tag):
+			tags.append(adds_tag)
+	data["damage"] = max(1.0, damage)
+	data["speed"] = max(0.0, speed)
+	data["radius"] = max(0.1, radius)
+	data["tags"] = tags
+	data["extra_projectiles"] = extra_projectiles
+	data["chain_count"] = chain_count
+	return data
 
-static func _ensure_cache() -> void:
-	if _cache_ready:
-		return
-	_cache_ready = true
-	_skills = {
-		"fireball": {"id":"fireball", "name":"Fireball", "kind":"projectile", "tags":["spell","fire","projectile"], "base_damage":22.0, "mana_cost":12.0, "cooldown":0.35, "projectile_speed":22.0, "radius":0.35, "description":"Launch a fire projectile that damages the first enemy hit."},
-		"storm_lance": {"id":"storm_lance", "name":"Storm Lance", "kind":"line", "tags":["spell","lightning","projectile"], "base_damage":18.0, "mana_cost":14.0, "cooldown":0.55, "range":14.0, "description":"Fire a fast piercing lance of lightning."},
-		"rift_pulse": {"id":"rift_pulse", "name":"Rift Pulse", "kind":"area", "tags":["spell","void","area"], "base_damage":28.0, "mana_cost":18.0, "cooldown":1.15, "radius":2.8, "description":"Detonate a void pulse at the target point."},
-		"arc_slash": {"id":"arc_slash", "name":"Arc Slash", "kind":"melee", "tags":["attack","melee","physical"], "base_damage":20.0, "mana_cost":6.0, "cooldown":0.45, "range":2.2, "arc_degrees":85.0, "description":"A short frontal slash for close combat."}
-	}
-	_mods = {
-		"burning_core": {"id":"burning_core", "name":"Burning Core", "allowed_tags":["fire"], "effects":["ignite"], "damage_more":0.10, "mana_more":0.10},
-		"forking_ember": {"id":"forking_ember", "name":"Forking Ember", "allowed_tags":["projectile"], "effects":["split_projectile"], "damage_more":-0.12, "mana_more":0.18},
-		"conductive_lance": {"id":"conductive_lance", "name":"Conductive Lance", "allowed_tags":["lightning"], "effects":["shock"], "damage_more":0.08, "mana_more":0.12},
-		"void_echo": {"id":"void_echo", "name":"Void Echo", "allowed_tags":["void"], "effects":["repeat_area"], "damage_more":-0.08, "mana_more":0.20}
-	}
+static func _collect_build_stats(state: Object) -> Dictionary:
+	var result: Dictionary = {}
+	if state == null:
+		return result
+	var equipped: Dictionary = Dictionary(state.get("equipped"))
+	for slot_value: Variant in equipped.values():
+		if typeof(slot_value) != TYPE_DICTIONARY:
+			continue
+		var stats: Dictionary = Dictionary(Dictionary(slot_value).get("stats", {}))
+		for stat_value: Variant in stats.keys():
+			var stat: String = str(stat_value)
+			result[stat] = float(result.get(stat, 0.0)) + float(stats[stat_value])
+	return result

@@ -1,22 +1,15 @@
 class_name RVPlayerActor3D
 extends Node3D
 
-@onready var body: MeshInstance3D = $Body
+var facing_dir: Vector3 = Vector3.FORWARD
 
-func sync_from_state(state: RVGameState3D) -> void:
+func sync_from_state(state: Object) -> void:
 	if state == null:
 		return
-	global_position = state.player_pos
+	global_position = Vector3(state.get("player_pos"))
 
-func face_direction(direction: Vector3) -> void:
-	var flat := Vector3(direction.x, 0.0, direction.z)
-	if flat.length() < 0.01:
+func set_facing(direction: Vector3) -> void:
+	if direction.length() < 0.05:
 		return
-	look_at(global_position + flat.normalized(), Vector3.UP)
-
-func set_combat_flash(active: bool) -> void:
-	if body == null:
-		return
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.95, 0.74, 0.42) if active else Color(0.82, 0.74, 0.58)
-	body.material_override = mat
+	facing_dir = direction.normalized()
+	look_at(global_position + Vector3(facing_dir.x, 0.0, facing_dir.z), Vector3.UP)

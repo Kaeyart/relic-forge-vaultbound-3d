@@ -1,43 +1,34 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://ollpwllas25g"]
 
-[ext_resource type="Script" path="res://scripts/core/GameRoot3D.gd" id="1"]
+[ext_resource type="Script" uid="uid://dtanim60plpel" path="res://scripts/core/GameRoot3D.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/hub/VaultHub3D.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/combat/CombatArena3D.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/prefabs/player/Player3D.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://scenes/ui/HUD3D.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/GameHUD3D.tscn" id="5"]
 
-[sub_resource type="Environment" id="Environment_default"]
-background_mode = 1
-background_color = Color(0.025, 0.022, 0.02, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.32, 0.25, 0.2, 1)
-ambient_light_energy = 0.8
-
-[node name="GameRoot3D" type="Node3D"]
+[node name="GameRoot3D" type="Node3D" unique_id=1142071659]
 script = ExtResource("1")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_default")
-
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.707107, -0.353553, 0.612372, 0, 0.866025, 0.5, -0.707107, -0.353553, 0.612372, 0, 8, 0)
-light_energy = 1.25
-
-[node name="Hub3D" parent="." instance=ExtResource("2")]
+[node name="Hub" parent="." unique_id=1885658668 instance=ExtResource("2")]
 unique_name_in_owner = true
 
-[node name="CombatArena3D" parent="." instance=ExtResource("3")]
+[node name="Combat" parent="." unique_id=1620705318 instance=ExtResource("3")]
 unique_name_in_owner = true
 visible = false
 
-[node name="Player3D" parent="." instance=ExtResource("4")]
+[node name="Player" parent="." unique_id=1518232676 instance=ExtResource("4")]
 unique_name_in_owner = true
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=144244677]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 0.650791, 0.759257, 0, -0.759257, 0.650791, 0, 12, 10.5)
+transform = Transform3D(1, 0, 0, 0, 0.646, 0.763, 0, -0.763, 0.646, 0, 15, 13)
 projection = 1
-size = 13.5
+current = true
+size = 15.5
 
-[node name="HUD3D" parent="." instance=ExtResource("5")]
-unique_name_in_owner = true
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=348893299]
+transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 0, 8, 0)
+light_energy = 1.8
+shadow_enabled = true
+
+[node name="GameHUD3D" parent="." unique_id=1748380798 instance=ExtResource("5")]

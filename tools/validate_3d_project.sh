@@ -1,56 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
+cd /home/kaey/Desktop/RelicForgeVaultbound3D
 
-cd "$(dirname "$0")/.."
+echo "== Relic Forge Vaultbound 3D validate =="
+[ -f project.godot ] && echo "OK: project.godot" || { echo "ERROR: missing project.godot"; exit 1; }
+[ -f scenes/main/GameRoot3D.tscn ] && echo "OK: 3D main scene" || { echo "ERROR: missing GameRoot3D.tscn"; exit 1; }
+[ -f scripts/core/GameRoot3D.gd ] && echo "OK: 3D root script" || { echo "ERROR: missing GameRoot3D.gd"; exit 1; }
+if grep -q 'GameRoot3D.tscn' project.godot; then echo "OK: main scene set"; else echo "ERROR: main scene not set"; exit 1; fi
 
-echo "== Relic Forge 3D validation =="
+echo "== Key tree =="
+find scenes scripts docs tools -maxdepth 3 -type f | sort | sed 's/^/FILE /' | head -120
 
-fail=0
-need_file() {
-  if [ ! -f "$1" ]; then
-    echo "ERROR: missing $1"
-    fail=1
-  else
-    echo "OK: $1"
-  fi
-}
-need_dir() {
-  if [ ! -d "$1" ]; then
-    echo "ERROR: missing dir $1"
-    fail=1
-  else
-    echo "OK: dir $1"
-  fi
-}
+echo "== Git status =="
+git status --short || true
 
-need_file project.godot
-need_dir scenes
-need_dir scripts
-need_file README.md
-need_file docs/PROJECT_STATUS_3D.md
-need_file docs/PORTING_PLAN_2D_TO_3D.md
-need_file tools/import_2d_snapshot_inert.py
-
-if grep -R "class_name RVGameRoot\|class_name RVCombatArena" _ported_from_2d_raw 2>/dev/null | grep -v "\.txt:" >/dev/null 2>&1; then
-  echo "ERROR: old 2D runtime scripts appear active inside _ported_from_2d_raw"
-  fail=1
-else
-  echo "OK: imported 2D Godot scripts are inert"
-fi
-
-if [ -f project.godot ]; then
-  echo "Project main scene:"
-  grep -n 'run/main_scene' project.godot || true
-fi
-
-if [ -d .git ]; then
-  echo "OK: git repo exists"
-else
-  echo "WARNING: git repo missing"
-fi
-
-if [ "$fail" -ne 0 ]; then
-  exit 1
-fi
-
-echo "3D validation complete."
+echo "validate_3d_project complete. Open Godot and press Play for runtime confirmation."

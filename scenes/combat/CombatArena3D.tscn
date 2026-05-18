@@ -1,55 +1,6 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/combat/CombatArena3D.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/prefabs/enemies/Enemy3D.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/prefabs/projectiles/Projectile3D.tscn" id="3"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-size = Vector3(24, 0.12, 20)
-
-[sub_resource type="BoxMesh" id="BoxMesh_wall_long"]
-size = Vector3(24, 2.5, 0.35)
-
-[sub_resource type="BoxMesh" id="BoxMesh_wall_short"]
-size = Vector3(0.35, 2.5, 20)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_portal"]
-top_radius = 0.85
-bottom_radius = 0.85
-height = 0.16
 
 [node name="CombatArena3D" type="Node3D"]
-visible = false
 script = ExtResource("1")
-enemy_scene = ExtResource("2")
-projectile_scene = ExtResource("3")
-
-[node name="ArenaFloor" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_floor")
-
-[node name="NorthWall" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, -10.2)
-mesh = SubResource("BoxMesh_wall_long")
-
-[node name="SouthWall" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 10.2)
-mesh = SubResource("BoxMesh_wall_long")
-
-[node name="WestWall" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2, 1.25, 0)
-mesh = SubResource("BoxMesh_wall_short")
-
-[node name="EastWall" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2, 1.25, 0)
-mesh = SubResource("BoxMesh_wall_short")
-
-[node name="ExitPortal" type="Area3D" parent="."]
-visible = false
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 8.6)
-
-[node name="PortalMesh" type="MeshInstance3D" parent="ExitPortal"]
-mesh = SubResource("CylinderMesh_portal")
-
-[node name="Enemies" type="Node3D" parent="."]
-
-[node name="Projectiles" type="Node3D" parent="."]
