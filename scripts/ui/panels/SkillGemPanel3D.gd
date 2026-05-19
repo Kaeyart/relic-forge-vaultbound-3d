@@ -51,7 +51,7 @@ func _slots() -> Array:
 
 func _selected() -> int:
 	var slots: Array = _slots()
-	return clampi(_rf_087v_int(_state_get("selected_skill_slot", 0)), 0, max(0, slots.size() - 1))
+	return clampi(_safe_int(_state_get("selected_skill_slot", 0)), 0, max(0, slots.size() - 1))
 
 func _selected_slot() -> Dictionary:
 	var slots: Array = _slots()
@@ -79,9 +79,10 @@ func _rebuild_active_slots() -> void:
 	for i: int in range(slots.size()):
 		var slot: Dictionary = Dictionary(slots[i])
 		var id: String = str(slot.get("active", slot.get("active_id", "fireball")))
+		var active_data: Dictionary = GemDBScript.active(id)
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(150, 70)
-		b.setup("slot_%d" % i, "Slot %d\n%s" % [i + 1, str(GemDBScript.active(id).get("name", id))], {"kind":"active_slot", "slot_index":i}, ["active_gem"], i == selected)
+		b.setup("slot_%d" % i, "Slot %d\n%s" % [i + 1, str(active_data.get("name", id))], {"kind":"active_slot", "slot_index":i}, ["active_gem"], i == selected, _gem_tip(active_data))
 		b.slot_clicked.connect(_select_slot)
 		b.slot_dropped.connect(_drop_active)
 		active_slot_grid.add_child(b)
@@ -92,13 +93,16 @@ func _rebuild_support_sockets() -> void:
 	for i: int in range(3):
 		var label: String = "Support %d\nEmpty" % [i + 1]
 		var payload: Dictionary = {"kind":"support_socket", "socket_index":i}
+		var tip: String = "Drop a compatible support gem here."
 		if i < supports.size():
 			var sid: String = str(supports[i])
-			label = "Support %d\n%s" % [i + 1, str(GemDBScript.support(sid).get("name", sid))]
+			var data: Dictionary = GemDBScript.support(sid)
+			label = "Support %d\n%s" % [i + 1, str(data.get("name", sid))]
 			payload["support_id"] = sid
+			tip = _gem_tip(data) + "\nClick/right click to remove."
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(160, 62)
-		b.setup("support_%d" % i, label, payload, ["support_gem"], false)
+		b.setup("support_%d" % i, label, payload, ["support_gem"], false, tip)
 		b.slot_clicked.connect(_remove_support)
 		b.slot_right_clicked.connect(_remove_support)
 		b.slot_dropped.connect(_drop_support)
@@ -110,9 +114,10 @@ func _rebuild_library() -> void:
 		if not bool(owned_active[key]):
 			continue
 		var id: String = str(key)
+		var data: Dictionary = GemDBScript.active(id)
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(135, 54)
-		b.setup("active_" + id, str(GemDBScript.active(id).get("name", id)), {"kind":"active_gem", "gem_id":id}, [], false)
+		b.setup("active_" + id, str(data.get("name", id)), {"kind":"active_gem", "gem_id":id}, [], false, _gem_tip(data))
 		b.slot_clicked.connect(_click_active)
 		b.slot_double_clicked.connect(_click_active)
 		active_grid.add_child(b)
@@ -120,14 +125,16 @@ func _rebuild_library() -> void:
 	var active_id: String = str(_selected_slot().get("active", _selected_slot().get("active_id", "fireball")))
 	var owned_support: Dictionary = Dictionary(_state_get("support_gems_owned", {}))
 	for key: Variant in owned_support.keys():
-		if int(owned_support[key]) <= 0:
+		if _safe_int(owned_support[key]) <= 0:
 			continue
 		var sid: String = str(key)
 		var valid: bool = GemDBScript.support_compatible(active_id, sid)
+		var data: Dictionary = GemDBScript.support(sid)
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(145, 54)
-		b.setup("support_" + sid, ("✓ " if valid else "× ") + str(GemDBScript.support(sid).get("name", sid)), {"kind":"support_gem", "gem_id":sid}, [], false)
-		b.disabled = not valid
+		b.setup("support_" + sid, ("✓ " if valid else "× ") + str(data.get("name", sid)), {"kind":"support_gem", "gem_id":sid}, [], false, _gem_tip(data))
+		if not valid:
+			b.set_disabled_reason("Not compatible with selected active skill.")
 		b.slot_clicked.connect(_click_support)
 		b.slot_double_clicked.connect(_click_support)
 		support_grid.add_child(b)
@@ -139,15 +146,24 @@ func _rebuild_spirits() -> void:
 	for key: Variant in spirits.keys():
 		var id: String = str(key)
 		var enabled: bool = bool(spirits[key])
+		var data: Dictionary = GemDBScript.spirit(id)
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(148, 54)
-		b.setup("spirit_" + id, ("ON " if enabled else "off ") + str(GemDBScript.spirit(id).get("name", id)), {"kind":"spirit_gem", "gem_id":id}, [], enabled)
+		b.setup("spirit_" + id, ("ON " if enabled else "off ") + str(data.get("name", id)), {"kind":"spirit_gem", "gem_id":id}, [], enabled, _gem_tip(data))
 		b.slot_clicked.connect(_toggle_spirit)
 		spirit_grid.add_child(b)
 
+func _gem_tip(data: Dictionary) -> String:
+	var lines: PackedStringArray = [str(data.get("name", "Gem"))]
+	if data.has("tags"):
+		lines.append("Tags: " + ", ".join(PackedStringArray(_to_strings(Array(data.get("tags", []))))))
+	if data.has("description"):
+		lines.append(str(data.get("description", "")))
+	return "\n".join(lines)
+
 func _select_slot(_id: String, payload: Dictionary) -> void:
 	if state_ref != null:
-		state_ref.set("selected_skill_slot", int(payload.get("slot_index", 0)))
+		state_ref.set("selected_skill_slot", _safe_int(payload.get("slot_index", 0)))
 	_rebuild()
 
 func _drop_active(_id: String, payload: Dictionary) -> void:
@@ -185,9 +201,15 @@ func _add_support(sid: String) -> void:
 	var slot: Dictionary = Dictionary(slots[idx])
 	var active_id: String = str(slot.get("active", slot.get("active_id", "fireball")))
 	if not GemDBScript.support_compatible(active_id, sid):
+		if state_ref != null and state_ref.has_method("add_notice"):
+			state_ref.call("add_notice", "Invalid support")
 		return
 	var supports: Array = Array(slot.get("supports", []))
-	if supports.has(sid) or supports.size() >= 3:
+	if supports.has(sid):
+		return
+	if supports.size() >= 3:
+		if state_ref != null and state_ref.has_method("add_notice"):
+			state_ref.call("add_notice", "Support sockets full")
 		return
 	supports.append(sid)
 	slot["supports"] = supports
@@ -224,7 +246,12 @@ func _refresh_detail() -> void:
 	if state_ref == null or detail_label == null:
 		return
 	var cast: Dictionary = SkillGemSystemScript.selected_cast_data(state_ref)
-	detail_label.text = "[b]%s[/b]\nDamage: %s\nMana: %s\nTags: %s\n\nDrag active gems into skill slots. Drag support gems into sockets. Click spirit gems to toggle." % [str(cast.get("name", "")), str(int(round(_rf_087v_float(cast.get("damage", 0.0))))), str(int(round(_rf_087v_float(cast.get("mana_cost", 0.0))))), ", ".join(PackedStringArray(_to_strings(Array(cast.get("tags", [])))))]
+	detail_label.text = "[b]%s[/b]\nDamage: %s\nMana: %s\nTags: %s\n\n[i]Click active slot, then click/drag gems. Click support sockets to remove. Click spirit gems to toggle.[/i]" % [
+		str(cast.get("name", "")),
+		str(_safe_int(round(_safe_float(cast.get("damage", 0.0))))),
+		str(_safe_int(round(_safe_float(cast.get("mana_cost", 0.0))))),
+		", ".join(PackedStringArray(_to_strings(Array(cast.get("tags", [])))))
+	]
 
 func _to_strings(values: Array) -> Array[String]:
 	var out: Array[String] = []
@@ -232,42 +259,24 @@ func _to_strings(values: Array) -> Array[String]:
 		out.append(str(value))
 	return out
 
-func _rf_087v_float(value: Variant, fallback: float = 0.0) -> float:
+func _safe_float(value: Variant, fallback: float = 0.0) -> float:
 	if value == null:
 		return fallback
 	match typeof(value):
-		TYPE_FLOAT:
-			return value
-		TYPE_INT:
-			return float(value)
-		TYPE_BOOL:
-			return 1.0 if bool(value) else 0.0
+		TYPE_FLOAT: return value
+		TYPE_INT: return float(value)
 		TYPE_STRING:
 			var s: String = str(value)
-			if s.is_valid_float():
-				return s.to_float()
-			if s.is_valid_int():
-				return float(s.to_int())
-			return fallback
-		_:
-			return fallback
+			return s.to_float() if s.is_valid_float() else fallback
+		_: return fallback
 
-func _rf_087v_int(value: Variant, fallback: int = 0) -> int:
+func _safe_int(value: Variant, fallback: int = 0) -> int:
 	if value == null:
 		return fallback
 	match typeof(value):
-		TYPE_INT:
-			return value
-		TYPE_FLOAT:
-			return int(round(value))
-		TYPE_BOOL:
-			return 1 if bool(value) else 0
+		TYPE_INT: return value
+		TYPE_FLOAT: return int(round(value))
 		TYPE_STRING:
 			var s: String = str(value)
-			if s.is_valid_int():
-				return s.to_int()
-			if s.is_valid_float():
-				return int(round(s.to_float()))
-			return fallback
-		_:
-			return fallback
+			return s.to_int() if s.is_valid_int() else fallback
+		_: return fallback

@@ -1,17 +1,17 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://ct8gicfbf60fk"]
 
-[ext_resource type="Script" path="res://scripts/ui/UIPanelRoot3D.gd" id="1_root"]
+[ext_resource type="Script" uid="uid://u7fs1gdpg6f6" path="res://scripts/ui/UIPanelRoot3D.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://scenes/ui/panels/InventoryPanel3D.tscn" id="2_inv"]
 [ext_resource type="PackedScene" path="res://scenes/ui/panels/ForgePanel3D.tscn" id="3_forge"]
 [ext_resource type="PackedScene" path="res://scenes/ui/panels/SkillGemPanel3D.tscn" id="4_skill"]
 [ext_resource type="PackedScene" path="res://scenes/ui/panels/MapDevicePanel3D.tscn" id="5_map"]
 [ext_resource type="PackedScene" path="res://scenes/ui/panels/CharacterPanel3D.tscn" id="6_char"]
 
-[node name="UIPanelRoot3D" type="CanvasLayer"]
-script = ExtResource("1_root")
+[node name="UIPanelRoot3D" type="CanvasLayer" unique_id=610546306]
 layer = 20
+script = ExtResource("1_root")
 
-[node name="Blocker" type="ColorRect" parent="."]
+[node name="Blocker" type="ColorRect" parent="." unique_id=661046023]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,7 +21,7 @@ grow_vertical = 2
 mouse_filter = 1
 color = Color(0, 0, 0, 0.58)
 
-[node name="Shell" type="PanelContainer" parent="."]
+[node name="Shell" type="PanelContainer" parent="." unique_id=1433796617]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,107 +34,82 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="VBox" type="VBoxContainer" parent="Shell"]
+[node name="VBox" type="VBoxContainer" parent="Shell" unique_id=849060386]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="Header" type="HBoxContainer" parent="Shell/VBox"]
+[node name="Header" type="HBoxContainer" parent="Shell/VBox" unique_id=306373629]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleLabel" type="Label" parent="Shell/VBox/Header"]
+[node name="TitleLabel" type="Label" parent="Shell/VBox/Header" unique_id=303317524]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
 text = "Panel"
 vertical_alignment = 1
 
-[node name="CloseButton" type="Button" parent="Shell/VBox/Header"]
+[node name="CloseButton" type="Button" parent="Shell/VBox/Header" unique_id=1262424954]
 custom_minimum_size = Vector2(96, 40)
 layout_mode = 2
 text = "Close"
 
-[node name="Tabs" type="HBoxContainer" parent="Shell/VBox"]
+[node name="Tabs" type="HBoxContainer" parent="Shell/VBox" unique_id=1975097572]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="TabInventory" type="Button" parent="Shell/VBox/Tabs"]
+[node name="TabInventory" type="Button" parent="Shell/VBox/Tabs" unique_id=1125565524]
 custom_minimum_size = Vector2(130, 38)
 layout_mode = 2
 text = "Inventory"
 
-[node name="TabForge" type="Button" parent="Shell/VBox/Tabs"]
+[node name="TabForge" type="Button" parent="Shell/VBox/Tabs" unique_id=2032398450]
 custom_minimum_size = Vector2(130, 38)
 layout_mode = 2
 text = "Forge"
 
-[node name="TabSkills" type="Button" parent="Shell/VBox/Tabs"]
+[node name="TabSkills" type="Button" parent="Shell/VBox/Tabs" unique_id=1538674025]
 custom_minimum_size = Vector2(130, 38)
 layout_mode = 2
 text = "Skills"
 
-[node name="TabMaps" type="Button" parent="Shell/VBox/Tabs"]
+[node name="TabMaps" type="Button" parent="Shell/VBox/Tabs" unique_id=122666407]
 custom_minimum_size = Vector2(130, 38)
 layout_mode = 2
 text = "Maps"
 
-[node name="TabCharacter" type="Button" parent="Shell/VBox/Tabs"]
+[node name="TabCharacter" type="Button" parent="Shell/VBox/Tabs" unique_id=2096839466]
 custom_minimum_size = Vector2(130, 38)
 layout_mode = 2
 text = "Character"
 
-[node name="Content" type="Control" parent="Shell/VBox"]
+[node name="Content" type="Control" parent="Shell/VBox" unique_id=1336079432]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 1
 
-[node name="InventoryPanel" parent="Shell/VBox/Content" instance=ExtResource("2_inv")]
+[node name="InventoryPanel" parent="Shell/VBox/Content" unique_id=471855055 instance=ExtResource("2_inv")]
 visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
-[node name="ForgePanel" parent="Shell/VBox/Content" instance=ExtResource("3_forge")]
+[node name="ForgePanel" parent="Shell/VBox/Content" unique_id=1548435469 instance=ExtResource("3_forge")]
 visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
-[node name="SkillsPanel" parent="Shell/VBox/Content" instance=ExtResource("4_skill")]
+[node name="SkillsPanel" parent="Shell/VBox/Content" unique_id=1071401984 instance=ExtResource("4_skill")]
 visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
-[node name="MapsPanel" parent="Shell/VBox/Content" instance=ExtResource("5_map")]
+[node name="MapsPanel" parent="Shell/VBox/Content" unique_id=657228580 instance=ExtResource("5_map")]
 visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
-[node name="CharacterPanel" parent="Shell/VBox/Content" instance=ExtResource("6_char")]
+[node name="CharacterPanel" parent="Shell/VBox/Content" unique_id=330918231 instance=ExtResource("6_char")]
 visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2

@@ -47,7 +47,7 @@ func _maps() -> Array:
 
 func _selected_index() -> int:
 	var maps: Array = _maps()
-	return clampi(int(_state_get("selected_map_index", 0)), 0, max(0, maps.size() - 1))
+	return clampi(_safe_int(_state_get("selected_map_index", 0)), 0, max(0, maps.size() - 1))
 
 func _selected_map() -> Dictionary:
 	var maps: Array = _maps()
@@ -67,7 +67,7 @@ func _rebuild() -> void:
 		var map_item: Dictionary = Dictionary(maps[i])
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(145, 64)
-		b.setup("map_%d" % i, "T%s\n%s" % [str(map_item.get("tier", 1)), str(map_item.get("display_name", map_item.get("name", "Map"))).substr(0, 18)], {"kind":"map_item", "index":i}, [], i == selected)
+		b.setup("map_%d" % i, "T%s\n%s" % [str(map_item.get("tier", 1)), str(map_item.get("display_name", map_item.get("name", "Map"))).substr(0, 18)], {"kind":"map_item", "index":i}, [], i == selected, _map_tip(map_item))
 		b.slot_clicked.connect(_select_map)
 		b.slot_double_clicked.connect(_activate_map)
 		map_grid.add_child(b)
@@ -76,15 +76,17 @@ func _rebuild() -> void:
 	var selected_map: Dictionary = _selected_map()
 	var label: String = "DROP MAP HERE" if selected_map.is_empty() else "MAP DEVICE\n" + str(selected_map.get("display_name", "Map"))
 	slot.custom_minimum_size = Vector2(240, 110)
-	slot.setup("device", label, {}, ["map_item"], not selected_map.is_empty())
+	slot.setup("device", label, {}, ["map_item"], not selected_map.is_empty(), "Drag a map here or double click a map.")
 	slot.slot_dropped.connect(_select_map)
 	device_slot.add_child(slot)
-
 	_refresh_detail()
+
+func _map_tip(map_item: Dictionary) -> String:
+	return str(map_item.get("display_name", "Map")) + "\nTier: " + str(map_item.get("tier", 1)) + "\n" + str(map_item.get("mods_text", "No modifiers"))
 
 func _select_map(_id: String, payload: Dictionary) -> void:
 	if state_ref != null:
-		state_ref.set("selected_map_index", int(payload.get("index", 0)))
+		state_ref.set("selected_map_index", _safe_int(payload.get("index", 0)))
 	_rebuild()
 
 func _activate_map(_id: String, payload: Dictionary) -> void:
@@ -98,7 +100,7 @@ func _refresh_detail() -> void:
 	if map_item.is_empty():
 		detail_label.text = "No map selected."
 		return
-	detail_label.text = "[b]%s[/b]\nTier: %s\nLevel: %s\n\n[b]Modifiers[/b]\n%s" % [str(map_item.get("display_name", "Map")), str(map_item.get("tier", 1)), str(map_item.get("map_level", map_item.get("tier", 1))), str(map_item.get("mods_text", "None"))]
+	detail_label.text = "[b]%s[/b]\nTier: %s\nLevel: %s\n\n[b]Modifiers[/b]\n%s\n\n[i]Double click map or press Start.[/i]" % [str(map_item.get("display_name", "Map")), str(map_item.get("tier", 1)), str(map_item.get("map_level", map_item.get("tier", 1))), str(map_item.get("mods_text", "None"))]
 
 func _start() -> void:
 	if state_ref != null and state_ref.has_method("maps_activate_selected"):
@@ -109,3 +111,14 @@ func _reenter() -> void:
 		state_ref.set("panel_mode", "")
 		if state_ref.has_method("add_notice"):
 			state_ref.call("add_notice", "Use T or hub portal to re-enter")
+
+func _safe_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT: return value
+		TYPE_FLOAT: return int(round(value))
+		TYPE_STRING:
+			var s: String = str(value)
+			return s.to_int() if s.is_valid_int() else fallback
+		_: return fallback

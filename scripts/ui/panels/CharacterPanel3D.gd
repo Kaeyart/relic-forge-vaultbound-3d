@@ -49,11 +49,15 @@ func _stat_block(title: String, stats: Dictionary, keys: Array) -> String:
 		var k: String = str(key)
 		if stats.has(k):
 			lines.append("%s: %s" % [k, str(stats[k])])
+	if lines.size() == 1:
+		lines.append("No derived stats yet.")
 	return "\n".join(lines)
 
 func _equipment_text() -> String:
 	var eq: Dictionary = Dictionary(_state_get("equipped", {}))
 	var lines: PackedStringArray = ["[b]Equipment[/b]"]
+	if eq.is_empty():
+		lines.append("No equipment currently tracked.")
 	for key: Variant in eq.keys():
 		var item: Dictionary = Dictionary(eq[key])
 		lines.append("%s: %s" % [str(key), str(item.get("display_name", item.get("name", "Empty")))])

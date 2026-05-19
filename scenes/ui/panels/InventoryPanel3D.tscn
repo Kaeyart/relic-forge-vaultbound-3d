@@ -11,100 +11,174 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBox" type="HBoxContainer" parent="."]
+[node name="RootVBox" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
-[node name="EquipmentBox" type="PanelContainer" parent="HBox"]
-custom_minimum_size = Vector2(300, 0)
+[node name="HeaderBar" type="HBoxContainer" parent="RootVBox"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="RootVBox/HeaderBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 22
+text = "Inventory"
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="RootVBox/HeaderBar"]
+custom_minimum_size = Vector2(100, 34)
+layout_mode = 2
+text = "Close X"
+
+[node name="MainBody" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="EquipmentPanel" type="PanelContainer" parent="RootVBox/MainBody"]
+custom_minimum_size = Vector2(315, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 3
 
-[node name="EquipmentVBox" type="VBoxContainer" parent="HBox/EquipmentBox"]
+[node name="EquipmentMargin" type="MarginContainer" parent="RootVBox/MainBody/EquipmentPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="EquipmentHBox" type="HBoxContainer" parent="RootVBox/MainBody/EquipmentPanel/EquipmentMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="EquipmentTitle" type="Label" parent="HBox/EquipmentBox/EquipmentVBox"]
-custom_minimum_size = Vector2(0, 36)
+[node name="LeftEquipmentColumn" type="VBoxContainer" parent="RootVBox/MainBody/EquipmentPanel/EquipmentMargin/EquipmentHBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Equipment"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="RightEquipmentColumn" type="VBoxContainer" parent="RootVBox/MainBody/EquipmentPanel/EquipmentMargin/EquipmentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="BackpackPanel" type="PanelContainer" parent="RootVBox/MainBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BackpackMargin" type="MarginContainer" parent="RootVBox/MainBody/BackpackPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="BackpackVBox" type="VBoxContainer" parent="RootVBox/MainBody/BackpackPanel/BackpackMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="BackpackTitle" type="Label" parent="RootVBox/MainBody/BackpackPanel/BackpackMargin/BackpackVBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Backpack Grid"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EquipmentGrid" type="GridContainer" parent="HBox/EquipmentBox/EquipmentVBox"]
+[node name="BackpackArea" type="Control" parent="RootVBox/MainBody/BackpackPanel/BackpackMargin/BackpackVBox"]
+custom_minimum_size = Vector2(520, 340)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-columns = 2
+mouse_filter = 1
 
-[node name="BackpackBox" type="PanelContainer" parent="HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="BackpackVBox" type="VBoxContainer" parent="HBox/BackpackBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="BackpackTitle" type="Label" parent="HBox/BackpackBox/BackpackVBox"]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Backpack"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BackpackScroll" type="ScrollContainer" parent="HBox/BackpackBox/BackpackVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="BackpackGrid" type="GridContainer" parent="HBox/BackpackBox/BackpackVBox/BackpackScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-columns = 4
-
-[node name="DetailsBox" type="PanelContainer" parent="HBox"]
-custom_minimum_size = Vector2(340, 0)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 3
-
-[node name="DetailsVBox" type="VBoxContainer" parent="HBox/DetailsBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="DetailsLabel" type="RichTextLabel" parent="HBox/DetailsBox/DetailsVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Select an item."
-
-[node name="CompareLabel" type="RichTextLabel" parent="HBox/DetailsBox/DetailsVBox"]
-custom_minimum_size = Vector2(0, 140)
+[node name="BottomPanel" type="PanelContainer" parent="RootVBox"]
+custom_minimum_size = Vector2(0, 168)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
+
+[node name="BottomMargin" type="MarginContainer" parent="RootVBox/BottomPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="BottomHBox" type="HBoxContainer" parent="RootVBox/BottomPanel/BottomMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="SelectedItemLabel" type="RichTextLabel" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Selected item"
+
+[node name="CompareLabel" type="RichTextLabel" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 bbcode_enabled = true
 text = "Compare"
 
-[node name="EquipButton" type="Button" parent="HBox/DetailsBox/DetailsVBox"]
-custom_minimum_size = Vector2(0, 44)
+[node name="ActionColumn" type="VBoxContainer" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="EquipButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Equip Selected"
+text = "Equip"
+
+[node name="UnequipButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Unequip"
+
+[node name="DepositButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Deposit"
+
+[node name="SalvageButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Salvage"
+
+[node name="SortButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sort"

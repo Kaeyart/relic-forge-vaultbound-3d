@@ -66,7 +66,7 @@ func _rebuild() -> void:
 		var uid: String = str(item.get("uid", ""))
 		var b: Button = SlotButtonScript.new()
 		b.custom_minimum_size = Vector2(126, 64)
-		b.setup("craft_%d" % i, str(item.get("display_name", "Item")).substr(0, 18), {"kind":"inventory_item", "index":i, "uid":uid}, [], uid == selected_uid)
+		b.setup("craft_%d" % i, str(item.get("display_name", "Item")).substr(0, 18), {"kind":"inventory_item", "index":i, "uid":uid}, [], uid == selected_uid, _item_tip(item))
 		b.slot_clicked.connect(_select_payload)
 		b.slot_double_clicked.connect(_select_payload)
 		item_grid.add_child(b)
@@ -77,17 +77,21 @@ func _rebuild() -> void:
 	if not item.is_empty():
 		label = "FORGE ITEM\n" + str(item.get("display_name", "Item"))
 	slot_button.custom_minimum_size = Vector2(230, 110)
-	slot_button.setup("forge_slot", label, {}, ["inventory_item"], not item.is_empty())
+	slot_button.setup("forge_slot", label, {}, ["inventory_item"], not item.is_empty(), "Drag a craftable item here.")
 	slot_button.slot_dropped.connect(_select_payload)
 	forge_slot.add_child(slot_button)
 
 	_refresh_text()
+	_refresh_action_buttons()
+
+func _item_tip(item: Dictionary) -> String:
+	return str(item.get("display_name", "Item")) + "\nForge Potential: " + str(item.get("forge_potential", 0))
 
 func _select_payload(_id: String, payload: Dictionary) -> void:
 	if state_ref == null:
 		return
 	var backpack: Array = Array(_state_get("backpack", []))
-	var index: int = int(payload.get("index", -1))
+	var index: int = _safe_int(payload.get("index", -1), -1)
 	if index >= 0 and index < backpack.size():
 		state_ref.set("crafting_selected_item_uid", str(Dictionary(backpack[index]).get("uid", "")))
 	_rebuild()
@@ -105,19 +109,51 @@ func _selected_item() -> Dictionary:
 func _select_action(action: String) -> void:
 	selected_action = action
 	_refresh_text()
+	_refresh_action_buttons()
 
 func _apply_action() -> void:
+	if _selected_item().is_empty():
+		if state_ref != null and state_ref.has_method("add_notice"):
+			state_ref.call("add_notice", "Select an item first")
+		return
 	if state_ref != null and state_ref.has_method("crafting_apply_action"):
 		state_ref.call("crafting_apply_action", selected_action)
 	_rebuild()
 
+func _refresh_action_buttons() -> void:
+	_set_action_button(seal_button, selected_action == "seal", "Seal")
+	_set_action_button(reforge_button, selected_action == "reforge", "Reforge")
+	_set_action_button(polish_button, selected_action == "polish", "Polish")
+
+func _set_action_button(button: Button, active: bool, label: String) -> void:
+	if button == null:
+		return
+	button.modulate = Color(1.0, 0.82, 0.32, 1.0) if active else Color(1, 1, 1, 1)
+	button.tooltip_text = label + " action. Select, then press Apply."
+
 func _refresh_text() -> void:
 	var item: Dictionary = _selected_item()
 	if preview_label != null:
-		preview_label.text = "Select or drag an item into the forge." if item.is_empty() else "[b]" + str(item.get("display_name", "Item")) + "[/b]\nAction: " + selected_action.capitalize() + "\nForge Potential: " + str(item.get("forge_potential", 0))
+		if item.is_empty():
+			preview_label.text = "Select or drag an item into the forge."
+		else:
+			preview_label.text = "[b]" + str(item.get("display_name", "Item")) + "[/b]\nAction: " + selected_action.capitalize() + "\nForge Potential: " + str(item.get("forge_potential", 0)) + "\n\n[i]Choose an action, then press Apply.[/i]"
 	if materials_label != null:
 		var currency: Dictionary = Dictionary(_state_get("currency", {}))
 		var lines: PackedStringArray = ["[b]Materials[/b]"]
+		if currency.is_empty():
+			lines.append("No crafting materials found.")
 		for k: Variant in currency.keys():
 			lines.append("- %s: %s" % [str(k), str(currency[k])])
 		materials_label.text = "\n".join(lines)
+
+func _safe_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT: return value
+		TYPE_FLOAT: return int(round(value))
+		TYPE_STRING:
+			var s: String = str(value)
+			return s.to_int() if s.is_valid_int() else fallback
+		_: return fallback

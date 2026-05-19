@@ -9,12 +9,25 @@ var skills_panel: Control = null
 var maps_panel: Control = null
 var character_panel: Control = null
 
+var tab_inventory: Button = null
+var tab_forge: Button = null
+var tab_skills: Button = null
+var tab_maps: Button = null
+var tab_character: Button = null
+var close_button: Button = null
+
 var state_ref: Object = null
 
 func _ready() -> void:
 	_bind_nodes()
 	_connect_buttons()
 	_refresh()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		if str(_state_get("panel_mode", "")) != "":
+			_close()
+			get_viewport().set_input_as_handled()
 
 func _bind_nodes() -> void:
 	blocker = get_node_or_null("Blocker") as ColorRect
@@ -26,13 +39,14 @@ func _bind_nodes() -> void:
 	maps_panel = get_node_or_null("Shell/VBox/Content/MapsPanel") as Control
 	character_panel = get_node_or_null("Shell/VBox/Content/CharacterPanel") as Control
 
+	tab_inventory = get_node_or_null("Shell/VBox/Tabs/TabInventory") as Button
+	tab_forge = get_node_or_null("Shell/VBox/Tabs/TabForge") as Button
+	tab_skills = get_node_or_null("Shell/VBox/Tabs/TabSkills") as Button
+	tab_maps = get_node_or_null("Shell/VBox/Tabs/TabMaps") as Button
+	tab_character = get_node_or_null("Shell/VBox/Tabs/TabCharacter") as Button
+	close_button = get_node_or_null("Shell/VBox/Header/CloseButton") as Button
+
 func _connect_buttons() -> void:
-	var tab_inventory: Button = get_node_or_null("Shell/VBox/Tabs/TabInventory") as Button
-	var tab_forge: Button = get_node_or_null("Shell/VBox/Tabs/TabForge") as Button
-	var tab_skills: Button = get_node_or_null("Shell/VBox/Tabs/TabSkills") as Button
-	var tab_maps: Button = get_node_or_null("Shell/VBox/Tabs/TabMaps") as Button
-	var tab_character: Button = get_node_or_null("Shell/VBox/Tabs/TabCharacter") as Button
-	var close_button: Button = get_node_or_null("Shell/VBox/Header/CloseButton") as Button
 	if tab_inventory != null:
 		tab_inventory.pressed.connect(_set_mode.bind("inventory"))
 	if tab_forge != null:
@@ -80,8 +94,11 @@ func _refresh() -> void:
 	var open: bool = mode != ""
 	if blocker != null:
 		blocker.visible = open
+		blocker.mouse_filter = Control.MOUSE_FILTER_STOP if open else Control.MOUSE_FILTER_IGNORE
 	if shell != null:
 		shell.visible = open
+		shell.mouse_filter = Control.MOUSE_FILTER_STOP if open else Control.MOUSE_FILTER_IGNORE
+
 	if inventory_panel != null:
 		inventory_panel.visible = mode == "inventory"
 	if forge_panel != null:
@@ -94,6 +111,17 @@ func _refresh() -> void:
 		character_panel.visible = mode == "character"
 	if title_label != null:
 		title_label.text = _title(mode)
+
+	_set_tab_visual(tab_inventory, mode == "inventory")
+	_set_tab_visual(tab_forge, mode == "crafting")
+	_set_tab_visual(tab_skills, mode == "skills")
+	_set_tab_visual(tab_maps, mode == "maps")
+	_set_tab_visual(tab_character, mode == "character")
+
+func _set_tab_visual(button: Button, active: bool) -> void:
+	if button == null:
+		return
+	button.modulate = Color(1.0, 0.82, 0.32, 1.0) if active else Color(1.0, 1.0, 1.0, 1.0)
 
 func _active_panel() -> Node:
 	match str(_state_get("panel_mode", "")):
