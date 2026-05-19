@@ -1,9 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://bkk4wdigdgk1q"]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/CraftingPanel3D.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://2vtj2a6p6jg8" path="res://scripts/ui/panels/CraftingPanel3D.gd" id="1_script"]
 
-[node name="CraftingPanel3D" type="PanelContainer"]
-script = ExtResource("1_script")
+[node name="CraftingPanel3D" type="PanelContainer" unique_id=790835092]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -11,56 +10,57 @@ offset_left = 110.0
 offset_top = 90.0
 offset_right = -110.0
 offset_bottom = -90.0
+script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="." unique_id=673991590]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
-[node name="MainVBox" type="VBoxContainer" parent="Margin"]
+[node name="MainVBox" type="VBoxContainer" parent="Margin" unique_id=431345514]
 layout_mode = 2
 
-[node name="Header" type="Label" parent="Margin/MainVBox"]
+[node name="Header" type="Label" parent="Margin/MainVBox" unique_id=349826896]
 layout_mode = 2
 text = "Forge"
 
-[node name="BodyHBox" type="HBoxContainer" parent="Margin/MainVBox"]
+[node name="BodyHBox" type="HBoxContainer" parent="Margin/MainVBox" unique_id=1743007121]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ItemList" type="ItemList" parent="Margin/MainVBox/BodyHBox" unique_name_in_owner=true]
+[node name="ItemList" type="ItemList" parent="Margin/MainVBox/BodyHBox" unique_id=1427026049]
 layout_mode = 2
 size_flags_horizontal = 2
 size_flags_vertical = 3
 
-[node name="CenterVBox" type="VBoxContainer" parent="Margin/MainVBox/BodyHBox"]
+[node name="CenterVBox" type="VBoxContainer" parent="Margin/MainVBox/BodyHBox" unique_id=685592305]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="DetailsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox/CenterVBox" unique_name_in_owner=true]
+[node name="DetailsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox/CenterVBox" unique_id=2126726448]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
 
-[node name="ButtonRow" type="HBoxContainer" parent="Margin/MainVBox/BodyHBox/CenterVBox"]
+[node name="ButtonRow" type="HBoxContainer" parent="Margin/MainVBox/BodyHBox/CenterVBox" unique_id=1498195655]
 layout_mode = 2
 
-[node name="SealButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_name_in_owner=true]
+[node name="SealButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_id=1275150638]
 layout_mode = 2
 text = "Seal"
 
-[node name="ReforgeButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_name_in_owner=true]
+[node name="ReforgeButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_id=17812947]
 layout_mode = 2
 text = "Reforge"
 
-[node name="PolishButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_name_in_owner=true]
+[node name="PolishButton" type="Button" parent="Margin/MainVBox/BodyHBox/CenterVBox/ButtonRow" unique_id=333948874]
 layout_mode = 2
 text = "Polish"
 
-[node name="MaterialsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox" unique_name_in_owner=true]
+[node name="MaterialsLabel" type="RichTextLabel" parent="Margin/MainVBox/BodyHBox" unique_id=942953462]
 layout_mode = 2
 size_flags_horizontal = 2
 size_flags_vertical = 3

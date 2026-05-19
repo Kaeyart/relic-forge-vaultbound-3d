@@ -4,6 +4,7 @@ extends RefCounted
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
+const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd")
 
 static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss: bool) -> Array[Dictionary]:
 	var rng: RandomNumberGenerator = state.get("rng") if state != null else RandomNumberGenerator.new()
@@ -60,9 +61,24 @@ static func apply_drop_to_state(state: Object, drop: Dictionary) -> void:
 		"item":
 			state.call("add_backpack_item", Dictionary(drop.get("item", {})))
 		"map":
-			state.call("add_map_item", Dictionary(drop.get("map", {})))
+			var map_item: Dictionary = Dictionary(drop.get("map", {}))
+			map_item["kind"] = "map"
+			map_item["item_kind"] = "map"
+			map_item["category"] = "map"
+			map_item["slot"] = "map"
+			if not map_item.has("rarity"):
+				map_item["rarity"] = "magic" if Array(map_item.get("mods", [])).size() > 0 else "normal"
+			map_item["tags"] = Array(map_item.get("tags", []))
+			if not Array(map_item["tags"]).has("map"):
+				map_item["tags"].append("map")
+			state.call("add_backpack_item", map_item)
+			if state.has_method("add_notice"):
+				state.call("add_notice", "Picked up map: " + str(map_item.get("display_name", "Map")))
 		"active_gem", "support_gem", "spirit_gem":
-			GemSystemScript.add_gem_drop_to_state(state, str(drop.get("kind", "")), str(drop.get("gem_id", "")))
+			var gem_item: Dictionary = GemProgressionSystemScript.make_gem_item_from_drop(str(drop.get("kind", "")), str(drop.get("gem_id", "")))
+			state.call("add_backpack_item", gem_item)
+			if state.has_method("add_notice"):
+				state.call("add_notice", "Picked up " + str(gem_item.get("display_name", "Gem")))
 	state.call("recompute_stats")
 
 static func label_for_drop(drop: Dictionary) -> String:

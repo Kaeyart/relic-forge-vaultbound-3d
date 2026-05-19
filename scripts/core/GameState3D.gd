@@ -8,6 +8,21 @@ const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 
 const SAVE_VERSION: int = 87
 
+# RF-090F stash persistence state
+# RF-091A station/gem refinement state
+# RF-093A gem contract state
+var spirit_gem_slots: Array = []
+var near_station_mode: String = ""
+var near_station_name: String = ""
+var gem_progression_seeded: bool = false
+var stash_categories: Array = []
+var stash_tabs: Array = []
+var selected_stash_category_id: String = "cat_general"
+var selected_stash_tab_id: String = "tab_general_1"
+var stash_selected_item_index: int = -1
+var stash_search_query: String = ""
+var stash_search_all: bool = false
+var map_completion: Dictionary = {}
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var mode: String = "hub"
 var panel_mode: String = ""
@@ -242,7 +257,7 @@ func selected_backpack_item() -> Dictionary:
 		return {}
 	return backpack[inventory_cursor]
 
-func to_save_dict() -> Dictionary:
+func _rf_pre_090f_to_save_dict() -> Dictionary:
 	return {
 		"version": SAVE_VERSION,
 		"class_id": class_id,
@@ -270,7 +285,7 @@ func to_save_dict() -> Dictionary:
 		"maps_completed": maps_completed
 	}
 
-func apply_save_dict(data: Dictionary) -> void:
+func _rf_pre_090f_apply_save_dict(data: Dictionary) -> void:
 	class_id = str(data.get("class_id", class_id))
 	level = int(data.get("level", level))
 	xp = float(data.get("xp", xp))
@@ -317,3 +332,64 @@ func apply_save_dict(data: Dictionary) -> void:
 	deaths = int(data.get("deaths", deaths))
 	maps_completed = int(data.get("maps_completed", maps_completed))
 	ensure_defaults()
+
+func to_save_dict() -> Dictionary:
+	var data: Dictionary = _rf_pre_090f_to_save_dict()
+	_rf_090f_ensure_stash_state_defaults()
+
+	data["stash_categories"] = stash_categories
+	data["stash_tabs"] = stash_tabs
+	data["selected_stash_category_id"] = selected_stash_category_id
+	data["selected_stash_tab_id"] = selected_stash_tab_id
+	data["stash_selected_item_index"] = stash_selected_item_index
+	data["stash_search_query"] = stash_search_query
+	data["stash_search_all"] = stash_search_all
+	data["map_completion"] = map_completion
+	data["gem_progression_seeded"] = gem_progression_seeded
+	data["spirit_gem_slots"] = spirit_gem_slots
+	data["spirit_reserved"] = spirit_reserved
+	data["spirit_max"] = spirit_max
+	return data
+
+
+func apply_save_dict(data: Dictionary) -> void:
+	_rf_pre_090f_apply_save_dict(data)
+
+	if data.has("stash_categories"):
+		stash_categories = Array(data.get("stash_categories", []))
+	if data.has("stash_tabs"):
+		stash_tabs = Array(data.get("stash_tabs", []))
+
+	selected_stash_category_id = str(data.get("selected_stash_category_id", selected_stash_category_id))
+	selected_stash_tab_id = str(data.get("selected_stash_tab_id", selected_stash_tab_id))
+	stash_selected_item_index = int(data.get("stash_selected_item_index", stash_selected_item_index))
+	stash_search_query = str(data.get("stash_search_query", stash_search_query))
+	stash_search_all = bool(data.get("stash_search_all", stash_search_all))
+
+	if data.has("map_completion") and typeof(data.get("map_completion")) == TYPE_DICTIONARY:
+		map_completion = Dictionary(data.get("map_completion", {}))
+
+	gem_progression_seeded = bool(data.get("gem_progression_seeded", gem_progression_seeded))
+
+	if data.has("spirit_gem_slots") and typeof(data.get("spirit_gem_slots")) == TYPE_ARRAY:
+		spirit_gem_slots = Array(data.get("spirit_gem_slots", []))
+	spirit_reserved = int(data.get("spirit_reserved", spirit_reserved))
+	spirit_max = int(data.get("spirit_max", spirit_max))
+
+	_rf_090f_ensure_stash_state_defaults()
+	ensure_defaults()
+
+
+func _rf_090f_ensure_stash_state_defaults() -> void:
+	near_station_mode = ""
+	near_station_name = ""
+	if typeof(stash_categories) != TYPE_ARRAY:
+		stash_categories = []
+	if typeof(stash_tabs) != TYPE_ARRAY:
+		stash_tabs = []
+	if selected_stash_category_id == "":
+		selected_stash_category_id = "cat_general"
+	if selected_stash_tab_id == "":
+		selected_stash_tab_id = "tab_general_1"
+	if typeof(map_completion) != TYPE_DICTIONARY:
+		map_completion = {}

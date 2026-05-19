@@ -2,6 +2,8 @@ extends Control
 
 const SlotButtonScript := preload("res://scripts/ui/widgets/UISlotButton3D.gd")
 const ItemRulesScript := preload("res://scripts/systems/InventoryItemRules3D.gd")
+const GemInventoryBridgeScript := preload("res://scripts/systems/GemInventoryBridge3D.gd")
+const StashSystemScript := preload("res://scripts/systems/StashSystem3D.gd")
 
 const GRID_COLUMNS: int = 10
 const GRID_ROWS: int = 8
@@ -26,6 +28,7 @@ const SLOT_LABELS: Dictionary = {
 	"offhand": "Offhand",
 }
 
+const UIItemFormatSystemScript := preload("res://scripts/systems/UIItemFormatSystem3D.gd")
 var title_label: Label = null
 var close_button: Button = null
 var left_equipment_column: VBoxContainer = null
@@ -43,6 +46,7 @@ var state_ref: Object = null
 var selected_equipment_slot: String = ""
 
 func _ready() -> void:
+	call_deferred("_rf_092b_ensure_inventory_tip")
 	_bind_nodes()
 	_connect_buttons()
 	_apply_backpack_area_size()
@@ -449,6 +453,8 @@ func _on_backpack_item_clicked(_slot_id: String, payload: Dictionary) -> void:
 func _on_backpack_item_double_clicked(_slot_id: String, payload: Dictionary) -> void:
 	selected_equipment_slot = ""
 	_state_set("inventory_cursor", _safe_int(payload.get("index", 0)))
+	if _rf_089b_try_install_selected_gem():
+		return
 	_equip_selected_backpack_item()
 
 func _on_equipment_slot_clicked(_slot_id: String, payload: Dictionary) -> void:
@@ -486,6 +492,8 @@ func _equip_selected_backpack_item() -> void:
 
 	var index: int = clampi(_safe_int(_state_get("inventory_cursor", 0)), 0, backpack.size() - 1)
 	var item: Dictionary = Dictionary(backpack[index])
+	if _rf_089b_try_install_selected_gem():
+		return
 	var slot: String = _normalized_slot_for_item(item)
 	if slot == "":
 		_notice("Item cannot be equipped")
@@ -546,11 +554,12 @@ func _unequip_selected_slot() -> void:
 func _deposit_selected_item() -> void:
 	if state_ref == null:
 		return
-	if state_ref.has_method("inventory_deposit_selected"):
-		state_ref.call("inventory_deposit_selected")
-		_rebuild()
+	if str(state_ref.get("near_station_mode")) != "stash":
+		_notice("Stand near the physical Stash to deposit items.")
 		return
-	_notice("Deposit needs stash system wiring")
+	var msg: String = StashSystemScript.deposit_selected_inventory_item(state_ref)
+	_notice(msg)
+	_rebuild()
 
 func _salvage_selected_item() -> void:
 	if state_ref == null:
@@ -635,6 +644,10 @@ func _item_text_bbcode(item: Dictionary) -> String:
 	lines.append("[b]" + str(item.get("display_name", item.get("name", "Item"))) + "[/b]")
 	lines.append(str(item.get("rarity", "normal")).to_upper() + " · " + _display_slot_name(_normalized_slot_for_item(item)))
 	lines.append("Item Level " + str(_safe_int(item.get("item_level", 1))) + " · Forge " + str(_safe_int(item.get("forge_potential", 0))) + " · Size " + _item_grid_size_text(item))
+	var gem_text: String = _rf_089b_gem_inventory_text(item)
+	if gem_text != "":
+		lines.append("")
+		lines.append(gem_text)
 	var stats: Dictionary = Dictionary(item.get("total_stats", {}))
 	if not stats.is_empty():
 		lines.append("")
@@ -722,3 +735,53 @@ func _safe_int(value: Variant, fallback: int = 0) -> int:
 			return s.to_int() if s.is_valid_int() else fallback
 		_:
 			return fallback
+
+func _rf_089b_try_install_selected_gem() -> bool:
+	if state_ref == null:
+		return false
+	var backpack: Array = Array(_state_get("backpack", []))
+	if backpack.is_empty():
+		return false
+	var index: int = clampi(_safe_int(_state_get("inventory_cursor", 0)), 0, backpack.size() - 1)
+	if index < 0 or index >= backpack.size() or typeof(backpack[index]) != TYPE_DICTIONARY:
+		return false
+	var item: Dictionary = Dictionary(backpack[index])
+	if not GemInventoryBridgeScript.is_gem_item(item):
+		return false
+	var msg: String = GemInventoryBridgeScript.install_gem_from_backpack(state_ref, index)
+	if msg != "":
+		_notice(msg)
+	selected_equipment_slot = ""
+	_rebuild()
+	return true
+
+func _rf_089b_gem_inventory_text(item: Dictionary) -> String:
+	if GemInventoryBridgeScript.is_gem_item(item):
+		return GemInventoryBridgeScript.gem_inventory_text(item)
+	return ""
+
+
+func _rf_092b_ensure_inventory_tip() -> void:
+	if get_node_or_null("InventoryHelp092B") != null:
+		return
+	var host: Control = _rf_092b_find_control_host(self)
+	if host == null:
+		return
+	var help := RichTextLabel.new()
+	help.name = "InventoryHelp092B"
+	help.custom_minimum_size = Vector2(0, 54)
+	help.bbcode_enabled = true
+	help.fit_content = true
+	help.scroll_active = false
+	help.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	help.text = UIItemFormatSystemScript.action_hint_for_panel("inventory")
+	host.add_child(help)
+
+func _rf_092b_find_control_host(root: Node) -> Control:
+	if root is VBoxContainer:
+		return root as Control
+	for child: Node in root.get_children():
+		var found: Control = _rf_092b_find_control_host(child)
+		if found != null:
+			return found
+	return self as Control

@@ -2,6 +2,9 @@ class_name RVGameRoot3D
 extends Node3D
 const FinalGameHUDScene := preload("res://scenes/ui/GameHUD3D.tscn")
 const FinalUIPanelRootScene := preload("res://scenes/ui/UIPanelRoot3D.tscn")
+const StationAccessSystemScript := preload("res://scripts/systems/StationAccessSystem3D.gd")
+const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd")
+const UIAccessSystemScript := preload("res://scripts/systems/UIAccessSystem3D.gd")
 var _rf_087r_hud: Node = null
 var _rf_087r_ui: Node = null
 
@@ -27,14 +30,14 @@ const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 var state: Object = GameStateScript.new()
 var autosave_timer: float = 0.0
 
-func _ready() -> void:
+func _rf_pre_091a_ready() -> void:
 	_rf_087r_ensure_final_ui()
 	SaveSystemScript.load_into(state)
 	state.call("ensure_defaults")
 	_return_to_hub(false)
 	set_process(true)
 
-func _process(delta: float) -> void:
+func _rf_pre_091a_process(delta: float) -> void:
 	_update_notice(delta)
 	_update_player(delta)
 	if str(state.get("mode")) == "combat":
@@ -74,7 +77,7 @@ func _update_camera(delta: float) -> void:
 	camera.global_position = camera.global_position.lerp(target, clampf(delta * 6.0, 0.0, 1.0))
 	camera.look_at(player.global_position + Vector3(0, 0.5, 0), Vector3.UP)
 
-func _unhandled_input(event: InputEvent) -> void:
+func _rf_pre_091a_unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		var key_event: InputEventKey = event
 		if key_event.pressed and not key_event.echo:
@@ -108,7 +111,7 @@ func _handle_key(keycode: int) -> void:
 				else:
 					combat.call("manual_pickup_near", state, player.global_position)
 			else:
-				_start_map()
+				state.call("add_notice", "Use E near hub stations. Press T to start a map.")
 		KEY_SPACE:
 			if str(state.get("mode")) == "combat": _cast_selected_skill(_mouse_world())
 		KEY_Q:
@@ -169,7 +172,7 @@ func _cycle_cursor(dir: int) -> void:
 	state.set("inventory_cursor", wrapi(_rf_087v_int(state.get("inventory_cursor")) + dir, 0, backpack.size()))
 
 func _toggle_panel(mode_name: String) -> void:
-	state.set("panel_mode", "" if str(state.get("panel_mode")) == mode_name else mode_name)
+	UIAccessSystemScript.toggle_panel(state, mode_name)
 
 func _start_map() -> void:
 	var activity: Dictionary = MapLoopSystemScript.start_selected_map(state)
@@ -197,6 +200,7 @@ func _return_to_hub(save_now: bool) -> void:
 func _cast_selected_skill(aim: Vector3) -> void:
 	var cast_data: Dictionary = SkillGemSystemScript.selected_cast_data(state)
 	combat.call("cast_skill", state, player.global_position, aim, cast_data)
+	GemProgressionSystemScript.award_selected_skill_xp(state, 5)
 
 func _mouse_world() -> Vector3:
 	var mouse: Vector2 = get_viewport().get_mouse_position()
@@ -371,3 +375,55 @@ func _rf_087v_int(value: Variant, fallback: int = 0) -> int:
 			return fallback
 		_:
 			return fallback
+
+
+func _ready() -> void:
+	if has_method("_rf_pre_091a_ready"):
+		_rf_pre_091a_ready()
+	_rf_091a_setup_physical_station_refine()
+
+
+func _process(delta: float) -> void:
+	if has_method("_rf_pre_091a_process"):
+		_rf_pre_091a_process(delta)
+	_rf_091a_update_physical_station_refine()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var s: Object = _rf_091a_state()
+	var p: Node3D = _rf_091a_player()
+	if StationAccessSystemScript.handle_station_input(event, self, s, p):
+		get_viewport().set_input_as_handled()
+		return
+	if has_method("_rf_pre_091a_unhandled_input"):
+		_rf_pre_091a_unhandled_input(event)
+
+
+func _rf_091a_setup_physical_station_refine() -> void:
+	var s: Object = _rf_091a_state()
+	StationAccessSystemScript.ensure_physical_stations(self)
+	if s != null:
+		GemProgressionSystemScript.ensure_progression_defaults(s)
+		GemProgressionSystemScript.ensure_starter_gem_items(s)
+
+func _rf_091a_update_physical_station_refine() -> void:
+	var s: Object = _rf_091a_state()
+	if s == null:
+		return
+	StationAccessSystemScript.update_access(self, s, _rf_091a_player())
+
+func _rf_091a_request_panel_mode(mode: String) -> void:
+	var s: Object = _rf_091a_state()
+	if s == null:
+		return
+	UIAccessSystemScript.request_panel(s, mode)
+
+func _rf_091a_state() -> Object:
+	var v: Variant = get("state")
+	return v as Object
+
+func _rf_091a_player() -> Node3D:
+	var v: Variant = get("player")
+	if v is Node3D:
+		return v as Node3D
+	return get_node_or_null("Player") as Node3D

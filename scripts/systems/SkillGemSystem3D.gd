@@ -1,5 +1,6 @@
 class_name RVSkillGemSystem3D
 extends RefCounted
+const GemCoreSystemScript := preload("res://scripts/systems/GemCoreSystem3D.gd")
 
 const GemDBScript := preload("res://scripts/data/GemDB3D.gd")
 
@@ -86,6 +87,9 @@ static func cast_data_for_slot(state: Object, slot: Dictionary) -> Dictionary:
 	var tags: Array = Array(active.get("tags", [])).duplicate(true)
 	var damage: float = float(active.get("damage", 1.0))
 	var mana_cost: float = float(active.get("mana_cost", 1.0))
+	var active_level_092a: int = _rf_092a_gem_level(slot)
+	var active_quality_092a: int = _rf_092a_gem_quality(slot)
+	damage *= 1.0 + float(max(0, active_level_092a - 1)) * 0.10 + float(active_quality_092a) * 0.01
 	var area_mult: float = 1.0
 	var extra_projectiles: int = 0
 	var chain: int = 0
@@ -93,7 +97,7 @@ static func cast_data_for_slot(state: Object, slot: Dictionary) -> Dictionary:
 	var rules: Array[String] = []
 
 	for support_id_value: Variant in Array(slot.get("supports", [])):
-		var support_id: String = str(support_id_value)
+		var support_id: String = _rf_092a_support_id(support_id_value)
 		if support_id == "":
 			continue
 		if not GemDBScript.support_compatible(active_id, support_id):
@@ -235,7 +239,7 @@ static func add_next_valid_support(state: Object) -> void:
 	cursor = wrapi(cursor, 0, keys.size())
 	for step: int in range(keys.size()):
 		var key: String = str(keys[wrapi(cursor + step, 0, keys.size())])
-		if equipped.has(key):
+		if _rf_092a_supports_contain(equipped, key):
 			continue
 		if GemDBScript.support_compatible(active_id, key):
 			equipped.append(key)
@@ -303,7 +307,7 @@ static func panel_text(state: Object) -> String:
 		var marker: String = "> " if i == selected else "  "
 		text += marker + str(i + 1) + ". " + str(GemDBScript.active(active_id).get("name", active_id)) + "\n"
 		for sup_value: Variant in Array(slot.get("supports", [])):
-			text += "     + " + str(GemDBScript.support(str(sup_value)).get("name", sup_value)) + "\n"
+			text += "     + " + str(GemDBScript.support(_rf_092a_support_id(sup_value)).get("name", _rf_092a_support_id(sup_value))) + "\n"
 	var cast: Dictionary = selected_cast_data(state)
 	text += "\nSelected: " + str(cast.get("name", "")) + " · Damage " + str(int(round(float(cast.get("damage", 0.0))))) + " · Mana " + str(int(round(float(cast.get("mana_cost", 0.0))))) + "\n"
 	text += "Tags: " + ", ".join(PackedStringArray(_string_array(Array(cast.get("tags", []))))) + "\n\n"
@@ -404,3 +408,61 @@ static func _string_array(values: Array) -> Array[String]:
 	for value: Variant in values:
 		out.append(str(value))
 	return out
+
+
+static func _rf_092a_support_id(value: Variant) -> String:
+	if typeof(value) == TYPE_DICTIONARY:
+		var d: Dictionary = Dictionary(value)
+		return str(d.get("gem_id", d.get("support_id", d.get("id", ""))))
+	return str(value)
+
+static func _rf_092a_supports_contain(supports: Array, id: String) -> bool:
+	for value: Variant in supports:
+		if _rf_092a_support_id(value) == id:
+			return true
+	return false
+
+static func _rf_092a_gem_level(value: Variant) -> int:
+	if typeof(value) == TYPE_DICTIONARY:
+		var d: Dictionary = Dictionary(value)
+		return max(1, _safe_int(d.get("level", d.get("gem_level", 1)), 1))
+	return 1
+
+static func _rf_092a_gem_quality(value: Variant) -> int:
+	if typeof(value) == TYPE_DICTIONARY:
+		var d: Dictionary = Dictionary(value)
+		return clampi(_safe_int(d.get("quality", d.get("gem_quality", 0)), 0), 0, 100)
+	return 0
+
+
+static func _rf_093a_support_id(value: Variant) -> String:
+	if typeof(value) == TYPE_DICTIONARY:
+		var d: Dictionary = Dictionary(value)
+		return str(d.get("gem_id", d.get("support_id", d.get("id", ""))))
+	return str(value)
+
+static func _rf_093a_quality_damage_multiplier(active_slot: Dictionary) -> float:
+	var normalized: Dictionary = GemCoreSystemScript.normalize_active(active_slot)
+	var id: String = str(normalized.get("gem_id", normalized.get("active_id", "")))
+	var quality: int = int(normalized.get("quality", 0))
+	var effects: Dictionary = GemCoreSystemScript.active_quality_effects(id, quality)
+	return float(effects.get("damage_multiplier", 1.0))
+
+static func _rf_093a_quality_extra_projectiles(active_slot: Dictionary) -> int:
+	var normalized: Dictionary = GemCoreSystemScript.normalize_active(active_slot)
+	var id: String = str(normalized.get("gem_id", normalized.get("active_id", "")))
+	var quality: int = int(normalized.get("quality", 0))
+	var effects: Dictionary = GemCoreSystemScript.active_quality_effects(id, quality)
+	return int(effects.get("extra_projectiles", 0))
+
+static func _rf_093a_apply_quality_to_cast_data(cast: Dictionary, active_slot: Dictionary) -> Dictionary:
+	var mult: float = _rf_093a_quality_damage_multiplier(active_slot)
+	if cast.has("damage"):
+		cast["damage"] = int(round(float(cast.get("damage", 0)) * mult))
+	if cast.has("base_damage"):
+		cast["base_damage"] = int(round(float(cast.get("base_damage", 0)) * mult))
+	var extra_projectiles: int = _rf_093a_quality_extra_projectiles(active_slot)
+	if extra_projectiles > 0:
+		cast["projectiles"] = int(cast.get("projectiles", 1)) + extra_projectiles
+		cast["extra_projectiles"] = int(cast.get("extra_projectiles", 0)) + extra_projectiles
+	return cast

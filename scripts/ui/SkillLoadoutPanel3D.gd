@@ -1,4 +1,3 @@
-class_name RVSkillLoadoutPanel3D
 extends CanvasLayer
 
 const SkillGemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")

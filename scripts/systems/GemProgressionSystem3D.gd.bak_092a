@@ -1,0 +1,199 @@
+extends RefCounted
+
+const MAX_SUPPORT_SOCKETS: int = 6
+const STARTING_SUPPORT_SOCKETS: int = 2
+const SOCKET_INTERVAL: int = 5
+
+static func ensure_progression_defaults(state: Object) -> void:
+	if state == null:
+		return
+
+	var slots: Array = Array(_state_get(state, "active_skill_slots", []))
+	var defaults: Array[String] = ["fireball", "storm_lance", "arc_slash", "void_rift"]
+
+	while slots.size() < 4:
+		var id: String = defaults[slots.size() % defaults.size()]
+		slots.append(_active_instance(id))
+
+	for i: int in range(slots.size()):
+		if typeof(slots[i]) != TYPE_DICTIONARY:
+			slots[i] = _active_instance(defaults[i % defaults.size()])
+			continue
+		var slot: Dictionary = Dictionary(slots[i])
+		var id2: String = str(slot.get("gem_id", slot.get("active", slot.get("active_id", defaults[i % defaults.size()]))))
+		slot["kind"] = "active"
+		slot["gem_id"] = id2
+		slot["active"] = id2
+		slot["active_id"] = id2
+		slot["level"] = max(1, _safe_int(slot.get("level", 1), 1))
+		slot["xp"] = max(0, _safe_int(slot.get("xp", 0), 0))
+		slot["quality"] = clampi(_safe_int(slot.get("quality", 0), 0), 0, 100)
+		if typeof(slot.get("supports", [])) != TYPE_ARRAY:
+			slot["supports"] = []
+		slot["unlocked_support_sockets"] = unlocked_support_sockets(int(slot["level"]))
+		slots[i] = slot
+
+	state.set("active_skill_slots", slots)
+	state.set("selected_skill_slot", clampi(_safe_int(_state_get(state, "selected_skill_slot", 0), 0), 0, max(0, slots.size() - 1)))
+
+static func ensure_starter_gem_items(state: Object) -> void:
+	if state == null:
+		return
+	if bool(_state_get(state, "gem_progression_seeded", false)):
+		return
+
+	var backpack: Array = Array(_state_get(state, "backpack", []))
+	backpack.append(_gem_item("active", "storm_lance", "Storm Lance", "blue"))
+	backpack.append(_gem_item("active", "arc_slash", "Arc Slash", "red"))
+	backpack.append(_gem_item("support", "pierce", "Pierce Support", "green"))
+	backpack.append(_gem_item("support", "chain", "Chain Support", "blue"))
+	backpack.append(_gem_item("support", "echo", "Echo Support", "blue"))
+	backpack.append(_gem_item("support", "ignite", "Ignite Support", "red"))
+	backpack.append(_gem_item("spirit", "ember_aura", "Ember Aura", "red"))
+	backpack.append(_gem_item("spirit", "storm_focus", "Storm Focus", "blue"))
+
+	state.set("backpack", backpack)
+	state.set("gem_progression_seeded", true)
+	if state.has_method("add_notice"):
+		state.call("add_notice", "Starter skill gems added to inventory.")
+
+static func award_selected_skill_xp(state: Object, amount: int) -> void:
+	if state == null or amount <= 0:
+		return
+	ensure_progression_defaults(state)
+
+	var slots: Array = Array(_state_get(state, "active_skill_slots", []))
+	if slots.is_empty():
+		return
+
+	var index: int = clampi(_safe_int(_state_get(state, "selected_skill_slot", 0), 0), 0, slots.size() - 1)
+	if typeof(slots[index]) != TYPE_DICTIONARY:
+		return
+
+	var slot: Dictionary = Dictionary(slots[index])
+	var level: int = max(1, _safe_int(slot.get("level", 1), 1))
+	var xp: int = max(0, _safe_int(slot.get("xp", 0), 0)) + amount
+	var leveled: bool = false
+
+	while xp >= xp_to_next(level):
+		xp -= xp_to_next(level)
+		level += 1
+		leveled = true
+
+	slot["level"] = level
+	slot["xp"] = xp
+	slot["unlocked_support_sockets"] = unlocked_support_sockets(level)
+	slots[index] = slot
+	state.set("active_skill_slots", slots)
+
+	if leveled and state.has_method("add_notice"):
+		state.call("add_notice", str(slot.get("gem_id", "Skill")) + " reached level " + str(level))
+
+static func try_award_cast_input_xp(event: InputEvent, state: Object) -> void:
+	if state == null or str(_state_get(state, "mode", "")) != "combat":
+		return
+	if _is_cast_input(event):
+		award_selected_skill_xp(state, 3)
+
+static func roll_gem_drop_to_backpack(state: Object, force: bool = false) -> bool:
+	if state == null:
+		return false
+	if not force and randf() > 0.18:
+		return false
+
+	var pool: Array[Dictionary] = [
+		{"type":"active", "id":"void_rift", "name":"Void Rift", "color":"blue"},
+		{"type":"active", "id":"ember_mine", "name":"Ember Mine", "color":"red"},
+		{"type":"support", "id":"overload", "name":"Overload Support", "color":"red"},
+		{"type":"support", "id":"swift_casting", "name":"Swift Casting Support", "color":"green"},
+		{"type":"support", "id":"pierce", "name":"Pierce Support", "color":"green"},
+		{"type":"spirit", "id":"void_pact", "name":"Void Pact", "color":"blue"},
+	]
+	var pick: Dictionary = pool[randi() % pool.size()]
+	var backpack: Array = Array(_state_get(state, "backpack", []))
+	backpack.append(_gem_item(str(pick["type"]), str(pick["id"]), str(pick["name"]), str(pick["color"])))
+	state.set("backpack", backpack)
+	if state.has_method("add_notice"):
+		state.call("add_notice", "Gem found: " + str(pick["name"]))
+	return true
+
+static func xp_to_next(level: int) -> int:
+	return max(80, level * 100)
+
+static func unlocked_support_sockets(level: int) -> int:
+	return clampi(STARTING_SUPPORT_SOCKETS + int(floor(float(max(1, level)) / float(SOCKET_INTERVAL))), STARTING_SUPPORT_SOCKETS, MAX_SUPPORT_SOCKETS)
+
+static func _active_instance(id: String) -> Dictionary:
+	return {
+		"kind": "active",
+		"gem_id": id,
+		"active": id,
+		"active_id": id,
+		"level": 1,
+		"xp": 0,
+		"quality": 0,
+		"supports": [],
+		"unlocked_support_sockets": STARTING_SUPPORT_SOCKETS,
+	}
+
+static func _gem_item(gem_type: String, id: String, name: String, color: String) -> Dictionary:
+	var kind: String = gem_type + "_gem"
+	return {
+		"id": "gem_" + id + "_" + str(Time.get_ticks_msec()) + "_" + str(randi() % 9999),
+		"base_id": id,
+		"gem_id": id,
+		"name": name,
+		"display_name": name,
+		"kind": kind,
+		"item_kind": kind,
+		"category": "skill_gem",
+		"slot": kind,
+		"rarity": "magic",
+		"gem_type": gem_type,
+		"skill_gem_type": gem_type,
+		"base_color": color,
+		"gem_color": color,
+		"carved": true,
+		"level": 1,
+		"gem_level": 1,
+		"xp": 0,
+		"gem_xp": 0,
+		"quality": 0,
+		"gem_quality": 0,
+		"tags": ["gem", kind, gem_type],
+		"grid_w": 1,
+		"grid_h": 1,
+	}
+
+static func _is_cast_input(event: InputEvent) -> bool:
+	if event == null:
+		return false
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		return mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		return key.pressed and not key.echo and key.keycode == KEY_SPACE
+	return event.is_action_pressed("cast") or event.is_action_pressed("attack")
+
+static func _state_get(state: Object, key: String, fallback: Variant = null) -> Variant:
+	if state == null:
+		return fallback
+	var value: Variant = state.get(key)
+	return fallback if value == null else value
+
+static func _safe_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT:
+			return value
+		TYPE_FLOAT:
+			return int(round(value))
+		TYPE_BOOL:
+			return 1 if bool(value) else 0
+		TYPE_STRING:
+			var s: String = str(value)
+			return s.to_int() if s.is_valid_int() else fallback
+		_:
+			return fallback

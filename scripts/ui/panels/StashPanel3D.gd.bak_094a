@@ -1,0 +1,489 @@
+extends Control
+
+const SlotButtonScript := preload("res://scripts/ui/widgets/UISlotButton3D.gd")
+const StashSystemScript := preload("res://scripts/systems/StashSystem3D.gd")
+
+const UIItemFormatSystemScript := preload("res://scripts/systems/UIItemFormatSystem3D.gd")
+var _rf_092b_detail_box: RichTextLabel = null
+var search_line: LineEdit = null
+var search_all_button: CheckBox = null
+var close_button: Button = null
+var category_list: VBoxContainer = null
+var tab_list: VBoxContainer = null
+var item_grid: GridContainer = null
+var current_title: Label = null
+var current_meta: RichTextLabel = null
+var buy_tab_button: Button = null
+var new_category_button: Button = null
+var withdraw_button: Button = null
+var rename_line: LineEdit = null
+var icon_line: LineEdit = null
+var color_line: LineEdit = null
+var affinity_option: OptionButton = null
+var apply_button: Button = null
+
+var customize_popup: PopupPanel = null
+var popup_name_line: LineEdit = null
+var popup_icon_line: LineEdit = null
+var popup_color_line: LineEdit = null
+var popup_affinity_option: OptionButton = null
+var popup_rarity_option: OptionButton = null
+var popup_slot_option: OptionButton = null
+var popup_kind_line: LineEdit = null
+var popup_min_tier_line: LineEdit = null
+var popup_max_tier_line: LineEdit = null
+var popup_apply_button: Button = null
+var popup_close_button: Button = null
+var customizing_tab_id: String = ""
+
+var state_ref: Object = null
+
+func _ready() -> void:
+	call_deferred("_rf_092b_ensure_stash_detail")
+	_bind_nodes()
+	_rf_091a_ensure_quick_deposit_button()
+	_connect_controls()
+	_ensure_customize_popup()
+
+func bind_state(state: Object) -> void:
+	update_from_state(state)
+
+func update_from_state(state: Object) -> void:
+	state_ref = state
+	if category_list == null:
+		_bind_nodes()
+	if state_ref != null:
+		StashSystemScript.ensure_defaults(state_ref)
+		StashSystemScript.rf_090f_repair_state(state_ref)
+	_rebuild()
+
+func _bind_nodes() -> void:
+	search_line = get_node_or_null("RootVBox/HeaderBar/SearchLine") as LineEdit
+	search_all_button = get_node_or_null("RootVBox/HeaderBar/SearchAllButton") as CheckBox
+	close_button = get_node_or_null("RootVBox/HeaderBar/CloseButton") as Button
+	category_list = get_node_or_null("RootVBox/BodyHBox/CategoryPanel/CategoryMargin/CategoryVBox/CategoryList") as VBoxContainer
+	tab_list = get_node_or_null("RootVBox/BodyHBox/TabPanel/TabMargin/TabVBox/TabList") as VBoxContainer
+	item_grid = get_node_or_null("RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/ItemGrid") as GridContainer
+	current_title = get_node_or_null("RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/CurrentTitle") as Label
+	current_meta = get_node_or_null("RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox/CurrentMeta") as RichTextLabel
+	buy_tab_button = get_node_or_null("RootVBox/FooterBar/BuyTabButton") as Button
+	new_category_button = get_node_or_null("RootVBox/FooterBar/NewCategoryButton") as Button
+	withdraw_button = get_node_or_null("RootVBox/FooterBar/WithdrawButton") as Button
+	rename_line = get_node_or_null("RootVBox/FooterBar/RenameLine") as LineEdit
+	icon_line = get_node_or_null("RootVBox/FooterBar/IconLine") as LineEdit
+	color_line = get_node_or_null("RootVBox/FooterBar/ColorLine") as LineEdit
+	affinity_option = get_node_or_null("RootVBox/FooterBar/AffinityOption") as OptionButton
+	apply_button = get_node_or_null("RootVBox/FooterBar/ApplyButton") as Button
+	_populate_affinity_options(affinity_option)
+
+func _connect_controls() -> void:
+	if close_button != null and not close_button.pressed.is_connected(_close_panel):
+		close_button.pressed.connect(_close_panel)
+	if search_line != null and not search_line.text_changed.is_connected(_on_search_changed):
+		search_line.text_changed.connect(_on_search_changed)
+	if search_all_button != null and not search_all_button.toggled.is_connected(_on_search_all_toggled):
+		search_all_button.toggled.connect(_on_search_all_toggled)
+	if buy_tab_button != null and not buy_tab_button.pressed.is_connected(_buy_tab):
+		buy_tab_button.pressed.connect(_buy_tab)
+	if new_category_button != null and not new_category_button.pressed.is_connected(_new_category):
+		new_category_button.pressed.connect(_new_category)
+	if withdraw_button != null and not withdraw_button.pressed.is_connected(_withdraw):
+		withdraw_button.pressed.connect(_withdraw)
+	if apply_button != null and not apply_button.pressed.is_connected(_apply_footer_customization):
+		apply_button.pressed.connect(_apply_footer_customization)
+
+func _populate_affinity_options(option: OptionButton) -> void:
+	if option == null or option.item_count > 0:
+		return
+	for affinity: String in StashSystemScript.AFFINITIES:
+		option.add_item(affinity)
+
+func _ensure_customize_popup() -> void:
+	if customize_popup != null:
+		return
+
+	customize_popup = PopupPanel.new()
+	customize_popup.name = "CustomizeTabPopup"
+	add_child(customize_popup)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	customize_popup.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	margin.add_child(box)
+
+	var title := Label.new()
+	title.text = "Customize Stash Tab"
+	title.add_theme_font_size_override("font_size", 20)
+	box.add_child(title)
+
+	popup_name_line = _add_line(box, "Name")
+	popup_icon_line = _add_line(box, "Icon text")
+	popup_color_line = _add_line(box, "#color")
+
+	popup_affinity_option = OptionButton.new()
+	_populate_affinity_options(popup_affinity_option)
+	box.add_child(_label("Affinity"))
+	box.add_child(popup_affinity_option)
+
+	popup_rarity_option = OptionButton.new()
+	for r: String in ["any", "normal", "magic", "rare", "unique"]:
+		popup_rarity_option.add_item(r)
+	box.add_child(_label("Custom rule: rarity"))
+	box.add_child(popup_rarity_option)
+
+	popup_slot_option = OptionButton.new()
+	for s: String in ["any", "weapon", "offhand", "head", "chest", "gloves", "boots", "amulet", "ring1", "ring2", "relic", "map"]:
+		popup_slot_option.add_item(s)
+	box.add_child(_label("Custom rule: slot"))
+	box.add_child(popup_slot_option)
+
+	popup_kind_line = _add_line(box, "Custom rule: kind/type")
+	popup_min_tier_line = _add_line(box, "Min tier, optional")
+	popup_max_tier_line = _add_line(box, "Max tier, optional")
+
+	var buttons := HBoxContainer.new()
+	box.add_child(buttons)
+	popup_apply_button = Button.new()
+	popup_apply_button.text = "Apply"
+	buttons.add_child(popup_apply_button)
+	popup_close_button = Button.new()
+	popup_close_button.text = "Close"
+	buttons.add_child(popup_close_button)
+
+	popup_apply_button.pressed.connect(_apply_popup_customization)
+	popup_close_button.pressed.connect(func() -> void: customize_popup.hide())
+
+func _add_line(parent: VBoxContainer, placeholder: String) -> LineEdit:
+	parent.add_child(_label(placeholder))
+	var line := LineEdit.new()
+	line.placeholder_text = placeholder
+	parent.add_child(line)
+	return line
+
+func _label(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	return label
+
+func _state_get(key: String, fallback: Variant = null) -> Variant:
+	if state_ref == null:
+		return fallback
+	var value: Variant = state_ref.get(key)
+	return fallback if value == null else value
+
+func _state_set(key: String, value: Variant) -> void:
+	if state_ref != null:
+		state_ref.set(key, value)
+
+func _clear(root: Node) -> void:
+	if root == null:
+		return
+	for child: Node in root.get_children():
+		child.queue_free()
+
+func _rebuild() -> void:
+	if state_ref == null:
+		return
+	StashSystemScript.ensure_defaults(state_ref)
+	if search_line != null and search_line.text != str(_state_get("stash_search_query", "")):
+		search_line.text = str(_state_get("stash_search_query", ""))
+	if search_all_button != null:
+		search_all_button.button_pressed = bool(_state_get("stash_search_all", false))
+	_rebuild_categories()
+	_rebuild_tabs()
+	_rebuild_items()
+	_refresh_footer()
+	_rf_092b_refresh_stash_detail()
+
+func _rebuild_categories() -> void:
+	_clear(category_list)
+	var selected: String = str(_state_get("selected_stash_category_id", ""))
+	for v: Variant in Array(_state_get("stash_categories", [])):
+		if typeof(v) != TYPE_DICTIONARY:
+			continue
+		var c: Dictionary = Dictionary(v)
+		var id: String = str(c.get("id", ""))
+		var b: Button = SlotButtonScript.new()
+		b.custom_minimum_size = Vector2(150, 42)
+		b.setup("cat_" + id, str(c.get("icon", "box")) + " " + str(c.get("name", "Category")), {"kind":"stash_category", "category_id":id}, [], id == selected, "Category", _color_from_hex(str(c.get("color", "#cfcfcf"))), false)
+		b.slot_clicked.connect(_select_category)
+		category_list.add_child(b)
+
+func _rebuild_tabs() -> void:
+	_clear(tab_list)
+	var selected_category: String = str(_state_get("selected_stash_category_id", ""))
+	var selected_tab: String = str(_state_get("selected_stash_tab_id", ""))
+	for v: Variant in StashSystemScript.tabs_in_category(state_ref, selected_category):
+		if typeof(v) != TYPE_DICTIONARY:
+			continue
+		var t: Dictionary = Dictionary(v)
+		var id: String = str(t.get("id", ""))
+		var items: Array = Array(t.get("items", []))
+		var b: Button = SlotButtonScript.new()
+		b.custom_minimum_size = Vector2(178, 54)
+		var label: String = str(t.get("icon", "box")) + " " + str(t.get("name", "Tab")) + "\n" + str(t.get("affinity", "none")) + " · " + str(items.size())
+		var tip: String = "Right-click to customize.\n" + StashSystemScript.tab_summary_line(t)
+		b.setup("tab_" + id, label, {"kind":"stash_tab", "tab_id":id}, [], id == selected_tab, tip, _color_from_hex(str(t.get("color", "#cfcfcf"))), false)
+		b.slot_clicked.connect(_select_tab)
+		b.slot_right_clicked.connect(_open_customize_for_tab)
+		tab_list.add_child(b)
+
+func _rebuild_items() -> void:
+	_clear(item_grid)
+	if item_grid == null:
+		return
+	item_grid.columns = 5
+	var tab: Dictionary = StashSystemScript.find_tab(state_ref, str(_state_get("selected_stash_tab_id", "")))
+	var visible: Array = StashSystemScript.visible_items_for_current_view(state_ref)
+	if current_title != null:
+		current_title.text = "Search Results" if bool(_state_get("stash_search_all", false)) and str(_state_get("stash_search_query", "")) != "" else str(tab.get("icon", "box")) + " " + str(tab.get("name", "Tab"))
+	if current_meta != null:
+		current_meta.text = _tab_meta_text(tab, visible.size())
+
+	var selected_index: int = _safe_int(_state_get("stash_selected_item_index", -1), -1)
+	for i: int in range(visible.size()):
+		if typeof(visible[i]) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = Dictionary(visible[i])
+		var source_index: int = _safe_int(item.get("_stash_item_index", i), i)
+		var source_tab_id: String = str(item.get("_stash_tab_id", tab.get("id", "")))
+		var b: Button = SlotButtonScript.new()
+		b.custom_minimum_size = Vector2(150, 86)
+		b.setup("stash_item_" + str(i), StashSystemScript.item_display_line(state_ref, item), {"kind":"stash_item", "tab_id":source_tab_id, "item_index":source_index}, [], source_index == selected_index and source_tab_id == str(_state_get("selected_stash_tab_id", "")), _item_tooltip(item), _rarity_color(item), true)
+		b.slot_clicked.connect(_select_item)
+		b.slot_double_clicked.connect(_withdraw_payload)
+		b.slot_right_clicked.connect(_withdraw_payload)
+		item_grid.add_child(b)
+
+func _tab_meta_text(tab: Dictionary, visible_count: int) -> String:
+	if tab.is_empty():
+		return "No tab selected."
+	var lines: PackedStringArray = []
+	lines.append("[b]Affinity:[/b] " + str(tab.get("affinity", "none")))
+	lines.append("[b]Visible:[/b] " + str(visible_count))
+	lines.append("[b]Rules:[/b] " + StashSystemScript.custom_rules_text(Dictionary(tab.get("custom_rules", {}))))
+	lines.append("[i]Right-click a tab to customize routing. Deposit from inventory uses affinity/rules automatically.[/i]")
+	return "\n".join(lines)
+
+func _refresh_footer() -> void:
+	var tab: Dictionary = StashSystemScript.find_tab(state_ref, str(_state_get("selected_stash_tab_id", "")))
+	if buy_tab_button != null:
+		buy_tab_button.text = "Buy Item Tab (" + str(StashSystemScript.tab_buy_cost(state_ref)) + "g)"
+	if withdraw_button != null:
+		withdraw_button.disabled = _safe_int(_state_get("stash_selected_item_index", -1), -1) < 0
+	if affinity_option != null and not tab.is_empty():
+		_select_option_text(affinity_option, str(tab.get("affinity", "none")))
+
+func _select_category(_slot_id: String, payload: Dictionary) -> void:
+	StashSystemScript.select_category(state_ref, str(payload.get("category_id", "")))
+	_rebuild()
+
+func _select_tab(_slot_id: String, payload: Dictionary) -> void:
+	StashSystemScript.select_tab(state_ref, str(payload.get("tab_id", "")))
+	_rebuild()
+
+func _select_item(_slot_id: String, payload: Dictionary) -> void:
+	_state_set("selected_stash_tab_id", str(payload.get("tab_id", "")))
+	_state_set("stash_selected_item_index", _safe_int(payload.get("item_index", -1), -1))
+	_rebuild()
+
+func _withdraw_payload(_slot_id: String, payload: Dictionary) -> void:
+	_select_item(_slot_id, payload)
+	_withdraw()
+
+func _buy_tab() -> void:
+	_notice(StashSystemScript.buy_tab(state_ref))
+	_rebuild()
+
+func _new_category() -> void:
+	_notice(StashSystemScript.create_category(state_ref))
+	_rebuild()
+
+func _withdraw() -> void:
+	_notice(StashSystemScript.withdraw_selected_stash_item(state_ref))
+	_rebuild()
+
+func _apply_footer_customization() -> void:
+	var name: String = rename_line.text if rename_line != null else ""
+	var icon: String = icon_line.text if icon_line != null else ""
+	var color: String = color_line.text if color_line != null else ""
+	var affinity: String = "none"
+	if affinity_option != null and affinity_option.selected >= 0:
+		affinity = affinity_option.get_item_text(affinity_option.selected)
+	_notice(StashSystemScript.customize_selected_tab(state_ref, name, color, icon, affinity))
+	if rename_line != null:
+		rename_line.text = ""
+	if icon_line != null:
+		icon_line.text = ""
+	if color_line != null:
+		color_line.text = ""
+	_rebuild()
+
+func _open_customize_for_tab(_slot_id: String, payload: Dictionary) -> void:
+	if state_ref == null:
+		return
+	customizing_tab_id = str(payload.get("tab_id", ""))
+	StashSystemScript.select_tab(state_ref, customizing_tab_id)
+	var tab: Dictionary = StashSystemScript.find_tab(state_ref, customizing_tab_id)
+	if tab.is_empty():
+		return
+	_ensure_customize_popup()
+	popup_name_line.text = str(tab.get("name", ""))
+	popup_icon_line.text = str(tab.get("icon", "box"))
+	popup_color_line.text = str(tab.get("color", "#cfcfcf"))
+	_select_option_text(popup_affinity_option, str(tab.get("affinity", "none")))
+	var rules: Dictionary = Dictionary(tab.get("custom_rules", {}))
+	_select_option_text(popup_rarity_option, str(rules.get("rarity", "any")) if str(rules.get("rarity", "")) != "" else "any")
+	_select_option_text(popup_slot_option, str(rules.get("slot", "any")) if str(rules.get("slot", "")) != "" else "any")
+	popup_kind_line.text = str(rules.get("kind", ""))
+	popup_min_tier_line.text = str(rules.get("min_tier", ""))
+	popup_max_tier_line.text = str(rules.get("max_tier", ""))
+	customize_popup.popup_centered(Vector2i(520, 520))
+	_rebuild()
+
+func _apply_popup_customization() -> void:
+	if customizing_tab_id == "":
+		return
+	var affinity: String = popup_affinity_option.get_item_text(popup_affinity_option.selected) if popup_affinity_option.selected >= 0 else "none"
+	var rules: Dictionary = {
+		"rarity": popup_rarity_option.get_item_text(popup_rarity_option.selected) if popup_rarity_option.selected >= 0 else "any",
+		"slot": popup_slot_option.get_item_text(popup_slot_option.selected) if popup_slot_option.selected >= 0 else "any",
+		"kind": popup_kind_line.text,
+		"min_tier": _safe_int(popup_min_tier_line.text, 0),
+		"max_tier": _safe_int(popup_max_tier_line.text, 0),
+	}
+	_notice(StashSystemScript.customize_tab(state_ref, customizing_tab_id, popup_name_line.text, popup_color_line.text, popup_icon_line.text, affinity, rules))
+	customize_popup.hide()
+	_rebuild()
+
+func _select_option_text(option: OptionButton, value: String) -> void:
+	if option == null:
+		return
+	for i: int in range(option.item_count):
+		if option.get_item_text(i) == value:
+			option.select(i)
+			return
+
+func _on_search_changed(new_text: String) -> void:
+	_state_set("stash_search_query", new_text)
+	_rebuild_items()
+
+func _on_search_all_toggled(enabled: bool) -> void:
+	_state_set("stash_search_all", enabled)
+	_rebuild_items()
+
+func _close_panel() -> void:
+	_state_set("panel_mode", "")
+
+func _item_tooltip(item: Dictionary) -> String:
+	return str(item.get("display_name", item.get("name", "Item"))) + "\nRarity: " + str(item.get("rarity", "normal")) + "\nSlot: " + StashSystemScript.normalized_slot(item) + "\nAffinity: " + StashSystemScript.affinity_for_item(item)
+
+func _rarity_color(item: Dictionary) -> Color:
+	match str(item.get("rarity", "normal")).to_lower():
+		"magic":
+			return Color(0.35, 0.55, 1.0, 1.0)
+		"rare":
+			return Color(1.0, 0.86, 0.22, 1.0)
+		"unique":
+			return Color(1.0, 0.52, 0.16, 1.0)
+		_:
+			return Color(0.94, 0.94, 0.90, 1.0)
+
+func _color_from_hex(hex: String) -> Color:
+	var clean: String = hex.strip_edges()
+	if clean.begins_with("#") and (clean.length() == 7 or clean.length() == 9):
+		return Color.html(clean)
+	return Color(0.9, 0.9, 0.9, 1.0)
+
+func _notice(text: String) -> void:
+	if state_ref != null and state_ref.has_method("add_notice"):
+		state_ref.call("add_notice", text)
+
+func _safe_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT:
+			return value
+		TYPE_FLOAT:
+			return int(round(value))
+		TYPE_STRING:
+			var s: String = str(value)
+			return s.to_int() if s.is_valid_int() else fallback
+		_:
+			return fallback
+
+
+func _rf_091a_ensure_quick_deposit_button() -> void:
+	var footer := get_node_or_null("RootVBox/FooterBar") as HBoxContainer
+	if footer == null:
+		return
+	if footer.get_node_or_null("QuickDepositButton") != null:
+		return
+	var button := Button.new()
+	button.name = "QuickDepositButton"
+	button.text = "Quick Deposit All"
+	button.custom_minimum_size = Vector2(120, 36)
+	footer.add_child(button)
+	button.pressed.connect(_rf_091a_quick_deposit)
+
+func _rf_091a_quick_deposit() -> void:
+	if state_ref == null:
+		return
+	var msg: String = StashSystemScript.quick_deposit_inventory(state_ref)
+	_notice(msg)
+	_rebuild()
+
+
+func _rf_092b_ensure_stash_detail() -> void:
+	if _rf_092b_detail_box != null and is_instance_valid(_rf_092b_detail_box):
+		return
+	var content := get_node_or_null("RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox") as VBoxContainer
+	if content == null:
+		return
+	_rf_092b_detail_box = RichTextLabel.new()
+	_rf_092b_detail_box.name = "SelectedItemDetail092B"
+	_rf_092b_detail_box.custom_minimum_size = Vector2(0, 132)
+	_rf_092b_detail_box.bbcode_enabled = true
+	_rf_092b_detail_box.fit_content = false
+	_rf_092b_detail_box.scroll_active = true
+	_rf_092b_detail_box.text = "[i]Select an item to inspect it.[/i]"
+	content.add_child(_rf_092b_detail_box)
+
+func _rf_092b_refresh_stash_detail() -> void:
+	_rf_092b_ensure_stash_detail()
+	if _rf_092b_detail_box == null:
+		return
+	if state_ref == null:
+		_rf_092b_detail_box.text = "[i]No state bound.[/i]"
+		return
+	var item: Dictionary = _rf_092b_selected_stash_item()
+	if item.is_empty():
+		var tab: Dictionary = StashSystemScript.find_tab(state_ref, str(_state_get("selected_stash_tab_id", "")))
+		if tab.is_empty():
+			_rf_092b_detail_box.text = "[i]No tab selected.[/i]"
+		else:
+			_rf_092b_detail_box.text = "[b]" + str(tab.get("name", "Tab")) + "[/b]\n" + StashSystemScript.tab_summary_line(tab) + "\n\n[i]Select an item to inspect it. Double-click or right-click an item to withdraw.[/i]"
+		return
+	_rf_092b_detail_box.text = UIItemFormatSystemScript.item_detail_text(item) + "\n\n[i]Actions: double-click/right-click withdraw · Quick Deposit All moves backpack items into the correct tabs.[/i]"
+
+func _rf_092b_selected_stash_item() -> Dictionary:
+	if state_ref == null:
+		return {}
+	var tab_id: String = str(_state_get("selected_stash_tab_id", ""))
+	var selected_index: int = _safe_int(_state_get("stash_selected_item_index", -1), -1)
+	if tab_id == "" or selected_index < 0:
+		return {}
+	var tab: Dictionary = StashSystemScript.find_tab(state_ref, tab_id)
+	if tab.is_empty():
+		return {}
+	var items: Array = Array(tab.get("items", []))
+	if selected_index < 0 or selected_index >= items.size() or typeof(items[selected_index]) != TYPE_DICTIONARY:
+		return {}
+	return Dictionary(items[selected_index])

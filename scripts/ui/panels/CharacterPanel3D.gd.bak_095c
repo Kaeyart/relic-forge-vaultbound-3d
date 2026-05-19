@@ -1,0 +1,477 @@
+extends Control
+
+const UIFoundationSystemScript := preload("res://scripts/systems/UIFoundationSystem3D.gd")
+const GemCoreSystemScript := preload("res://scripts/systems/GemCoreSystem3D.gd")
+
+var state_ref: Object = null
+var _root: PanelContainer = null
+var _summary_card: RichTextLabel = null
+var _offense_card: RichTextLabel = null
+var _defense_card: RichTextLabel = null
+var _resources_card: RichTextLabel = null
+var _resistance_card: RichTextLabel = null
+var _utility_card: RichTextLabel = null
+var _equipment_card: RichTextLabel = null
+var _skills_card: RichTextLabel = null
+var _notes_card: RichTextLabel = null
+var _last_signature: String = ""
+
+
+func _ready() -> void:
+	_ensure_ui()
+	set_process(false)
+
+
+func bind_state(state: Object) -> void:
+	state_ref = state
+	_refresh(true)
+
+
+func update_from_state(state: Object) -> void:
+	state_ref = state
+	_refresh(false)
+
+
+func _ensure_ui() -> void:
+	if _root != null and is_instance_valid(_root):
+		return
+
+	_clear_children(self)
+
+	_root = PanelContainer.new()
+	_root.name = "CharacterRoot095A"
+	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_root)
+
+	var margin: MarginContainer = _margin(16)
+	_root.add_child(margin)
+
+	var main: VBoxContainer = VBoxContainer.new()
+	main.add_theme_constant_override("separation", 10)
+	margin.add_child(main)
+
+	var header: HBoxContainer = HBoxContainer.new()
+	header.add_theme_constant_override("separation", 10)
+	main.add_child(header)
+
+	var title: Label = Label.new()
+	title.text = "Character"
+	title.add_theme_font_size_override("font_size", 24)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+
+	var refresh_button: Button = _button("Refresh", Vector2(96, 34))
+	refresh_button.pressed.connect(_force_refresh)
+	header.add_child(refresh_button)
+
+	var close_button: Button = _button("Close", Vector2(86, 34))
+	close_button.pressed.connect(_close_panel)
+	header.add_child(close_button)
+
+	var hint: RichTextLabel = RichTextLabel.new()
+	hint.bbcode_enabled = true
+	hint.fit_content = true
+	hint.scroll_active = false
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.custom_minimum_size = Vector2(0, 44)
+	hint.text = "[b]Character Sheet[/b] · Readable build overview. Offense, defense, resources, resistances, equipment, active skills, and spirit reservation."
+	main.add_child(hint)
+
+	var body: HBoxContainer = HBoxContainer.new()
+	body.add_theme_constant_override("separation", 12)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main.add_child(body)
+
+	var left_panel: PanelContainer = PanelContainer.new()
+	left_panel.custom_minimum_size = Vector2(310, 0)
+	left_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(left_panel)
+
+	var left_margin: MarginContainer = _margin(10)
+	left_panel.add_child(left_margin)
+
+	var left_box: VBoxContainer = VBoxContainer.new()
+	left_box.add_theme_constant_override("separation", 8)
+	left_margin.add_child(left_box)
+
+	_summary_card = _card("Summary", Vector2(0, 210))
+	left_box.add_child(_summary_card)
+
+	_skills_card = _card("Skills", Vector2(0, 260))
+	_skills_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left_box.add_child(_skills_card)
+
+	var center_panel: PanelContainer = PanelContainer.new()
+	center_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(center_panel)
+
+	var center_margin: MarginContainer = _margin(10)
+	center_panel.add_child(center_margin)
+
+	var center_grid: GridContainer = GridContainer.new()
+	center_grid.columns = 2
+	center_grid.add_theme_constant_override("h_separation", 10)
+	center_grid.add_theme_constant_override("v_separation", 10)
+	center_margin.add_child(center_grid)
+
+	_offense_card = _card("Offense", Vector2(300, 190))
+	center_grid.add_child(_offense_card)
+
+	_defense_card = _card("Defense", Vector2(300, 190))
+	center_grid.add_child(_defense_card)
+
+	_resources_card = _card("Resources", Vector2(300, 170))
+	center_grid.add_child(_resources_card)
+
+	_resistance_card = _card("Resistances", Vector2(300, 170))
+	center_grid.add_child(_resistance_card)
+
+	_utility_card = _card("Utility", Vector2(300, 170))
+	center_grid.add_child(_utility_card)
+
+	_notes_card = _card("Build Notes", Vector2(300, 170))
+	center_grid.add_child(_notes_card)
+
+	var right_panel: PanelContainer = PanelContainer.new()
+	right_panel.custom_minimum_size = Vector2(360, 0)
+	right_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(right_panel)
+
+	var right_margin: MarginContainer = _margin(10)
+	right_panel.add_child(right_margin)
+
+	_equipment_card = _card("Equipment", Vector2(0, 0))
+	_equipment_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_margin.add_child(_equipment_card)
+
+
+func _refresh(force: bool) -> void:
+	if state_ref == null:
+		return
+	_ensure_ui()
+
+	var sig: String = _signature()
+	if not force and sig == _last_signature:
+		return
+	_last_signature = sig
+
+	var totals: Dictionary = _combined_stats()
+
+	_summary_card.text = _summary_text(totals)
+	_offense_card.text = _section_text("Offense", totals, ["damage", "attack_damage", "spell_damage", "fire_damage", "cold_damage", "lightning_damage", "void_damage", "crit_chance", "crit_multi", "attack_speed", "cast_speed"])
+	_defense_card.text = _section_text("Defense", totals, ["armor", "evasion", "block_chance", "damage_reduction", "ward", "barrier"])
+	_resources_card.text = _resources_text(totals)
+	_resistance_card.text = _section_text("Resistances", totals, ["fire_resistance", "cold_resistance", "lightning_resistance", "void_resistance", "physical_resistance", "all_resistance"])
+	_utility_card.text = _section_text("Utility", totals, ["movement_speed", "cooldown_recovery", "pickup_radius", "gold_find", "item_rarity", "item_quantity", "spirit"])
+	_equipment_card.text = _equipment_text()
+	_skills_card.text = _skills_text()
+	_notes_card.text = _notes_text(totals)
+
+
+func _signature() -> String:
+	return JSON.stringify([
+		_state_get("level", 1),
+		_state_get("class_display_name", ""),
+		_state_get("player_hp", 0),
+		_state_get("max_hp", 0),
+		_state_get("player_mana", 0),
+		_state_get("max_mana", 0),
+		_state_get("spirit_reserved", 0),
+		_state_get("spirit_max", 0),
+		_state_get("gold", 0),
+		_state_get("mode", ""),
+		_state_get("build_stats", {}),
+		_state_get("equipped", {}),
+		_state_get("active_skill_slots", []),
+		_state_get("selected_skill_slot", 0),
+		_state_get("spirit_gem_slots", []),
+	])
+
+
+func _summary_text(totals: Dictionary) -> String:
+	var lines: PackedStringArray = []
+	var class_name: String = str(_state_get("class_display_name", "Adventurer"))
+	var level: int = _to_int(_state_get("level", 1), 1)
+	var hp: int = _to_int(_state_get("player_hp", 0), 0)
+	var max_hp: int = _to_int(_state_get("max_hp", totals.get("max_health", 0)), 0)
+	var mana: int = _to_int(_state_get("player_mana", 0), 0)
+	var max_mana: int = _to_int(_state_get("max_mana", totals.get("max_mana", 0)), 0)
+	var spirit_reserved: int = _to_int(_state_get("spirit_reserved", 0), 0)
+	var spirit_max: int = _to_int(_state_get("spirit_max", 0), 0)
+	var gold: int = _to_int(_state_get("gold", 0), 0)
+
+	lines.append("[b]" + class_name + "[/b]")
+	lines.append("Level " + str(level))
+	lines.append("Mode: " + str(_state_get("mode", "hub")).capitalize())
+	lines.append("")
+	lines.append("[b]Resources[/b]")
+	lines.append("Health: " + str(hp) + " / " + str(max_hp))
+	lines.append("Mana: " + str(mana) + " / " + str(max_mana))
+	lines.append("Spirit: " + str(spirit_reserved) + " / " + str(spirit_max) + " reserved")
+	lines.append("Gold: " + str(gold))
+	return "\n".join(lines)
+
+
+func _resources_text(totals: Dictionary) -> String:
+	var lines: PackedStringArray = []
+	lines.append("[b]Resources[/b]")
+	lines.append(_stat_or_zero("Maximum Health", "max_health", totals))
+	lines.append(_stat_or_zero("Maximum Mana", "max_mana", totals))
+	lines.append("Current Health: " + str(_to_int(_state_get("player_hp", 0), 0)))
+	lines.append("Current Mana: " + str(_to_int(_state_get("player_mana", 0), 0)))
+	lines.append("Spirit Reserved: " + str(_to_int(_state_get("spirit_reserved", 0), 0)))
+	lines.append("Spirit Maximum: " + str(_to_int(_state_get("spirit_max", 0), 0)))
+	return "\n".join(lines)
+
+
+func _section_text(title: String, totals: Dictionary, keys: Array[String]) -> String:
+	var lines: PackedStringArray = []
+	lines.append("[b]" + title + "[/b]")
+
+	var found: bool = false
+	for key: String in keys:
+		if totals.has(key):
+			lines.append(UIFoundationSystemScript.stat_label(key) + ": " + str(_to_int(totals.get(key, 0), 0)))
+			found = true
+
+	if not found:
+		lines.append("[i]No tracked " + title.to_lower() + " stats yet.[/i]")
+
+	return "\n".join(lines)
+
+
+func _equipment_text() -> String:
+	var lines: PackedStringArray = []
+	lines.append("[b]Equipment[/b]")
+
+	var equipped: Dictionary = Dictionary(_state_get("equipped", {}))
+	var order: Array[Dictionary] = [
+		{"key":"helm", "label":"Helm"},
+		{"key":"chest", "label":"Chest"},
+		{"key":"gloves", "label":"Gloves"},
+		{"key":"boots", "label":"Boots"},
+		{"key":"weapon", "label":"Weapon"},
+		{"key":"amulet", "label":"Amulet"},
+		{"key":"ring1", "label":"Ring 1"},
+		{"key":"ring2", "label":"Ring 2"},
+		{"key":"relic", "label":"Relic"},
+		{"key":"offhand", "label":"Offhand"},
+	]
+
+	for spec: Dictionary in order:
+		var key: String = str(spec.get("key", ""))
+		var label: String = str(spec.get("label", key))
+		var item: Dictionary = _equipped_item(equipped, key)
+		if item.is_empty():
+			lines.append(label + ": [i]empty[/i]")
+		else:
+			var rarity: String = str(item.get("rarity", "normal")).capitalize()
+			var name: String = str(item.get("display_name", item.get("name", "Item")))
+			lines.append(label + ": " + rarity + " · " + name)
+
+	lines.append("")
+	lines.append("[i]Equipment stats are included in the center stat totals.[/i]")
+	return "\n".join(lines)
+
+
+func _skills_text() -> String:
+	var lines: PackedStringArray = []
+	lines.append("[b]Active Skills[/b]")
+
+	var slots: Array = Array(_state_get("active_skill_slots", []))
+	var selected: int = _to_int(_state_get("selected_skill_slot", 0), 0)
+
+	if slots.is_empty():
+		lines.append("[i]No active skills.[/i]")
+	else:
+		for i: int in range(slots.size()):
+			if typeof(slots[i]) != TYPE_DICTIONARY:
+				continue
+			var active: Dictionary = GemCoreSystemScript.normalize_active(Dictionary(slots[i]))
+			var prefix: String = "▶ " if i == selected else ""
+			var level: int = _to_int(active.get("level", 1), 1)
+			var xp: int = _to_int(active.get("xp", 0), 0)
+			var quality: int = _to_int(active.get("quality", 0), 0)
+			var supports: Array = Array(active.get("supports", []))
+			var sockets: int = GemCoreSystemScript.unlocked_support_sockets(level)
+			lines.append(prefix + "Slot " + str(i + 1) + ": " + GemCoreSystemScript.active_display_name(active))
+			lines.append("   Lv " + str(level) + " · XP " + str(xp) + "/" + str(GemCoreSystemScript.xp_to_next(level)) + " · Q+" + str(quality) + " · Supports " + str(supports.size()) + "/" + str(sockets))
+
+	lines.append("")
+	lines.append("[b]Spirit Gems[/b]")
+	var spirits: Array = Array(_state_get("spirit_gem_slots", []))
+	if spirits.is_empty():
+		lines.append("[i]No spirit gems installed.[/i]")
+	else:
+		for j: int in range(spirits.size()):
+			if typeof(spirits[j]) != TYPE_DICTIONARY:
+				continue
+			var spirit: Dictionary = GemCoreSystemScript.normalize_spirit(Dictionary(spirits[j]))
+			var enabled: String = "ON" if bool(spirit.get("enabled", false)) else "OFF"
+			var spirit_level: int = _to_int(spirit.get("level", 1), 1)
+			var spirit_quality: int = _to_int(spirit.get("quality", 0), 0)
+			var spirit_supports: Array = Array(spirit.get("supports", []))
+			lines.append("Spirit " + str(j + 1) + " [" + enabled + "]: " + GemCoreSystemScript.spirit_display_name(spirit))
+			lines.append("   Lv " + str(spirit_level) + " · Q+" + str(spirit_quality) + " · Supports " + str(spirit_supports.size()) + "/" + str(GemCoreSystemScript.unlocked_support_sockets(spirit_level)))
+
+	return "\n".join(lines)
+
+
+func _notes_text(totals: Dictionary) -> String:
+	var lines: PackedStringArray = []
+	lines.append("[b]Build Notes[/b]")
+
+	var warnings: Array[String] = []
+
+	var max_hp: int = _to_int(_state_get("max_hp", totals.get("max_health", 0)), 0)
+	if max_hp <= 0:
+		warnings.append("Maximum Health is not initialized.")
+
+	var spirit_reserved: int = _to_int(_state_get("spirit_reserved", 0), 0)
+	var spirit_max: int = _to_int(_state_get("spirit_max", 0), 0)
+	if spirit_max > 0 and spirit_reserved > spirit_max:
+		warnings.append("Spirit reservation exceeds maximum spirit.")
+
+	var fire_res: int = _to_int(totals.get("fire_resistance", 0), 0)
+	var cold_res: int = _to_int(totals.get("cold_resistance", 0), 0)
+	var lightning_res: int = _to_int(totals.get("lightning_resistance", 0), 0)
+	if fire_res <= 0 and cold_res <= 0 and lightning_res <= 0:
+		warnings.append("No elemental resistance found.")
+
+	var damage_total: int = _to_int(totals.get("damage", 0), 0) + _to_int(totals.get("attack_damage", 0), 0) + _to_int(totals.get("spell_damage", 0), 0)
+	if damage_total <= 0:
+		warnings.append("No direct damage stat found. This may be fine if skills define base damage.")
+
+	if warnings.is_empty():
+		lines.append("[color=green]No obvious stat-sheet warnings.[/color]")
+	else:
+		for warning: String in warnings:
+			lines.append("[color=yellow]• " + warning + "[/color]")
+
+	lines.append("")
+	lines.append("[i]This panel is display-only. Balance and derived-stat math can be improved later.[/i]")
+	return "\n".join(lines)
+
+
+func _combined_stats() -> Dictionary:
+	var totals: Dictionary = {}
+	var build_stats: Dictionary = Dictionary(_state_get("build_stats", {}))
+	_add_stats_into(totals, build_stats)
+
+	# Runtime resource values should show even if build_stats is empty.
+	if not totals.has("max_health"):
+		totals["max_health"] = _to_int(_state_get("max_hp", 0), 0)
+	if not totals.has("max_mana"):
+		totals["max_mana"] = _to_int(_state_get("max_mana", 0), 0)
+	if not totals.has("spirit"):
+		totals["spirit"] = _to_int(_state_get("spirit_max", 0), 0)
+
+	var equipped: Dictionary = Dictionary(_state_get("equipped", {}))
+	for key: Variant in equipped.keys():
+		if typeof(equipped[key]) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = Dictionary(equipped[key])
+		var item_stats: Dictionary = Dictionary(item.get("total_stats", item.get("stats", {})))
+		_add_stats_into(totals, item_stats)
+
+	return totals
+
+
+func _add_stats_into(target: Dictionary, source: Dictionary) -> void:
+	for key: Variant in source.keys():
+		var stat_key: String = str(key)
+		var value: Variant = source[key]
+		if typeof(value) == TYPE_DICTIONARY or typeof(value) == TYPE_ARRAY:
+			continue
+		target[stat_key] = _to_int(target.get(stat_key, 0), 0) + _to_int(value, 0)
+
+
+func _stat_or_zero(label: String, key: String, totals: Dictionary) -> String:
+	return label + ": " + str(_to_int(totals.get(key, 0), 0))
+
+
+func _equipped_item(equipped: Dictionary, slot: String) -> Dictionary:
+	if equipped.has(slot) and typeof(equipped[slot]) == TYPE_DICTIONARY:
+		return Dictionary(equipped[slot])
+
+	if slot == "helm" and equipped.has("head") and typeof(equipped["head"]) == TYPE_DICTIONARY:
+		return Dictionary(equipped["head"])
+
+	if slot == "ring1" and equipped.has("ring") and typeof(equipped["ring"]) == TYPE_DICTIONARY:
+		return Dictionary(equipped["ring"])
+
+	return {}
+
+
+func _force_refresh() -> void:
+	_last_signature = ""
+	_refresh(true)
+
+
+func _card(_title: String, min_size: Vector2) -> RichTextLabel:
+	var card: RichTextLabel = RichTextLabel.new()
+	card.bbcode_enabled = true
+	card.scroll_active = true
+	card.fit_content = false
+	card.custom_minimum_size = min_size
+	card.text = "[b]" + _title + "[/b]"
+	return card
+
+
+func _button(text_value: String, min_size: Vector2) -> Button:
+	var button: Button = Button.new()
+	button.text = text_value
+	button.custom_minimum_size = min_size
+	button.clip_text = true
+	return button
+
+
+func _margin(size: int) -> MarginContainer:
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", size)
+	margin.add_theme_constant_override("margin_top", size)
+	margin.add_theme_constant_override("margin_right", size)
+	margin.add_theme_constant_override("margin_bottom", size)
+	return margin
+
+
+func _close_panel() -> void:
+	if state_ref != null:
+		state_ref.set("panel_mode", "")
+
+
+func _state_get(key: String, fallback: Variant = null) -> Variant:
+	if state_ref == null:
+		return fallback
+	var value: Variant = state_ref.get(key)
+	return fallback if value == null else value
+
+
+func _clear_children(node: Node) -> void:
+	if node == null:
+		return
+	for child: Node in node.get_children():
+		node.remove_child(child)
+		child.queue_free()
+
+
+func _to_int(value: Variant, fallback: int = 0) -> int:
+	if value == null:
+		return fallback
+	match typeof(value):
+		TYPE_INT:
+			return int(value)
+		TYPE_FLOAT:
+			return int(round(float(value)))
+		TYPE_STRING:
+			var s: String = str(value)
+			if s.is_valid_int():
+				return s.to_int()
+			if s.is_valid_float():
+				return int(round(s.to_float()))
+			return fallback
+		TYPE_BOOL:
+			return 1 if bool(value) else 0
+		_:
+			return fallback

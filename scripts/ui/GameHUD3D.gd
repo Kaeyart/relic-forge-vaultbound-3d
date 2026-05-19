@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 const SkillGemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
+const UIAccessSystemScript := preload("res://scripts/systems/UIAccessSystem3D.gd")
 
 var hp_bar: ProgressBar = null
 var mana_bar: ProgressBar = null
@@ -146,7 +147,7 @@ func _select_skill(index: int) -> void:
 
 func _open(mode: String) -> void:
 	if state_ref != null:
-		state_ref.set("panel_mode", mode)
+		UIAccessSystemScript.toggle_panel(state_ref, mode)
 
 func _use_health() -> void:
 	if state_ref == null:
