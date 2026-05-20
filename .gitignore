@@ -28,3 +28,8 @@ __pycache__/
 # Keep imported 2D snapshot tracked by default, but ignore oversized old cache folders inside it.
 _ported_from_2d_raw/**/.godot/
 _ported_from_2d_raw/**/.import/
+
+# 097B repo-health cleanup
+*.bak_*
+*.orig
+*.rej

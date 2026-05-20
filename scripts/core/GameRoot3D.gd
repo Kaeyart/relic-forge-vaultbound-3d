@@ -23,6 +23,8 @@ const SkillVFXLayerScript := preload("res://scripts/visual/SkillVFXLayer3D.gd")
 const EnemyReadabilityLayerScript := preload("res://scripts/visual/EnemyReadabilityLayer3D.gd")
 const LootPresentationLayerScript := preload("res://scripts/visual/LootPresentationLayer3D.gd")
 const CombatFeedbackLayerScript := preload("res://scripts/visual/CombatFeedbackLayer3D.gd")
+const CombatDirectorLayerScript := preload("res://scripts/visual/CombatDirectorLayer3D.gd")
+const RuntimeLayerManagerScript := preload("res://scripts/core/RuntimeLayerManager3D.gd")
 
 @onready var hub: Node3D = $Hub
 @onready var combat: Node3D = $Combat
@@ -43,6 +45,8 @@ var _rf_096d_skill_vfx_layer: Node3D = null
 var _rf_096e_enemy_readability_layer: Node3D = null
 var _rf_096f_loot_presentation_layer: Node3D = null
 var _rf_096g_combat_feedback_layer: Node3D = null
+var _rf_097a_combat_director_layer: Node3D = null
+var _rf_097b_runtime_layer_manager: Node = null
 
 func _rf_pre_091a_ready() -> void:
 	_rf_087r_ensure_final_ui()
@@ -392,6 +396,8 @@ func _rf_087v_int(value: Variant, fallback: int = 0) -> int:
 
 
 func _ready() -> void:
+	call_deferred("_rf_097b_ensure_runtime_layer_manager")
+	call_deferred("_rf_097a_ensure_combat_director_layer")
 	call_deferred("_rf_096g_ensure_combat_feedback_layer")
 	call_deferred("_rf_096f_ensure_loot_presentation_layer")
 	call_deferred("_rf_096e_ensure_enemy_readability_layer")
@@ -551,3 +557,33 @@ func _rf_096g_ensure_combat_feedback_layer() -> void:
 
 	if _rf_096g_combat_feedback_layer != null and _rf_096g_combat_feedback_layer.has_method("bind_game"):
 		_rf_096g_combat_feedback_layer.call("bind_game", self)
+
+
+
+func _rf_097a_ensure_combat_director_layer() -> void:
+	if _rf_097a_combat_director_layer != null and is_instance_valid(_rf_097a_combat_director_layer):
+		return
+
+	_rf_097a_combat_director_layer = get_node_or_null("CombatDirectorLayer097A") as Node3D
+	if _rf_097a_combat_director_layer == null:
+		_rf_097a_combat_director_layer = CombatDirectorLayerScript.new()
+		_rf_097a_combat_director_layer.name = "CombatDirectorLayer097A"
+		add_child(_rf_097a_combat_director_layer)
+
+	if _rf_097a_combat_director_layer != null and _rf_097a_combat_director_layer.has_method("bind_game"):
+		_rf_097a_combat_director_layer.call("bind_game", self)
+
+
+
+func _rf_097b_ensure_runtime_layer_manager() -> void:
+	if _rf_097b_runtime_layer_manager != null and is_instance_valid(_rf_097b_runtime_layer_manager):
+		return
+
+	_rf_097b_runtime_layer_manager = get_node_or_null("RuntimeLayerManager097B")
+	if _rf_097b_runtime_layer_manager == null:
+		_rf_097b_runtime_layer_manager = RuntimeLayerManagerScript.new()
+		_rf_097b_runtime_layer_manager.name = "RuntimeLayerManager097B"
+		add_child(_rf_097b_runtime_layer_manager)
+
+	if _rf_097b_runtime_layer_manager != null and _rf_097b_runtime_layer_manager.has_method("bind_game"):
+		_rf_097b_runtime_layer_manager.call("bind_game", self)
