@@ -18,11 +18,6 @@ const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 const VisualFoundationLayerScript := preload("res://scripts/visual/VisualFoundationLayer3D.gd")
 const HubGreyboxPassScript := preload("res://scripts/visual/HubGreyboxPass3D.gd")
-const CombatArenaGreyboxPassScript := preload("res://scripts/visual/CombatArenaGreyboxPass3D.gd")
-const SkillVFXLayerScript := preload("res://scripts/visual/SkillVFXLayer3D.gd")
-const EnemyReadabilityLayerScript := preload("res://scripts/visual/EnemyReadabilityLayer3D.gd")
-const LootPresentationLayerScript := preload("res://scripts/visual/LootPresentationLayer3D.gd")
-const CombatFeedbackLayerScript := preload("res://scripts/visual/CombatFeedbackLayer3D.gd")
 
 @onready var hub: Node3D = $Hub
 @onready var combat: Node3D = $Combat
@@ -38,11 +33,6 @@ var state: Object = GameStateScript.new()
 var autosave_timer: float = 0.0
 var _rf_096a_visual_layer: Node3D = null
 var _rf_096b_hub_greybox: Node3D = null
-var _rf_096c_combat_greybox: Node3D = null
-var _rf_096d_skill_vfx_layer: Node3D = null
-var _rf_096e_enemy_readability_layer: Node3D = null
-var _rf_096f_loot_presentation_layer: Node3D = null
-var _rf_096g_combat_feedback_layer: Node3D = null
 
 func _rf_pre_091a_ready() -> void:
 	_rf_087r_ensure_final_ui()
@@ -392,11 +382,6 @@ func _rf_087v_int(value: Variant, fallback: int = 0) -> int:
 
 
 func _ready() -> void:
-	call_deferred("_rf_096g_ensure_combat_feedback_layer")
-	call_deferred("_rf_096f_ensure_loot_presentation_layer")
-	call_deferred("_rf_096e_ensure_enemy_readability_layer")
-	call_deferred("_rf_096d_ensure_skill_vfx_layer")
-	call_deferred("_rf_096c_ensure_combat_greybox")
 	call_deferred("_rf_096b_ensure_hub_greybox")
 	call_deferred("_rf_096a_ensure_visual_foundation")
 	if has_method("_rf_pre_091a_ready"):
@@ -476,78 +461,3 @@ func _rf_096b_ensure_hub_greybox() -> void:
 
 	if _rf_096b_hub_greybox != null and _rf_096b_hub_greybox.has_method("bind_game"):
 		_rf_096b_hub_greybox.call("bind_game", self)
-
-
-
-func _rf_096c_ensure_combat_greybox() -> void:
-	if _rf_096c_combat_greybox != null and is_instance_valid(_rf_096c_combat_greybox):
-		return
-
-	_rf_096c_combat_greybox = get_node_or_null("CombatArenaGreyboxPass096C") as Node3D
-	if _rf_096c_combat_greybox == null:
-		_rf_096c_combat_greybox = CombatArenaGreyboxPassScript.new()
-		_rf_096c_combat_greybox.name = "CombatArenaGreyboxPass096C"
-		add_child(_rf_096c_combat_greybox)
-
-	if _rf_096c_combat_greybox != null and _rf_096c_combat_greybox.has_method("bind_game"):
-		_rf_096c_combat_greybox.call("bind_game", self)
-
-
-
-func _rf_096d_ensure_skill_vfx_layer() -> void:
-	if _rf_096d_skill_vfx_layer != null and is_instance_valid(_rf_096d_skill_vfx_layer):
-		return
-
-	_rf_096d_skill_vfx_layer = get_node_or_null("SkillVFXLayer096D") as Node3D
-	if _rf_096d_skill_vfx_layer == null:
-		_rf_096d_skill_vfx_layer = SkillVFXLayerScript.new()
-		_rf_096d_skill_vfx_layer.name = "SkillVFXLayer096D"
-		add_child(_rf_096d_skill_vfx_layer)
-
-	if _rf_096d_skill_vfx_layer != null and _rf_096d_skill_vfx_layer.has_method("bind_game"):
-		_rf_096d_skill_vfx_layer.call("bind_game", self)
-
-
-
-func _rf_096e_ensure_enemy_readability_layer() -> void:
-	if _rf_096e_enemy_readability_layer != null and is_instance_valid(_rf_096e_enemy_readability_layer):
-		return
-
-	_rf_096e_enemy_readability_layer = get_node_or_null("EnemyReadabilityLayer096E") as Node3D
-	if _rf_096e_enemy_readability_layer == null:
-		_rf_096e_enemy_readability_layer = EnemyReadabilityLayerScript.new()
-		_rf_096e_enemy_readability_layer.name = "EnemyReadabilityLayer096E"
-		add_child(_rf_096e_enemy_readability_layer)
-
-	if _rf_096e_enemy_readability_layer != null and _rf_096e_enemy_readability_layer.has_method("bind_game"):
-		_rf_096e_enemy_readability_layer.call("bind_game", self)
-
-
-
-func _rf_096f_ensure_loot_presentation_layer() -> void:
-	if _rf_096f_loot_presentation_layer != null and is_instance_valid(_rf_096f_loot_presentation_layer):
-		return
-
-	_rf_096f_loot_presentation_layer = get_node_or_null("LootPresentationLayer096F") as Node3D
-	if _rf_096f_loot_presentation_layer == null:
-		_rf_096f_loot_presentation_layer = LootPresentationLayerScript.new()
-		_rf_096f_loot_presentation_layer.name = "LootPresentationLayer096F"
-		add_child(_rf_096f_loot_presentation_layer)
-
-	if _rf_096f_loot_presentation_layer != null and _rf_096f_loot_presentation_layer.has_method("bind_game"):
-		_rf_096f_loot_presentation_layer.call("bind_game", self)
-
-
-
-func _rf_096g_ensure_combat_feedback_layer() -> void:
-	if _rf_096g_combat_feedback_layer != null and is_instance_valid(_rf_096g_combat_feedback_layer):
-		return
-
-	_rf_096g_combat_feedback_layer = get_node_or_null("CombatFeedbackLayer096G") as Node3D
-	if _rf_096g_combat_feedback_layer == null:
-		_rf_096g_combat_feedback_layer = CombatFeedbackLayerScript.new()
-		_rf_096g_combat_feedback_layer.name = "CombatFeedbackLayer096G"
-		add_child(_rf_096g_combat_feedback_layer)
-
-	if _rf_096g_combat_feedback_layer != null and _rf_096g_combat_feedback_layer.has_method("bind_game"):
-		_rf_096g_combat_feedback_layer.call("bind_game", self)
