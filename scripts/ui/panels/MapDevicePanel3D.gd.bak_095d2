@@ -298,7 +298,7 @@ func _sync_filter_controls() -> void:
 func _collect_available_maps() -> void:
 	_available_maps.clear()
 
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	for i: int in range(backpack.size()):
 		if typeof(backpack[i]) != TYPE_DICTIONARY:
 			continue
@@ -310,13 +310,13 @@ func _collect_available_maps() -> void:
 		item["_map_item_index"] = i
 		_maybe_add_filtered_map(item)
 
-	var stash_tabs: Array = _rf095d_as_array(_state_get("stash_tabs", []))
+	var stash_tabs: Array = Array(_state_get("stash_tabs", []))
 	for tab_index: int in range(stash_tabs.size()):
 		if typeof(stash_tabs[tab_index]) != TYPE_DICTIONARY:
 			continue
 		var tab: Dictionary = Dictionary(stash_tabs[tab_index])
 		var affinity: String = str(tab.get("affinity", "")).to_lower()
-		var items: Array = _rf095d_as_array(tab.get("items", []))
+		var items: Array = Array(tab.get("items", []))
 		for item_index: int in range(items.size()):
 			if typeof(items[item_index]) != TYPE_DICTIONARY:
 				continue
@@ -464,7 +464,7 @@ func _objective_text(item: Dictionary) -> String:
 	else:
 		lines.append("[color=red]This map cannot satisfy its bonus objective until upgraded to the required rarity.[/color]")
 
-	var mods: Array = _rf095d_as_array(item.get("mods", item.get("map_mods", [])))
+	var mods: Array = Array(item.get("mods", item.get("map_mods", [])))
 	if not mods.is_empty():
 		lines.append("")
 		lines.append("[b]Map Mods[/b]")
@@ -578,7 +578,7 @@ func _consume_selected_map_item(item: Dictionary) -> void:
 	var index: int = _to_int(item.get("_map_item_index", -1), -1)
 
 	if source == "backpack":
-		var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+		var backpack: Array = Array(_state_get("backpack", []))
 		if index >= 0 and index < backpack.size():
 			backpack.remove_at(index)
 			state_ref.set("backpack", backpack)
@@ -586,11 +586,11 @@ func _consume_selected_map_item(item: Dictionary) -> void:
 
 	if source == "stash":
 		var tab_index: int = _to_int(item.get("_map_tab_index", -1), -1)
-		var stash_tabs: Array = _rf095d_as_array(_state_get("stash_tabs", []))
+		var stash_tabs: Array = Array(_state_get("stash_tabs", []))
 		if tab_index < 0 or tab_index >= stash_tabs.size() or typeof(stash_tabs[tab_index]) != TYPE_DICTIONARY:
 			return
 		var tab: Dictionary = Dictionary(stash_tabs[tab_index])
-		var items: Array = _rf095d_as_array(tab.get("items", []))
+		var items: Array = Array(tab.get("items", []))
 		if index >= 0 and index < items.size():
 			items.remove_at(index)
 			tab["items"] = items
@@ -652,7 +652,7 @@ func _selected_map() -> Dictionary:
 func _is_map_item(item: Dictionary) -> bool:
 	var kind: String = str(item.get("kind", item.get("item_kind", item.get("category", "")))).strip_edges().to_lower()
 	var slot: String = str(item.get("slot", "")).strip_edges().to_lower()
-	var tags: Array = _rf095d_as_array(item.get("tags", []))
+	var tags: Array = Array(item.get("tags", []))
 	if kind == "map" or kind == "map_item" or slot == "map":
 		return true
 	for tag_value: Variant in tags:
@@ -796,8 +796,3 @@ func _to_int(value: Variant, fallback: int = 0) -> int:
 			return 1 if bool(value) else 0
 		_:
 			return fallback
-
-func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

@@ -192,7 +192,7 @@ func _add_equipment_slot(parent: VBoxContainer, slot_id: String, equipped: Dicti
 	parent.add_child(b)
 
 func _normalize_backpack_tetris_layout() -> void:
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	var occupancy: Array = _new_occupancy()
 	var changed: bool = false
 
@@ -241,7 +241,7 @@ func _rebuild_backpack_area() -> void:
 			cell.slot_dropped.connect(_on_inventory_cell_drop)
 			backpack_area.add_child(cell)
 
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	var cursor: int = clampi(_safe_int(_state_get("inventory_cursor", 0)), 0, max(0, backpack.size() - 1))
 	for i: int in range(backpack.size()):
 		if typeof(backpack[i]) != TYPE_DICTIONARY:
@@ -312,7 +312,7 @@ func _on_inventory_cell_drop(_slot_id: String, payload: Dictionary) -> void:
 	_move_item_to_grid(index, x, y)
 
 func _move_item_to_grid(index: int, x: int, y: int) -> void:
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if index < 0 or index >= backpack.size() or typeof(backpack[index]) != TYPE_DICTIONARY:
 		return
 	var item: Dictionary = Dictionary(backpack[index])
@@ -374,7 +374,7 @@ func _fit_name(value: String, max_chars: int) -> String:
 	return clean.substr(0, max_chars - 1) + "…"
 
 func _sort_backpack() -> void:
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	backpack.sort_custom(ItemRulesScript.compare_items_for_sort)
 	for i: int in range(backpack.size()):
 		if typeof(backpack[i]) != TYPE_DICTIONARY:
@@ -468,7 +468,7 @@ func _on_equipment_slot_double_clicked(_slot_id: String, payload: Dictionary) ->
 func _on_equipment_slot_drop(slot_id: String, payload: Dictionary) -> void:
 	if state_ref == null or str(payload.get("kind", "")) != "inventory_item":
 		return
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	var index: int = _safe_int(payload.get("index", -1), -1)
 	if index < 0 or index >= backpack.size():
 		return
@@ -485,7 +485,7 @@ func _equip_selected_backpack_item() -> void:
 	if state_ref == null:
 		return
 	selected_equipment_slot = ""
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if backpack.is_empty():
 		_notice("No item selected")
 		return
@@ -506,7 +506,7 @@ func _equip_selected_backpack_item() -> void:
 	_rebuild()
 
 func _direct_equip(index: int, slot: String) -> void:
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if index < 0 or index >= backpack.size():
 		return
 	var equipped: Dictionary = Dictionary(_state_get("equipped", {}))
@@ -532,7 +532,7 @@ func _unequip_selected_slot() -> void:
 	if item.is_empty():
 		_notice("Equipment slot is empty")
 		return
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	_strip_grid_position(item)
 	_apply_item_size_defaults(item)
 	var occupancy: Array = _build_occupancy_excluding(-1, backpack)
@@ -565,7 +565,7 @@ func _salvage_selected_item() -> void:
 	if state_ref == null:
 		return
 	selected_equipment_slot = ""
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if backpack.is_empty():
 		_notice("No item selected")
 		return
@@ -612,7 +612,7 @@ func _refresh_bottom_panel() -> void:
 				compare_label.text = "[b]Equipped Item[/b]\nClick Unequip to move this item to backpack."
 		return
 
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if backpack.is_empty():
 		selected_label.text = "[b]Selected Item[/b]\nBackpack is empty."
 		if compare_label != null:
@@ -626,7 +626,7 @@ func _refresh_bottom_panel() -> void:
 		compare_label.text = _compare_text(item2)
 
 func _refresh_action_states() -> void:
-	var has_backpack_item: bool = not _rf095d_as_array(_state_get("backpack", [])).is_empty() and selected_equipment_slot == ""
+	var has_backpack_item: bool = not Array(_state_get("backpack", [])).is_empty() and selected_equipment_slot == ""
 	var has_equipped_item: bool = selected_equipment_slot != "" and not Dictionary(Dictionary(_state_get("equipped", {})).get(selected_equipment_slot, {})).is_empty()
 	if equip_button != null:
 		equip_button.disabled = not has_backpack_item
@@ -637,7 +637,7 @@ func _refresh_action_states() -> void:
 	if salvage_button != null:
 		salvage_button.disabled = not has_backpack_item
 	if sort_button != null:
-		sort_button.disabled = _rf095d_as_array(_state_get("backpack", [])).size() <= 1
+		sort_button.disabled = Array(_state_get("backpack", [])).size() <= 1
 
 func _item_text_bbcode(item: Dictionary) -> String:
 	var lines: PackedStringArray = []
@@ -739,7 +739,7 @@ func _safe_int(value: Variant, fallback: int = 0) -> int:
 func _rf_089b_try_install_selected_gem() -> bool:
 	if state_ref == null:
 		return false
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if backpack.is_empty():
 		return false
 	var index: int = clampi(_safe_int(_state_get("inventory_cursor", 0)), 0, backpack.size() - 1)
@@ -785,8 +785,3 @@ func _rf_092b_find_control_host(root: Node) -> Control:
 		if found != null:
 			return found
 	return self as Control
-
-func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

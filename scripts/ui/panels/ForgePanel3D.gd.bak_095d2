@@ -243,7 +243,7 @@ func _signature() -> String:
 
 
 func _clamp_selection() -> void:
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if backpack.is_empty():
 		selected_item_index = -1
 	else:
@@ -262,7 +262,7 @@ func _refresh_currency() -> void:
 func _refresh_item_list() -> void:
 	_clear_children(_item_list)
 
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	var count: int = 0
 
 	for i: int in range(backpack.size()):
@@ -342,7 +342,7 @@ func _apply_selected_craft() -> void:
 	if state_ref == null:
 		return
 
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if selected_item_index < 0 or selected_item_index >= backpack.size() or typeof(backpack[selected_item_index]) != TYPE_DICTIONARY:
 		_notice("Select a craftable item first.")
 		return
@@ -434,7 +434,7 @@ func _apply_add_affix(item: Dictionary) -> Dictionary:
 
 
 func _apply_add_affix_preview(item: Dictionary) -> Dictionary:
-	var affixes: Array = _rf095d_as_array(item.get("affixes", []))
+	var affixes: Array = Array(item.get("affixes", []))
 	var stat_id: String = _legal_affix_for_item(item, affixes.size())
 	var value: int = _affix_value(stat_id)
 	affixes.append({"stat": stat_id, "value": value})
@@ -579,7 +579,7 @@ func _affix_value(stat_id: String) -> int:
 
 
 func _selected_item() -> Dictionary:
-	var backpack: Array = _rf095d_as_array(_state_get("backpack", []))
+	var backpack: Array = Array(_state_get("backpack", []))
 	if selected_item_index < 0 or selected_item_index >= backpack.size() or typeof(backpack[selected_item_index]) != TYPE_DICTIONARY:
 		return {}
 	return Dictionary(backpack[selected_item_index])
@@ -747,8 +747,3 @@ func _to_int(value: Variant, fallback: int = 0) -> int:
 			return 1 if bool(value) else 0
 		_:
 			return fallback
-
-func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

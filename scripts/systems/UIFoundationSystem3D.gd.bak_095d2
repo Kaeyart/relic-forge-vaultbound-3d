@@ -119,7 +119,7 @@ static func item_card_text(item: Dictionary, compare_item: Dictionary = {}) -> S
 		for stat_key: Variant in stats.keys():
 			lines.append("• " + stat_line(str(stat_key), stats[stat_key]))
 
-	var affixes: Array = _rf095d_as_array(item.get("affixes", []))
+	var affixes: Array = Array(item.get("affixes", []))
 	if not affixes.is_empty():
 		lines.append("")
 		lines.append("[b]Affixes[/b]")
@@ -312,8 +312,3 @@ static func rarity_color(value: String) -> Color:
 			return Color(1.0, 0.52, 0.20, 1.0)
 		_:
 			return Color(1.0, 1.0, 1.0, 1.0)
-
-static func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

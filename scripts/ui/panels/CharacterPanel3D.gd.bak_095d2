@@ -279,7 +279,7 @@ func _skills_text() -> String:
 	var lines: PackedStringArray = []
 	lines.append("[b]Active Skills[/b]")
 
-	var slots: Array = _rf095d_as_array(_state_get("active_skill_slots", []))
+	var slots: Array = Array(_state_get("active_skill_slots", []))
 	var selected: int = _to_int(_state_get("selected_skill_slot", 0), 0)
 
 	if slots.is_empty():
@@ -293,14 +293,14 @@ func _skills_text() -> String:
 			var level: int = _to_int(active.get("level", 1), 1)
 			var xp: int = _to_int(active.get("xp", 0), 0)
 			var quality: int = _to_int(active.get("quality", 0), 0)
-			var supports: Array = _rf095d_as_array(active.get("supports", []))
+			var supports: Array = Array(active.get("supports", []))
 			var sockets: int = GemCoreSystemScript.unlocked_support_sockets(level)
 			lines.append(prefix + "Slot " + str(i + 1) + ": " + GemCoreSystemScript.active_display_name(active))
 			lines.append("   Lv " + str(level) + " · XP " + str(xp) + "/" + str(GemCoreSystemScript.xp_to_next(level)) + " · Q+" + str(quality) + " · Supports " + str(supports.size()) + "/" + str(sockets))
 
 	lines.append("")
 	lines.append("[b]Spirit Gems[/b]")
-	var spirits: Array = _rf095d_as_array(_state_get("spirit_gem_slots", []))
+	var spirits: Array = Array(_state_get("spirit_gem_slots", []))
 	if spirits.is_empty():
 		lines.append("[i]No spirit gems installed.[/i]")
 	else:
@@ -311,7 +311,7 @@ func _skills_text() -> String:
 			var enabled: String = "ON" if bool(spirit.get("enabled", false)) else "OFF"
 			var spirit_level: int = _to_int(spirit.get("level", 1), 1)
 			var spirit_quality: int = _to_int(spirit.get("quality", 0), 0)
-			var spirit_supports: Array = _rf095d_as_array(spirit.get("supports", []))
+			var spirit_supports: Array = Array(spirit.get("supports", []))
 			lines.append("Spirit " + str(j + 1) + " [" + enabled + "]: " + GemCoreSystemScript.spirit_display_name(spirit))
 			lines.append("   Lv " + str(spirit_level) + " · Q+" + str(spirit_quality) + " · Supports " + str(spirit_supports.size()) + "/" + str(GemCoreSystemScript.unlocked_support_sockets(spirit_level)))
 
@@ -475,8 +475,3 @@ func _to_int(value: Variant, fallback: int = 0) -> int:
 			return 1 if bool(value) else 0
 		_:
 			return fallback
-
-func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

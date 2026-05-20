@@ -16,7 +16,6 @@ const CraftingSystemScript := preload("res://scripts/systems/CraftingSystem3D.gd
 const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
-const VisualFoundationLayerScript := preload("res://scripts/visual/VisualFoundationLayer3D.gd")
 
 @onready var hub: Node3D = $Hub
 @onready var combat: Node3D = $Combat
@@ -30,7 +29,6 @@ const VisualFoundationLayerScript := preload("res://scripts/visual/VisualFoundat
 
 var state: Object = GameStateScript.new()
 var autosave_timer: float = 0.0
-var _rf_096a_visual_layer: Node3D = null
 
 func _rf_pre_091a_ready() -> void:
 	_rf_087r_ensure_final_ui()
@@ -380,7 +378,6 @@ func _rf_087v_int(value: Variant, fallback: int = 0) -> int:
 
 
 func _ready() -> void:
-	call_deferred("_rf_096a_ensure_visual_foundation")
 	if has_method("_rf_pre_091a_ready"):
 		_rf_pre_091a_ready()
 	_rf_091a_setup_physical_station_refine()
@@ -430,17 +427,3 @@ func _rf_091a_player() -> Node3D:
 	if v is Node3D:
 		return v as Node3D
 	return get_node_or_null("Player") as Node3D
-
-
-func _rf_096a_ensure_visual_foundation() -> void:
-	if _rf_096a_visual_layer != null and is_instance_valid(_rf_096a_visual_layer):
-		return
-
-	_rf_096a_visual_layer = get_node_or_null("VisualFoundationLayer096A") as Node3D
-	if _rf_096a_visual_layer == null:
-		_rf_096a_visual_layer = VisualFoundationLayerScript.new()
-		_rf_096a_visual_layer.name = "VisualFoundationLayer096A"
-		add_child(_rf_096a_visual_layer)
-
-	if _rf_096a_visual_layer != null and _rf_096a_visual_layer.has_method("bind_game"):
-		_rf_096a_visual_layer.call("bind_game", self)

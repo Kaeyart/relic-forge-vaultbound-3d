@@ -365,7 +365,7 @@ func _sync_search_controls() -> void:
 func _refresh_categories() -> void:
 	_clear_children(_category_list)
 
-	var categories: Array = _rf095d_as_array(_state_get("stash_categories", []))
+	var categories: Array = Array(_state_get("stash_categories", []))
 	var selected_id: String = str(_state_get("selected_stash_category_id", ""))
 
 	for value: Variant in categories:
@@ -394,7 +394,7 @@ func _refresh_tabs() -> void:
 		var tab: Dictionary = Dictionary(value)
 		var id: String = str(tab.get("id", ""))
 		var name: String = str(tab.get("name", id))
-		var count: int = _rf095d_as_array(tab.get("items", [])).size()
+		var count: int = Array(tab.get("items", [])).size()
 		var button: Button = _button(name + " (" + str(count) + ")", Vector2(128, 36))
 		button.clip_text = true
 		if id == selected_tab:
@@ -565,7 +565,7 @@ func _refresh_detail() -> void:
 		if tab.is_empty():
 			_summary_label.text = "[b]No tab selected[/b]"
 		else:
-			_summary_label.text = "[b]" + str(tab.get("name", "Tab")) + "[/b]\n" + StashSystemScript.tab_summary_line(tab) + "\nItems: " + str(_rf095d_as_array(tab.get("items", [])).size())
+			_summary_label.text = "[b]" + str(tab.get("name", "Tab")) + "[/b]\n" + StashSystemScript.tab_summary_line(tab) + "\nItems: " + str(Array(tab.get("items", [])).size())
 
 	if _detail == null:
 		return
@@ -635,7 +635,7 @@ func _selected_item() -> Dictionary:
 	if tab.is_empty():
 		return {}
 	var index: int = _to_int(_state_get("stash_selected_item_index", -1), -1)
-	var items: Array = _rf095d_as_array(tab.get("items", []))
+	var items: Array = Array(tab.get("items", []))
 	if index < 0 or index >= items.size() or typeof(items[index]) != TYPE_DICTIONARY:
 		return {}
 	return Dictionary(items[index])
@@ -860,8 +860,3 @@ func _to_int(value: Variant, fallback: int = 0) -> int:
 			return 1 if bool(value) else 0
 		_:
 			return fallback
-
-func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

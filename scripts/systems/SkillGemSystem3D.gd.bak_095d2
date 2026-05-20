@@ -84,7 +84,7 @@ static func cast_data_for_slot(state: Object, slot: Dictionary) -> Dictionary:
 		active_id = "fireball"
 		active = GemDBScript.active(active_id)
 
-	var tags: Array = _rf095d_as_array(active.get("tags", [])).duplicate(true)
+	var tags: Array = Array(active.get("tags", [])).duplicate(true)
 	var damage: float = float(active.get("damage", 1.0))
 	var mana_cost: float = float(active.get("mana_cost", 1.0))
 	var active_level_092a: int = _rf_092a_gem_level(slot)
@@ -96,7 +96,7 @@ static func cast_data_for_slot(state: Object, slot: Dictionary) -> Dictionary:
 	var echo_count: int = 0
 	var rules: Array[String] = []
 
-	for support_id_value: Variant in _rf095d_as_array(slot.get("supports", [])):
+	for support_id_value: Variant in Array(slot.get("supports", [])):
 		var support_id: String = _rf_092a_support_id(support_id_value)
 		if support_id == "":
 			continue
@@ -109,7 +109,7 @@ static func cast_data_for_slot(state: Object, slot: Dictionary) -> Dictionary:
 		extra_projectiles += int(support.get("extra_projectiles", 0))
 		chain += int(support.get("chain", 0))
 		echo_count += int(support.get("echo_count", 0))
-		for rule_value: Variant in _rf095d_as_array(support.get("rules", [])):
+		for rule_value: Variant in Array(support.get("rules", [])):
 			var rule: String = str(rule_value)
 			if rule != "" and not rules.has(rule):
 				rules.append(rule)
@@ -162,7 +162,7 @@ static func collect_spirit_bundle(state: Object) -> Dictionary:
 		for stat_key: Variant in spirit_stats.keys():
 			var key: String = str(stat_key)
 			stats[key] = float(stats.get(key, 0.0)) + float(spirit_stats[stat_key])
-		for rule_value: Variant in _rf095d_as_array(data.get("rules", [])):
+		for rule_value: Variant in Array(data.get("rules", [])):
 			var rule: String = str(rule_value)
 			if rule != "" and not rules.has(rule):
 				rules.append(rule)
@@ -226,7 +226,7 @@ static func add_next_valid_support(state: Object) -> void:
 		return
 	var slot: Dictionary = Dictionary(slots[index]).duplicate(true)
 	var active_id: String = _slot_active_id(slot)
-	var equipped: Array = _rf095d_as_array(slot.get("supports", [])).duplicate(true)
+	var equipped: Array = Array(slot.get("supports", [])).duplicate(true)
 	if equipped.size() >= 3:
 		_state_notice(state, "Support slots full")
 		return
@@ -260,7 +260,7 @@ static func remove_last_support(state: Object) -> void:
 		return
 	var index: int = _safe_index(_safe_int(_state_get(state, "selected_skill_slot", 0), 0), slots.size())
 	var slot: Dictionary = Dictionary(slots[index]).duplicate(true)
-	var supports: Array = _rf095d_as_array(slot.get("supports", [])).duplicate(true)
+	var supports: Array = Array(slot.get("supports", [])).duplicate(true)
 	if supports.is_empty():
 		return
 	supports.pop_back()
@@ -306,11 +306,11 @@ static func panel_text(state: Object) -> String:
 		var active_id: String = _slot_active_id(slot)
 		var marker: String = "> " if i == selected else "  "
 		text += marker + str(i + 1) + ". " + str(GemDBScript.active(active_id).get("name", active_id)) + "\n"
-		for sup_value: Variant in _rf095d_as_array(slot.get("supports", [])):
+		for sup_value: Variant in Array(slot.get("supports", [])):
 			text += "     + " + str(GemDBScript.support(_rf_092a_support_id(sup_value)).get("name", _rf_092a_support_id(sup_value))) + "\n"
 	var cast: Dictionary = selected_cast_data(state)
 	text += "\nSelected: " + str(cast.get("name", "")) + " · Damage " + str(int(round(float(cast.get("damage", 0.0))))) + " · Mana " + str(int(round(float(cast.get("mana_cost", 0.0))))) + "\n"
-	text += "Tags: " + ", ".join(PackedStringArray(_string_array(_rf095d_as_array(cast.get("tags", []))))) + "\n\n"
+	text += "Tags: " + ", ".join(PackedStringArray(_string_array(Array(cast.get("tags", []))))) + "\n\n"
 	text += "SPIRIT " + str(_state_get(state, "spirit_reserved", 0)) + "/" + str(_state_get(state, "spirit_max", 0)) + "\n"
 	var spirits: Dictionary = _state_dict(state, "spirit_gems_owned")
 	for key_value: Variant in spirits.keys():
@@ -339,7 +339,7 @@ static func _normalized_slots(raw_slots: Array) -> Array:
 		if not slot.has("supports") or typeof(slot.get("supports")) != TYPE_ARRAY:
 			slot["supports"] = []
 		else:
-			slot["supports"] = _rf095d_as_array(slot.get("supports", [])).duplicate(true)
+			slot["supports"] = Array(slot.get("supports", [])).duplicate(true)
 		out.append(slot)
 	return out
 
@@ -365,7 +365,7 @@ static func _state_dict(state: Object, key: String) -> Dictionary:
 static func _state_array(state: Object, key: String) -> Array:
 	var value: Variant = _state_get(state, key, [])
 	if typeof(value) == TYPE_ARRAY:
-		return _rf095d_as_array(value).duplicate(true)
+		return Array(value).duplicate(true)
 	return []
 
 static func _safe_int(value: Variant, fallback: int = 0) -> int:
@@ -466,8 +466,3 @@ static func _rf_093a_apply_quality_to_cast_data(cast: Dictionary, active_slot: D
 		cast["projectiles"] = int(cast.get("projectiles", 1)) + extra_projectiles
 		cast["extra_projectiles"] = int(cast.get("extra_projectiles", 0)) + extra_projectiles
 	return cast
-
-static func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

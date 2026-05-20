@@ -39,7 +39,7 @@ static func ensure_defaults(state: Object) -> void:
 	if state == null:
 		return
 
-	var slots: Array = _rf095d_as_array(_get_state(state, "active_skill_slots", []))
+	var slots: Array = Array(_get_state(state, "active_skill_slots", []))
 	while slots.size() < MAX_ACTIVE_SLOTS:
 		var default_id: String = DEFAULT_ACTIVE_IDS[slots.size() % DEFAULT_ACTIVE_IDS.size()]
 		slots.append(active_instance(default_id))
@@ -55,7 +55,7 @@ static func ensure_defaults(state: Object) -> void:
 	var selected: int = clampi(_to_int(_get_state(state, "selected_skill_slot", 0), 0), 0, max(0, slots.size() - 1))
 	state.set("selected_skill_slot", selected)
 
-	var spirits: Array = _rf095d_as_array(_get_state(state, "spirit_gem_slots", []))
+	var spirits: Array = Array(_get_state(state, "spirit_gem_slots", []))
 	for j: int in range(spirits.size()):
 		if typeof(spirits[j]) == TYPE_DICTIONARY:
 			spirits[j] = normalize_spirit(Dictionary(spirits[j]))
@@ -73,7 +73,7 @@ static func ensure_starter_gem_items(state: Object) -> void:
 	if bool(_get_state(state, "gem_progression_seeded", false)):
 		return
 
-	var backpack: Array = _rf095d_as_array(_get_state(state, "backpack", []))
+	var backpack: Array = Array(_get_state(state, "backpack", []))
 	var starter_specs: Array = [
 		[GEM_ACTIVE, "storm_lance"],
 		[GEM_ACTIVE, "arc_slash"],
@@ -157,7 +157,7 @@ static func normalize_active(slot: Dictionary) -> Dictionary:
 	var quality: int = clampi(_to_int(slot.get("quality", 0), 0), 0, 100)
 	var supports: Array = []
 
-	for support_value: Variant in _rf095d_as_array(slot.get("supports", [])):
+	for support_value: Variant in Array(slot.get("supports", [])):
 		supports.append(normalize_support_value(support_value))
 
 	return {
@@ -205,7 +205,7 @@ static func normalize_spirit(spirit: Dictionary) -> Dictionary:
 	var enabled: bool = bool(spirit.get("enabled", false))
 	var supports: Array = []
 
-	for support_value: Variant in _rf095d_as_array(spirit.get("supports", [])):
+	for support_value: Variant in Array(spirit.get("supports", [])):
 		supports.append(normalize_support_value(support_value))
 
 	return {
@@ -255,7 +255,7 @@ static func make_gem_item(type: String, id: String, level: int = 1, xp: int = 0,
 static func install_active_from_inventory(state: Object, backpack_index: int, slot_index: int) -> String:
 	ensure_defaults(state)
 
-	var backpack: Array = _rf095d_as_array(_get_state(state, "backpack", []))
+	var backpack: Array = Array(_get_state(state, "backpack", []))
 	if backpack_index < 0 or backpack_index >= backpack.size() or typeof(backpack[backpack_index]) != TYPE_DICTIONARY:
 		return "No active gem selected."
 
@@ -263,7 +263,7 @@ static func install_active_from_inventory(state: Object, backpack_index: int, sl
 	if gem_type(item) != GEM_ACTIVE:
 		return "That is not an active gem."
 
-	var slots: Array = _rf095d_as_array(_get_state(state, "active_skill_slots", []))
+	var slots: Array = Array(_get_state(state, "active_skill_slots", []))
 	slot_index = clampi(slot_index, 0, max(0, slots.size() - 1))
 
 	var previous: Dictionary = {}
@@ -275,7 +275,7 @@ static func install_active_from_inventory(state: Object, backpack_index: int, sl
 		_to_int(item.get("level", item.get("gem_level", 1)), 1),
 		_to_int(item.get("xp", item.get("gem_xp", 0)), 0),
 		_to_int(item.get("quality", item.get("gem_quality", 0)), 0),
-		_rf095d_as_array(item.get("supports", []))
+		Array(item.get("supports", []))
 	)
 
 	backpack.remove_at(backpack_index)
@@ -291,7 +291,7 @@ static func install_active_from_inventory(state: Object, backpack_index: int, sl
 static func install_support_from_inventory_to_active(state: Object, backpack_index: int, active_index: int) -> String:
 	ensure_defaults(state)
 
-	var backpack: Array = _rf095d_as_array(_get_state(state, "backpack", []))
+	var backpack: Array = Array(_get_state(state, "backpack", []))
 	if backpack_index < 0 or backpack_index >= backpack.size() or typeof(backpack[backpack_index]) != TYPE_DICTIONARY:
 		return "No support gem selected."
 
@@ -299,12 +299,12 @@ static func install_support_from_inventory_to_active(state: Object, backpack_ind
 	if gem_type(item) != GEM_SUPPORT:
 		return "That is not a support gem."
 
-	var slots: Array = _rf095d_as_array(_get_state(state, "active_skill_slots", []))
+	var slots: Array = Array(_get_state(state, "active_skill_slots", []))
 	if active_index < 0 or active_index >= slots.size() or typeof(slots[active_index]) != TYPE_DICTIONARY:
 		return "No active target."
 
 	var active: Dictionary = normalize_active(Dictionary(slots[active_index]))
-	var supports: Array = _rf095d_as_array(active.get("supports", []))
+	var supports: Array = Array(active.get("supports", []))
 	var socket_limit: int = unlocked_support_sockets(_to_int(active.get("level", 1), 1))
 
 	if supports.size() >= socket_limit:
@@ -329,7 +329,7 @@ static func install_support_from_inventory_to_active(state: Object, backpack_ind
 static func install_support_from_inventory_to_spirit(state: Object, backpack_index: int, spirit_index: int) -> String:
 	ensure_defaults(state)
 
-	var backpack: Array = _rf095d_as_array(_get_state(state, "backpack", []))
+	var backpack: Array = Array(_get_state(state, "backpack", []))
 	if backpack_index < 0 or backpack_index >= backpack.size() or typeof(backpack[backpack_index]) != TYPE_DICTIONARY:
 		return "No support gem selected."
 
@@ -337,12 +337,12 @@ static func install_support_from_inventory_to_spirit(state: Object, backpack_ind
 	if gem_type(item) != GEM_SUPPORT:
 		return "That is not a support gem."
 
-	var spirits: Array = _rf095d_as_array(_get_state(state, "spirit_gem_slots", []))
+	var spirits: Array = Array(_get_state(state, "spirit_gem_slots", []))
 	if spirit_index < 0 or spirit_index >= spirits.size() or typeof(spirits[spirit_index]) != TYPE_DICTIONARY:
 		return "No spirit target."
 
 	var spirit: Dictionary = normalize_spirit(Dictionary(spirits[spirit_index]))
-	var supports: Array = _rf095d_as_array(spirit.get("supports", []))
+	var supports: Array = Array(spirit.get("supports", []))
 	var socket_limit: int = unlocked_support_sockets(_to_int(spirit.get("level", 1), 1))
 
 	if supports.size() >= socket_limit:
@@ -367,7 +367,7 @@ static func install_support_from_inventory_to_spirit(state: Object, backpack_ind
 static func install_spirit_from_inventory(state: Object, backpack_index: int) -> String:
 	ensure_defaults(state)
 
-	var backpack: Array = _rf095d_as_array(_get_state(state, "backpack", []))
+	var backpack: Array = Array(_get_state(state, "backpack", []))
 	if backpack_index < 0 or backpack_index >= backpack.size() or typeof(backpack[backpack_index]) != TYPE_DICTIONARY:
 		return "No spirit gem selected."
 
@@ -375,14 +375,14 @@ static func install_spirit_from_inventory(state: Object, backpack_index: int) ->
 	if gem_type(item) != GEM_SPIRIT:
 		return "That is not a spirit gem."
 
-	var spirits: Array = _rf095d_as_array(_get_state(state, "spirit_gem_slots", []))
+	var spirits: Array = Array(_get_state(state, "spirit_gem_slots", []))
 	var spirit: Dictionary = normalize_spirit({
 		"gem_id": gem_id(item),
 		"enabled": false,
 		"level": _to_int(item.get("level", item.get("gem_level", 1)), 1),
 		"xp": _to_int(item.get("xp", item.get("gem_xp", 0)), 0),
 		"quality": _to_int(item.get("quality", item.get("gem_quality", 0)), 0),
-		"supports": _rf095d_as_array(item.get("supports", [])),
+		"supports": Array(item.get("supports", [])),
 	})
 
 	spirits.append(spirit)
@@ -401,7 +401,7 @@ static func active_to_item(active: Dictionary) -> Dictionary:
 		_to_int(normalized.get("level", 1), 1),
 		_to_int(normalized.get("xp", 0), 0),
 		_to_int(normalized.get("quality", 0), 0),
-		_rf095d_as_array(normalized.get("supports", []))
+		Array(normalized.get("supports", []))
 	)
 
 static func support_to_item(support: Dictionary) -> Dictionary:
@@ -423,13 +423,13 @@ static func spirit_to_item(spirit: Dictionary) -> Dictionary:
 		_to_int(normalized.get("level", 1), 1),
 		_to_int(normalized.get("xp", 0), 0),
 		_to_int(normalized.get("quality", 0), 0),
-		_rf095d_as_array(normalized.get("supports", []))
+		Array(normalized.get("supports", []))
 	)
 
 static func award_selected_active_xp(state: Object, amount: int) -> void:
 	ensure_defaults(state)
 
-	var slots: Array = _rf095d_as_array(_get_state(state, "active_skill_slots", []))
+	var slots: Array = Array(_get_state(state, "active_skill_slots", []))
 	if slots.is_empty():
 		return
 
@@ -466,7 +466,7 @@ static func recompute_spirit_reservation(state: Object) -> void:
 		return
 
 	var total: int = 0
-	var spirit_slots: Array = _rf095d_as_array(_get_state(state, "spirit_gem_slots", []))
+	var spirit_slots: Array = Array(_get_state(state, "spirit_gem_slots", []))
 
 	for value: Variant in spirit_slots:
 		if typeof(value) != TYPE_DICTIONARY:
@@ -478,7 +478,7 @@ static func recompute_spirit_reservation(state: Object) -> void:
 
 		var data: Dictionary = gem_data(GEM_SPIRIT, str(spirit.get("gem_id", "")))
 		var base: int = _to_int(data.get("reservation", 25), 25)
-		var support_count: int = _rf095d_as_array(spirit.get("supports", [])).size()
+		var support_count: int = Array(spirit.get("supports", [])).size()
 		var quality: int = _to_int(spirit.get("quality", 0), 0)
 		var support_multiplier: float = 1.0 + float(support_count) * 0.20
 		var quality_multiplier: float = max(0.70, 1.0 - float(quality) * 0.005)
@@ -513,7 +513,7 @@ static func active_quality_effects(id: String, quality: int) -> Dictionary:
 	}
 
 static func active_quality_extra_projectiles(id: String, quality: int) -> int:
-	var tags: Array = _rf095d_as_array(gem_data(GEM_ACTIVE, id).get("tags", []))
+	var tags: Array = Array(gem_data(GEM_ACTIVE, id).get("tags", []))
 	if not tags.has("projectile"):
 		return 0
 	return int(floor(float(clampi(quality, 0, 100)) / 20.0))
@@ -567,14 +567,14 @@ static func roll_gem_drop_to_backpack(state: Object, force: bool = false) -> boo
 		[GEM_SPIRIT, "comet_oath"],
 	]
 
-	var pick: Array = _rf095d_as_array(pool[randi() % pool.size()])
+	var pick: Array = Array(pool[randi() % pool.size()])
 	var type: String = str(pick[0])
 	var id: String = str(pick[1])
 	var quality: int = 0
 	if randf() < 0.20:
 		quality = 5 + int(randi() % 16)
 
-	var backpack: Array = _rf095d_as_array(_get_state(state, "backpack", []))
+	var backpack: Array = Array(_get_state(state, "backpack", []))
 	backpack.append(make_gem_item(type, id, 1, 0, quality))
 	state.set("backpack", backpack)
 
@@ -608,8 +608,3 @@ static func _to_int(value: Variant, fallback: int = 0) -> int:
 			return 1 if bool(value) else 0
 		_:
 			return fallback
-
-static func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []

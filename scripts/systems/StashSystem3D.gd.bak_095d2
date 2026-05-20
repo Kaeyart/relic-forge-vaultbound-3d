@@ -57,8 +57,8 @@ static func ensure_defaults(state: Object) -> void:
 	if state == null:
 		return
 
-	var categories: Array = _rf095d_as_array(_state_get(state, "stash_categories", []))
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
+	var categories: Array = Array(_state_get(state, "stash_categories", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
 
 	categories = _ensure_category(categories, "cat_general", "General", "#cfcfcf", "box")
 	categories = _ensure_category(categories, "cat_affinity", "Affinity", "#9fc7ff", "star")
@@ -210,7 +210,7 @@ static func is_system_tab_id(id: String) -> bool:
 static func tab_buy_cost(state: Object) -> int:
 	ensure_defaults(state)
 	var bought_count: int = 0
-	for value: Variant in _rf095d_as_array(_state_get(state, "stash_tabs", [])):
+	for value: Variant in Array(_state_get(state, "stash_tabs", [])):
 		if typeof(value) == TYPE_DICTIONARY and not bool(Dictionary(value).get("system_tab", false)) and str(Dictionary(value).get("id", "")) != "tab_general_1":
 			bought_count += 1
 	return 100 + bought_count * 50
@@ -224,7 +224,7 @@ static func buy_tab(state: Object) -> String:
 	var gold: int = _safe_int(_state_get(state, "gold", 0), 0)
 	if gold < cost:
 		return "Not enough gold. Need " + str(cost)
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
 	var category_id: String = str(_state_get(state, "selected_stash_category_id", "cat_custom"))
 	if category_id == "" or category_id == "cat_affinity":
 		category_id = "cat_custom"
@@ -257,7 +257,7 @@ static func _player_tab_count(tabs: Array) -> int:
 
 static func create_category(state: Object) -> String:
 	ensure_defaults(state)
-	var categories: Array = _rf095d_as_array(_state_get(state, "stash_categories", []))
+	var categories: Array = Array(_state_get(state, "stash_categories", []))
 	var id: String = "cat_player_" + str(Time.get_ticks_msec()) + "_" + str(categories.size())
 	categories.append(_new_category(id, "Category " + str(categories.size() + 1), "#cfcfcf", "folder"))
 	state.set("stash_categories", categories)
@@ -286,7 +286,7 @@ static func customize_selected_tab(state: Object, name: String, color: String, i
 
 static func customize_tab(state: Object, tab_id: String, name: String, color: String, icon: String, affinity: String, rules: Dictionary = {}) -> String:
 	ensure_defaults(state)
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
 	for i: int in range(tabs.size()):
 		if typeof(tabs[i]) != TYPE_DICTIONARY:
 			continue
@@ -339,7 +339,7 @@ static func _sanitize_custom_rules(rules: Dictionary) -> Dictionary:
 
 static func deposit_selected_inventory_item(state: Object) -> String:
 	ensure_defaults(state)
-	var backpack: Array = _rf095d_as_array(_state_get(state, "backpack", []))
+	var backpack: Array = Array(_state_get(state, "backpack", []))
 	if backpack.is_empty():
 		return "Inventory is empty"
 
@@ -352,7 +352,7 @@ static func deposit_selected_inventory_item(state: Object) -> String:
 	if tab_id == "":
 		return "No stash tab available"
 
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
 	for i: int in range(tabs.size()):
 		if typeof(tabs[i]) != TYPE_DICTIONARY:
 			continue
@@ -360,7 +360,7 @@ static func deposit_selected_inventory_item(state: Object) -> String:
 		if str(tab.get("id", "")) != tab_id:
 			continue
 
-		var items: Array = _rf095d_as_array(tab.get("items", []))
+		var items: Array = Array(tab.get("items", []))
 		item.erase("grid_x")
 		item.erase("grid_y")
 		if not _try_stack_item_into(items, item):
@@ -375,7 +375,7 @@ static func deposit_selected_inventory_item(state: Object) -> String:
 		state.set("inventory_cursor", clampi(cursor, 0, max(0, backpack.size() - 1)))
 		state.set("selected_stash_category_id", str(tab.get("category_id", "cat_general")))
 		state.set("selected_stash_tab_id", tab_id)
-		state.set("stash_selected_item_index", max(0, _rf095d_as_array(tab["items"]).size() - 1))
+		state.set("stash_selected_item_index", max(0, Array(tab["items"]).size() - 1))
 		return "Deposited to " + str(tab.get("name", "stash"))
 
 	return "No stash tab available"
@@ -387,8 +387,8 @@ static func withdraw_selected_stash_item(state: Object) -> String:
 	if idx < 0:
 		return "No stash item selected"
 
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
-	var backpack: Array = _rf095d_as_array(_state_get(state, "backpack", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
+	var backpack: Array = Array(_state_get(state, "backpack", []))
 
 	for i: int in range(tabs.size()):
 		if typeof(tabs[i]) != TYPE_DICTIONARY:
@@ -396,7 +396,7 @@ static func withdraw_selected_stash_item(state: Object) -> String:
 		var tab: Dictionary = Dictionary(tabs[i])
 		if str(tab.get("id", "")) != tab_id:
 			continue
-		var items: Array = _rf095d_as_array(tab.get("items", []))
+		var items: Array = Array(tab.get("items", []))
 		if idx < 0 or idx >= items.size() or typeof(items[idx]) != TYPE_DICTIONARY:
 			return "No stash item selected"
 		var item: Dictionary = Dictionary(items[idx])
@@ -416,14 +416,14 @@ static func withdraw_selected_stash_item(state: Object) -> String:
 static func tabs_in_category(state: Object, category_id: String) -> Array:
 	ensure_defaults(state)
 	var out: Array = []
-	for v: Variant in _rf095d_as_array(_state_get(state, "stash_tabs", [])):
+	for v: Variant in Array(_state_get(state, "stash_tabs", [])):
 		if typeof(v) == TYPE_DICTIONARY and str(Dictionary(v).get("category_id", "")) == category_id:
 			out.append(Dictionary(v))
 	return out
 
 static func find_tab(state: Object, tab_id: String) -> Dictionary:
 	ensure_defaults(state)
-	for v: Variant in _rf095d_as_array(_state_get(state, "stash_tabs", [])):
+	for v: Variant in Array(_state_get(state, "stash_tabs", [])):
 		if typeof(v) == TYPE_DICTIONARY and str(Dictionary(v).get("id", "")) == tab_id:
 			return Dictionary(v)
 	return {}
@@ -431,7 +431,7 @@ static func find_tab(state: Object, tab_id: String) -> Dictionary:
 static func find_target_tab_for_item(state: Object, item: Dictionary) -> String:
 	ensure_defaults(state)
 	var item_affinity: String = affinity_for_item(item)
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
 
 	if item_affinity in [AFFINITY_CURRENCY, AFFINITY_MAPS, AFFINITY_GEMS, AFFINITY_CRYSTALS]:
 		for v: Variant in tabs:
@@ -513,16 +513,16 @@ static func visible_items_for_current_view(state: Object) -> Array:
 	if tab.is_empty():
 		return []
 
-	var items: Array = _sorted_items_for_affinity(_rf095d_as_array(tab.get("items", [])), str(tab.get("affinity", AFFINITY_NONE)))
+	var items: Array = _sorted_items_for_affinity(Array(tab.get("items", [])), str(tab.get("affinity", AFFINITY_NONE)))
 	return _filter_items(items, str(tab.get("id", "")), q, str(tab.get("name", "")))
 
 static func search_all_items(state: Object, query: String) -> Array:
 	var out: Array = []
-	for tv: Variant in _rf095d_as_array(_state_get(state, "stash_tabs", [])):
+	for tv: Variant in Array(_state_get(state, "stash_tabs", [])):
 		if typeof(tv) != TYPE_DICTIONARY:
 			continue
 		var tab: Dictionary = Dictionary(tv)
-		var items: Array = _sorted_items_for_affinity(_rf095d_as_array(tab.get("items", [])), str(tab.get("affinity", AFFINITY_NONE)))
+		var items: Array = _sorted_items_for_affinity(Array(tab.get("items", [])), str(tab.get("affinity", AFFINITY_NONE)))
 		out.append_array(_filter_items(items, str(tab.get("id", "")), query, str(tab.get("name", "Tab"))))
 	return out
 
@@ -637,7 +637,7 @@ static func _higher_rarity(a: String, b: String) -> String:
 
 static func tab_summary_line(tab: Dictionary) -> String:
 	var affinity: String = str(tab.get("affinity", AFFINITY_NONE))
-	var items: Array = _rf095d_as_array(tab.get("items", []))
+	var items: Array = Array(tab.get("items", []))
 	if bool(tab.get("system_tab", false)):
 		return "Built-in affinity tab · " + affinity + " · " + str(items.size()) + " items"
 	match affinity:
@@ -753,7 +753,7 @@ static func _is_gem_item(item: Dictionary) -> bool:
 
 static func _lower_tags(item: Dictionary) -> Array[String]:
 	var out: Array[String] = []
-	for tag: Variant in _rf095d_as_array(item.get("tags", [])):
+	for tag: Variant in Array(item.get("tags", [])):
 		out.append(str(tag).strip_edges().to_lower())
 	return out
 
@@ -795,12 +795,12 @@ const RF_090F_SYSTEM_TABS: Dictionary = {
 static func rf_090f_repair_state(state: Object) -> void:
 	if state == null:
 		return
-	var categories: Array = _rf095d_as_array(_state_get(state, "stash_categories", []))
+	var categories: Array = Array(_state_get(state, "stash_categories", []))
 	categories = _rf_090f_ensure_category(categories, "cat_general", "General", "#cfcfcf", "box")
 	categories = _rf_090f_ensure_category(categories, "cat_affinity", "Affinity", "#9fc7ff", "star")
 	categories = _rf_090f_ensure_category(categories, "cat_custom", "Custom", "#cfa9ff", "filter")
 
-	var tabs: Array = _rf095d_as_array(_state_get(state, "stash_tabs", []))
+	var tabs: Array = Array(_state_get(state, "stash_tabs", []))
 	if tabs.is_empty():
 		tabs.append(_rf_090f_new_player_tab("tab_general_1", "Tab 1", "cat_general"))
 	for id: String in RF_090F_SYSTEM_TAB_IDS:
@@ -901,15 +901,15 @@ static func quick_deposit_inventory(state: Object) -> String:
 		return "No state"
 	ensure_defaults(state)
 	var moved: int = 0
-	var safety: int = _rf095d_as_array(_state_get(state, "backpack", [])).size()
+	var safety: int = Array(_state_get(state, "backpack", [])).size()
 	for _i: int in range(safety):
-		var backpack: Array = _rf095d_as_array(_state_get(state, "backpack", []))
+		var backpack: Array = Array(_state_get(state, "backpack", []))
 		if backpack.is_empty():
 			break
 		state.set("inventory_cursor", 0)
 		var before_count: int = backpack.size()
 		var _msg: String = deposit_selected_inventory_item(state)
-		var after_count: int = _rf095d_as_array(_state_get(state, "backpack", [])).size()
+		var after_count: int = Array(_state_get(state, "backpack", [])).size()
 		if after_count < before_count:
 			moved += 1
 		else:
@@ -1011,8 +1011,3 @@ static func _rf095b_item_matches_query(item: Dictionary, query: String) -> bool:
 		str(item.get("gem_type", item.get("skill_gem_type", "")))
 	).to_lower()
 	return haystack.find(q) >= 0
-
-static func _rf095d_as_array(value: Variant) -> Array:
-	if typeof(value) == TYPE_ARRAY:
-		return value
-	return []
