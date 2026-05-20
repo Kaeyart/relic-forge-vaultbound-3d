@@ -4,6 +4,7 @@ class_name RVCombatDirectorLayer3D
 const EnemySpawnContractSystemScript := preload("res://scripts/systems/EnemySpawnContractSystem3D.gd")
 const EnemyModifierRuntimeSystemScript := preload("res://scripts/systems/EnemyModifierRuntimeSystem3D.gd")
 const LootDropContractSystemScript := preload("res://scripts/systems/LootDropContractSystem3D.gd")
+const RuntimeDetectionSystemScript := preload("res://scripts/systems/RuntimeDetectionSystem3D.gd")
 
 var game_root: Node = null
 var _scan_timer: float = 0.0
@@ -55,42 +56,7 @@ func _collect_enemy_candidates(root: Node, out: Array) -> void:
 
 
 func _looks_like_enemy(node: Node) -> bool:
-	if node == null:
-		return false
-	if not (node is Node3D):
-		return false
-
-	var lower_name: String = str(node.name).to_lower()
-	if lower_name.find("decorator") >= 0:
-		return false
-	if lower_name.find("feedback") >= 0:
-		return false
-	if lower_name.find("readability") >= 0:
-		return false
-	if lower_name.find("director") >= 0:
-		return false
-
-	if node.is_in_group("enemy") or node.is_in_group("enemies") or node.is_in_group("monsters"):
-		return true
-
-	if lower_name.find("enemy") >= 0:
-		return true
-	if lower_name.find("monster") >= 0:
-		return true
-	if lower_name.find("grunt") >= 0:
-		return true
-	if lower_name.find("lunger") >= 0:
-		return true
-	if lower_name.find("spitter") >= 0:
-		return true
-	if lower_name.find("wretch") >= 0:
-		return true
-	if lower_name.find("imp") >= 0:
-		return true
-	if lower_name.find("brute") >= 0:
-		return true
-	return false
-
+	return RuntimeDetectionSystemScript.is_real_enemy(node)
 
 func _watch_deaths(enemies: Array) -> void:
 	for value: Variant in enemies:

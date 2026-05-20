@@ -2,9 +2,11 @@ extends CanvasLayer
 
 const UIFoundationSystemScript := preload("res://scripts/systems/UIFoundationSystem3D.gd")
 const UIItemFormatSystemScript := preload("res://scripts/systems/UIItemFormatSystem3D.gd")
-const UIAccessSystemScript := preload("res://scripts/systems/UIAccessSystem3D.gd")
+const UIAccessSystemScript := preload("res://scripts/systems/UIAccessSystem3D.gd") 
+const UIUXSystemScript := preload("res://scripts/systems/UIUXSystem3D.gd")
 
-var _rf_094a_contract_label: RichTextLabel = null
+var _rf_094a_contract_label: RichTextLabel = null 
+var _rf_097g_action_bar: RichTextLabel = null
 var _rf_092b_hint_bar: RichTextLabel = null
 var blocker: ColorRect = null
 var shell: PanelContainer = null
@@ -149,7 +151,8 @@ func _refresh_shell() -> void:
 	_set_tab(tab_skills, mode == "skills")
 	_set_tab(tab_maps, mode == "maps")
 	_set_tab(tab_character, mode == "character")
-	_rf_092b_update_hint_bar(mode)
+	_rf_092b_update_hint_bar(mode) 
+	_rf_097g_update_action_bar(mode)
 
 func _set_panel(panel: Control, visible_state: bool) -> void:
 	if panel != null:
@@ -263,3 +266,48 @@ func _rf_094a_find_root_vbox(node: Node) -> Control:
 		if found != null:
 			return found
 	return null
+
+
+func _rf_097g_ensure_action_bar() -> void:
+	if _rf_097g_action_bar != null and is_instance_valid(_rf_097g_action_bar):
+		return
+	var vbox := get_node_or_null("Shell/VBox") as VBoxContainer
+	if vbox == null:
+		return
+	_rf_097g_action_bar = RichTextLabel.new()
+	_rf_097g_action_bar.name = "UXActionBar097G"
+	_rf_097g_action_bar.bbcode_enabled = true
+	_rf_097g_action_bar.fit_content = true
+	_rf_097g_action_bar.scroll_active = false
+	_rf_097g_action_bar.custom_minimum_size = Vector2(0, 54)
+	_rf_097g_action_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_rf_097g_action_bar)
+
+
+func _rf_097g_update_action_bar(mode: String) -> void:
+	_rf_097g_ensure_action_bar()
+	if _rf_097g_action_bar == null:
+		return
+	_rf_097g_action_bar.visible = mode != ""
+	if mode == "":
+		_rf_097g_action_bar.text = ""
+		return
+	_rf_097g_action_bar.text = UIUXSystemScript.action_bar_text(state_ref, mode) + "\n" + UIUXSystemScript.nav_strip_text(mode)
+
+
+func _rf_097g_handle_key(event: InputEventKey) -> void:
+	if state_ref == null:
+		return
+
+	if event.keycode == KEY_TAB:
+		var current: String = str(_state_get("panel_mode", "inventory"))
+		var target: String = UIUXSystemScript.next_mode(current, event.shift_pressed)
+		_set_mode(target)
+		get_viewport().set_input_as_handled()
+		return
+
+	var target_mode: String = UIUXSystemScript.mode_for_keycode(event.keycode)
+	if target_mode != "":
+		_set_mode(target_mode)
+		get_viewport().set_input_as_handled()
+		return

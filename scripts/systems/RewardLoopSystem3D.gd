@@ -4,6 +4,7 @@ class_name RVRewardLoopSystem3D
 const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd")
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
+const MapDifficultySystemScript := preload("res://scripts/systems/MapDifficultySystem3D.gd")
 
 static func enemy_reward_bundle(state: Object, enemy: Object) -> Array:
 	var enemy_level: int = _enemy_level(enemy, state)
@@ -26,7 +27,7 @@ static func enemy_reward_bundle(state: Object, enemy: Object) -> Array:
 	elif is_boss:
 		_append_boss_bonus_rewards(out, state, enemy_level, rng)
 
-	return _clean_drops(out, state, enemy_level)
+	return MapDifficultySystemScript.apply_reward_modifiers(state, _clean_drops(out, state, enemy_level), false)
 
 
 static func clear_reward_bundle(state: Object, map_level: int) -> Array:
@@ -49,7 +50,7 @@ static func clear_reward_bundle(state: Object, map_level: int) -> Array:
 	if level >= 6 or rng.randf() < 0.28:
 		out.append(_crystal_drop(level, rng.randi_range(1, 2)))
 
-	return _clean_drops(out, state, level)
+	return MapDifficultySystemScript.apply_reward_modifiers(state, _clean_drops(out, state, level), true)
 
 
 static func normalize_drop(drop: Dictionary, state: Object = null, level: int = 1) -> Dictionary:

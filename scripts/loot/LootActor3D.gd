@@ -1,7 +1,8 @@
 class_name RVLootActor3D
 extends Area3D
 
-const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd") const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
+const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd") 
+const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
 
 var drop_data: Dictionary = {}
 var collected: bool = false

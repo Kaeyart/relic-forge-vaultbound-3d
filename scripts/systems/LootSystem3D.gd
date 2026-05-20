@@ -3,10 +3,21 @@ extends RefCounted
 
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
+const MapDifficultySystemScript := preload("res://scripts/systems/MapDifficultySystem3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
-const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd") const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
+const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd")
+const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
 
 static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss: bool) -> Array[Dictionary]:
+	var base: Array[Dictionary] = enemy_drop_bundle_097e_base(state, enemy_level, elite, boss)
+	var scaled: Array = MapDifficultySystemScript.apply_reward_modifiers(state, base, boss)
+	var out: Array[Dictionary] = []
+	for value: Variant in scaled:
+		if typeof(value) == TYPE_DICTIONARY:
+			out.append(Dictionary(value))
+	return out
+
+static func enemy_drop_bundle_097e_base(state: Object, enemy_level: int, elite: bool, boss: bool) -> Array[Dictionary]:
 	var rng: RandomNumberGenerator = state.get("rng") if state != null else RandomNumberGenerator.new()
 	var out: Array[Dictionary] = []
 	var gold_amount: int = rng.randi_range(3, 8) + enemy_level * 2
@@ -28,6 +39,15 @@ static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss
 	return out
 
 static func boss_reward_bundle(state: Object, map_level: int) -> Array[Dictionary]:
+	var base: Array[Dictionary] = boss_reward_bundle_097e_base(state, map_level)
+	var scaled: Array = MapDifficultySystemScript.apply_reward_modifiers(state, base, true)
+	var out: Array[Dictionary] = []
+	for value: Variant in scaled:
+		if typeof(value) == TYPE_DICTIONARY:
+			out.append(Dictionary(value))
+	return out
+
+static func boss_reward_bundle_097e_base(state: Object, map_level: int) -> Array[Dictionary]:
 	var rng: RandomNumberGenerator = state.get("rng") if state != null else RandomNumberGenerator.new()
 	var out: Array[Dictionary] = []
 	for i: int in range(2):
@@ -61,7 +81,7 @@ static func apply_drop_to_state(state: Object, drop: Dictionary) -> void:
 		return
 
 	apply_drop_to_state_097c_safe(state, normalized)
- static func apply_drop_to_state_097c_safe(state: Object, drop: Dictionary) -> void:
+static func apply_drop_to_state_097c_safe(state: Object, drop: Dictionary) -> void:
 	if state == null or drop.is_empty(): return
 	match str(drop.get("kind", "")):
 		"gold":

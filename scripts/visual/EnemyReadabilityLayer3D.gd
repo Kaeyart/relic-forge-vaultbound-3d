@@ -4,6 +4,7 @@ class_name RVEnemyReadabilityLayer3D
 const VisualPaletteScript := preload("res://scripts/visual/VisualPalette3D.gd")
 const PrimitiveKitScript := preload("res://scripts/visual/PrimitiveKit3D.gd")
 const EnemyModifierSystemScript := preload("res://scripts/systems/EnemyModifierSystem3D.gd")
+const RuntimeDetectionSystemScript := preload("res://scripts/systems/RuntimeDetectionSystem3D.gd")
 
 var game_root: Node = null
 var _scan_timer: float = 0.0
@@ -56,38 +57,99 @@ func _scan_enemies() -> void:
 
 
 func _collect_enemy_candidates(root: Node, out: Array) -> void:
-	for child: Node in root.get_children():
-		if _looks_like_enemy(child):
-			out.append(child)
-		_collect_enemy_candidates(child, out)
-
+	RuntimeDetectionSystemScript.collect_enemy_candidates(root, out)
 
 func _looks_like_enemy(node: Node) -> bool:
+	return RuntimeDetectionSystemScript.is_real_enemy(node)
+
+func _is_enemy_readability_generated_node(node: Node) -> bool:
 	if node == null:
 		return false
-	if not (node is Node3D):
+
+	var lower_name: String = str(node.name).to_lower()
+
+	if lower_name.find("enemyreadabilitylayer096e") >= 0:
+		return true
+	if lower_name.find("enemyreadabilitydecorator096e") >= 0:
+		return true
+
+	if lower_name.find("enemyrarity") >= 0:
+		return true
+	if lower_name.find("enemymod") >= 0:
+		return true
+	if lower_name.find("enemybadge") >= 0:
+		return true
+	if lower_name.find("rarityring") >= 0:
+		return true
+	if lower_name.find("raritypillar") >= 0:
+		return true
+	if lower_name.find("raritylabel") >= 0:
+		return true
+	if lower_name.find("modbadge") >= 0:
+		return true
+	if lower_name.find("threatbadge") >= 0:
+		return true
+
+	if lower_name.find("magicmarker") >= 0:
+		return true
+	if lower_name.find("raremarker") >= 0:
+		return true
+	if lower_name.find("elitemarker") >= 0:
+		return true
+	if lower_name.find("normalmarker") >= 0:
+		return true
+
+	if lower_name.find("hpbar") >= 0:
+		return true
+	if lower_name.find("damagenumber") >= 0:
+		return true
+	if lower_name.find("hitflash") >= 0:
+		return true
+	if lower_name.find("deathburst") >= 0:
+		return true
+
+	return false
+
+
+func _has_any_enemy_runtime_property(node: Object) -> bool:
+	if node == null:
 		return false
 
-	if node.is_in_group("enemy") or node.is_in_group("enemies") or node.is_in_group("monsters"):
+	if _has_enemy_property(node, "alive"):
+		return true
+	if _has_enemy_property(node, "hp"):
+		return true
+	if _has_enemy_property(node, "health"):
+		return true
+	if _has_enemy_property(node, "max_hp"):
+		return true
+	if _has_enemy_property(node, "enemy_level"):
+		return true
+	if _has_enemy_property(node, "is_elite"):
+		return true
+	if _has_enemy_property(node, "is_boss"):
+		return true
+	if _has_enemy_property(node, "damage"):
+		return true
+	if _has_enemy_property(node, "speed"):
+		return true
+	if _has_enemy_property(node, "radius"):
 		return true
 
-	var lower_name: String = node.name.to_lower()
-	if lower_name.find("enemy") >= 0:
-		return true
-	if lower_name.find("monster") >= 0:
-		return true
-	if lower_name.find("grunt") >= 0:
-		return true
-	if lower_name.find("lunger") >= 0:
-		return true
-	if lower_name.find("spitter") >= 0:
-		return true
-	if lower_name.find("wretch") >= 0:
-		return true
-	if lower_name.find("imp") >= 0:
-		return true
-	if lower_name.find("brute") >= 0:
-		return true
+	return false
+
+
+func _has_enemy_property(obj: Object, prop: String) -> bool:
+	if obj == null:
+		return false
+
+	for value: Variant in obj.get_property_list():
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+
+		var data: Dictionary = Dictionary(value)
+		if str(data.get("name", "")) == prop:
+			return true
 
 	return false
 
@@ -107,6 +169,7 @@ func _decorate_enemy(enemy: Node3D) -> void:
 
 	var root: Node3D = Node3D.new()
 	root.name = "EnemyReadabilityDecorator096E"
+	RuntimeDetectionSystemScript.mark_generated_visual(root, "enemy_readability")
 	enemy.add_child(root)
 	root.position = Vector3.ZERO
 

@@ -4,6 +4,7 @@ class_name RVLootPresentationLayer3D
 const VisualPaletteScript := preload("res://scripts/visual/VisualPalette3D.gd")
 const PrimitiveKitScript := preload("res://scripts/visual/PrimitiveKit3D.gd")
 const LootPresentationSystemScript := preload("res://scripts/systems/LootPresentationSystem3D.gd")
+const RuntimeDetectionSystemScript := preload("res://scripts/systems/RuntimeDetectionSystem3D.gd")
 
 var game_root: Node = null
 var _scan_timer: float = 0.0
@@ -85,54 +86,25 @@ func _scan_loot_nodes() -> void:
 
 
 func _collect_loot_candidates(root: Node, out: Array) -> void:
-	for child: Node in root.get_children():
-		if _looks_like_loot(child):
-			out.append(child)
-		_collect_loot_candidates(child, out)
-
+	RuntimeDetectionSystemScript.collect_loot_candidates(root, out)
 
 func _looks_like_loot(node: Node) -> bool:
-	if node == null:
-		return false
-	if not (node is Node3D):
-		return false
-
-	var lower_name: String = node.name.to_lower()
-
-	if lower_name.find("decorator096f") >= 0:
-		return false
-	if lower_name.find("lootpresentationlayer") >= 0:
-		return false
-	if lower_name.find("dropbeam") >= 0:
-		return false
-	if lower_name.find("rewardburst") >= 0:
-		return false
-
-	if node.has_meta("item_data") or node.has_meta("rv_item") or node.has_meta("drop_item"):
-		return true
-
-	if node.is_in_group("loot") or node.is_in_group("drops") or node.is_in_group("items") or node.is_in_group("pickup"):
-		return true
-
-	if lower_name.find("loot") >= 0:
-		return true
-	if lower_name.find("drop") >= 0:
-		return true
-	if lower_name.find("pickup") >= 0:
-		return true
-	if lower_name.find("currency") >= 0:
-		return true
-	if lower_name.find("gem_drop") >= 0:
-		return true
-	if lower_name.find("map_drop") >= 0:
-		return true
-
-	return false
-
+	return RuntimeDetectionSystemScript.is_real_loot(node)
 
 func _decorate_loot(node: Node3D) -> void:
+	if node == null or not is_instance_valid(node):
+		return
+
+	if not _looks_like_loot(node):
+		return
+
 	if node.get_node_or_null("LootPresentationDecorator096F") != null:
 		return
+
+	if not node.has_meta("item_data"):
+		var extracted: Dictionary = _item_data_from_loot_node(node)
+		if not extracted.is_empty():
+			node.set_meta("item_data", extracted)
 
 	var rarity: String = LootPresentationSystemScript.rarity_from_source(node)
 	var kind: String = LootPresentationSystemScript.kind_from_source(node)
@@ -141,6 +113,7 @@ func _decorate_loot(node: Node3D) -> void:
 
 	var root: Node3D = Node3D.new()
 	root.name = "LootPresentationDecorator096F"
+	RuntimeDetectionSystemScript.mark_generated_visual(root, "loot_presentation")
 	node.add_child(root)
 	root.position = Vector3.ZERO
 
@@ -148,27 +121,121 @@ func _decorate_loot(node: Node3D) -> void:
 	var beam_radius: float = LootPresentationSystemScript.beam_radius_for_rarity(rarity)
 	var ring_radius: float = LootPresentationSystemScript.ring_radius_for_kind(kind, rarity)
 
-	var beam_mat: Material = VisualPaletteScript.material("Loot Beam " + rarity, color, rarity != "normal", 1.0, 0.42)
-	var ring_mat: Material = VisualPaletteScript.material("Loot Ring " + rarity, color, rarity != "normal", 0.75, 0.34)
+	var beam_mat: Material = VisualPaletteScript.material(
+		"Loot Beam " + rarity,
+		color,
+		rarity != "normal",
+		1.0,
+		0.42
+	)
 
-	var ring: MeshInstance3D = PrimitiveKitScript.ground_disc("LootGroundRing", ring_radius, Vector3(0.0, 0.045, 0.0), ring_mat)
+	var ring_mat: Material = VisualPaletteScript.material(
+		"Loot Ring " + rarity,
+		color,
+		rarity != "normal",
+		0.75,
+		0.34
+	)
+
+	var ring: MeshInstance3D = PrimitiveKitScript.ground_disc(
+		"LootGroundRing",
+		ring_radius,
+		Vector3(0.0, 0.045, 0.0),
+		ring_mat
+	)
 	root.add_child(ring)
 
-	var beam: MeshInstance3D = PrimitiveKitScript.cylinder("LootRarityBeam", beam_radius, beam_height, Vector3(0.0, beam_height * 0.5, 0.0), beam_mat, 24)
+	var beam: MeshInstance3D = PrimitiveKitScript.cylinder(
+		"LootRarityBeam",
+		beam_radius,
+		beam_height,
+		Vector3(0.0, beam_height * 0.5, 0.0),
+		beam_mat,
+		24
+	)
 	root.add_child(beam)
 
 	var kind_marker: MeshInstance3D = _make_kind_marker(kind, color)
 	kind_marker.position = Vector3(0.0, 0.36, 0.0)
 	root.add_child(kind_marker)
 
-	var label: Label3D = PrimitiveKitScript.label_3d("LootLabel", label_text, Vector3(0.0, beam_height + 0.35, 0.0), color)
+	var label: Label3D = PrimitiveKitScript.label_3d(
+		"LootLabel",
+		label_text,
+		Vector3(0.0, beam_height + 0.35, 0.0),
+		color
+	)
 	label.font_size = 20 if rarity == "normal" else 24
 	root.add_child(label)
 
 	if rarity == "rare" or rarity == "unique":
-		var crown: MeshInstance3D = PrimitiveKitScript.box("LootRarityCrown", Vector3(0.34, 0.10, 0.34), Vector3(0.0, beam_height + 0.05, 0.0), beam_mat)
+		var crown: MeshInstance3D = PrimitiveKitScript.box(
+			"LootRarityCrown",
+			Vector3(0.34, 0.10, 0.34),
+			Vector3(0.0, beam_height + 0.05, 0.0),
+			beam_mat
+		)
 		crown.rotation_degrees = Vector3(0.0, 45.0, 0.0)
 		root.add_child(crown)
+
+
+func _is_loot_presentation_generated_node(lower_name: String) -> bool:
+	if lower_name.find("lootpresentationlayer096f") >= 0:
+		return true
+	if lower_name.find("lootpresentationdecorator096f") >= 0:
+		return true
+
+	if lower_name.find("lootgroundring") >= 0:
+		return true
+	if lower_name.find("lootraritybeam") >= 0:
+		return true
+	if lower_name.find("lootraritycrown") >= 0:
+		return true
+	if lower_name.find("lootlabel") >= 0:
+		return true
+
+	if lower_name.find("currencymarker") >= 0:
+		return true
+	if lower_name.find("gemmarker") >= 0:
+		return true
+	if lower_name.find("mapmarker") >= 0:
+		return true
+	if lower_name.find("crystalmarker") >= 0:
+		return true
+	if lower_name.find("uniquemarker") >= 0:
+		return true
+	if lower_name.find("gearmarker") >= 0:
+		return true
+
+	if lower_name.find("rewardburst") >= 0:
+		return true
+
+	return false
+
+
+func _item_data_from_loot_node(node: Node) -> Dictionary:
+	if node == null:
+		return {}
+
+	var drop_data: Variant = node.get("drop_data")
+	if typeof(drop_data) != TYPE_DICTIONARY:
+		return {}
+
+	var drop: Dictionary = Dictionary(drop_data)
+	if drop.is_empty():
+		return {}
+
+	if typeof(drop.get("item", {})) == TYPE_DICTIONARY:
+		return Dictionary(drop.get("item")).duplicate(true)
+
+	if typeof(drop.get("map", {})) == TYPE_DICTIONARY:
+		var map_item: Dictionary = Dictionary(drop.get("map")).duplicate(true)
+		map_item["kind"] = "map"
+		map_item["item_kind"] = "map"
+		map_item["category"] = "map"
+		return map_item
+
+	return drop.duplicate(true)
 
 
 func _make_kind_marker(kind: String, color: Color) -> MeshInstance3D:

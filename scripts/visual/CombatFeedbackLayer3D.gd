@@ -3,6 +3,7 @@ class_name RVCombatFeedbackLayer3D
 
 const VisualPaletteScript := preload("res://scripts/visual/VisualPalette3D.gd")
 const PrimitiveKitScript := preload("res://scripts/visual/PrimitiveKit3D.gd")
+const RuntimeDetectionSystemScript := preload("res://scripts/systems/RuntimeDetectionSystem3D.gd")
 
 var game_root: Node = null
 var _scan_timer: float = 0.0
@@ -78,6 +79,7 @@ func _ensure_decorator(enemy: Node3D) -> Node3D:
 
 	var root: Node3D = Node3D.new()
 	root.name = "CombatFeedbackDecorator096G"
+	RuntimeDetectionSystemScript.mark_generated_visual(root, "combat_feedback")
 	enemy.add_child(root)
 	root.position = Vector3.ZERO
 
@@ -291,41 +293,7 @@ func _collect_enemy_candidates(root: Node, out: Array) -> void:
 
 
 func _looks_like_enemy(node: Node) -> bool:
-	if node == null:
-		return false
-	if not (node is Node3D):
-		return false
-
-	var lower_name: String = node.name.to_lower()
-	if lower_name.find("decorator096g") >= 0:
-		return false
-	if lower_name.find("combatfeedbacklayer") >= 0:
-		return false
-	if lower_name.find("enemyreadabilitydecorator") >= 0:
-		return false
-
-	if node.is_in_group("enemy") or node.is_in_group("enemies") or node.is_in_group("monsters"):
-		return true
-
-	if lower_name.find("enemy") >= 0:
-		return true
-	if lower_name.find("monster") >= 0:
-		return true
-	if lower_name.find("grunt") >= 0:
-		return true
-	if lower_name.find("lunger") >= 0:
-		return true
-	if lower_name.find("spitter") >= 0:
-		return true
-	if lower_name.find("wretch") >= 0:
-		return true
-	if lower_name.find("imp") >= 0:
-		return true
-	if lower_name.find("brute") >= 0:
-		return true
-
-	return false
-
+	return RuntimeDetectionSystemScript.is_real_enemy(node)
 
 func _read_hp(enemy: Object) -> float:
 	for prop: String in ["hp", "current_hp", "health", "current_health"]:

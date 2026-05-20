@@ -12,7 +12,9 @@ var layer_specs: Array[Dictionary] = [
 	{"name": "EnemyReadabilityLayer096E", "path": "res://scripts/visual/EnemyReadabilityLayer3D.gd", "required": false},
 	{"name": "LootPresentationLayer096F", "path": "res://scripts/visual/LootPresentationLayer3D.gd", "required": false},
 	{"name": "CombatFeedbackLayer096G", "path": "res://scripts/visual/CombatFeedbackLayer3D.gd", "required": false},
+	{"name": "CombatFeelLayer098B", "path": "res://scripts/visual/CombatFeelLayer3D.gd", "required": false},
 	{"name": "CombatDirectorLayer097A", "path": "res://scripts/visual/CombatDirectorLayer3D.gd", "required": false},
+	{"name": "VerticalSliceDebugOverlay098A", "path": "res://scripts/visual/VerticalSliceDebugOverlay3D.gd", "required": false},
 ]
 
 
