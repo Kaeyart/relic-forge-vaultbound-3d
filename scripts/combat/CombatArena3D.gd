@@ -4,7 +4,7 @@ extends Node3D
 const EnemyScene := preload("res://scenes/prefabs/enemies/Enemy3D.tscn")
 const ProjectileScene := preload("res://scenes/prefabs/projectiles/Projectile3D.tscn")
 const LootActorScene := preload("res://scenes/prefabs/loot/LootActor3D.tscn")
-const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd")
+const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd") const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
 const LootPickupSystemScript := preload("res://scripts/systems/LootPickupSystem3D.gd")
 const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
 
@@ -167,24 +167,81 @@ func _damage_enemy(enemy: Node, damage: float, state: Object, tags: Array) -> vo
 
 func _on_enemy_died(enemy: Node, state: Object) -> void:
 	state.call("on_enemy_killed", int(enemy.get("enemy_level")), bool(enemy.get("is_elite")), bool(enemy.get("is_boss")))
-	var drops: Array[Dictionary] = LootSystemScript.enemy_drop_bundle(state, int(enemy.get("enemy_level")), bool(enemy.get("is_elite")), bool(enemy.get("is_boss")))
+
+	var drops: Array = RewardLoopSystemScript.enemy_reward_bundle(state, enemy)
 	_spawn_drops(drops, (enemy as Node3D).global_position)
+
 	enemy.queue_free()
 
+
 func _spawn_boss_reward_pile(state: Object, pos: Vector3) -> void:
-	if boss_reward_spawned: return
+	if boss_reward_spawned:
+		return
 	boss_reward_spawned = true
-	_spawn_drops(LootSystemScript.boss_reward_bundle(state, map_level), pos)
+
+	var drops: Array = RewardLoopSystemScript.clear_reward_bundle(state, map_level)
+	_spawn_drops(drops, pos)
+
 
 func _spawn_drops(drops: Array, center: Vector3) -> void:
+	if drops.is_empty():
+		return
+
+	_spawn_reward_burst_visual(center, drops)
+
 	var i: int = 0
-	for drop: Dictionary in drops:
+	var count: int = max(1, drops.size())
+	for value: Variant in drops:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+
+		var drop: Dictionary = RewardLoopSystemScript.normalize_drop(Dictionary(value), null, map_level)
+		if drop.is_empty():
+			continue
+
 		var loot: Node = LootActorScene.instantiate()
 		loot_root.add_child(loot)
-		var angle: float = float(i) * 1.37
-		var offset: Vector3 = Vector3(cos(angle), 0, sin(angle)) * (0.7 + 0.18 * float(i))
-		loot.call("setup", drop, center + offset + Vector3.UP * 0.15)
+
+		var angle: float = float(i) * TAU / float(count)
+		var ring: float = 0.75 + 0.22 * float(i % 5)
+		if count >= 6:
+			ring += 0.25
+		var offset: Vector3 = Vector3(cos(angle), 0.0, sin(angle)) * ring
+		var pos: Vector3 = center + offset + Vector3.UP * 0.15
+
+		loot.set_meta("item_data", RewardLoopSystemScript.presentation_data_for_drop(drop))
+		loot.add_to_group("loot")
+		loot.call("setup", drop, pos)
+
 		i += 1
+
+
+func _spawn_reward_burst_visual(center: Vector3, drops: Array) -> void:
+	var scene: Node = get_tree().current_scene
+	if scene == null:
+		return
+
+	var layer: Node = scene.get_node_or_null("LootPresentationLayer096F")
+	if layer == null:
+		layer = get_node_or_null("/root/GameRoot3D/LootPresentationLayer096F")
+	if layer == null or not layer.has_method("spawn_reward_burst"):
+		return
+
+	var best_rarity: String = "normal"
+	for value: Variant in drops:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+		var rarity: String = RewardLoopSystemScript.rarity_for_drop(Dictionary(value))
+		if rarity == "unique":
+			best_rarity = "unique"
+			break
+		if rarity == "rare":
+			best_rarity = "rare"
+		elif rarity == "magic" and best_rarity == "normal":
+			best_rarity = "magic"
+
+	layer.call("spawn_reward_burst", center + Vector3.UP * 0.2, best_rarity)
+
 
 func manual_pickup_near(state: Object, player_pos: Vector3) -> bool:
 	var best: Node = null

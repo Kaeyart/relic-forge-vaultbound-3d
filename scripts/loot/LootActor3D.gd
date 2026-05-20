@@ -1,7 +1,7 @@
 class_name RVLootActor3D
 extends Area3D
 
-const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd")
+const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd") const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
 
 var drop_data: Dictionary = {}
 var collected: bool = false
@@ -45,7 +45,7 @@ func _ensure_visuals() -> void:
 
 func _update_visuals() -> void:
 	if label != null:
-		label.text = LootSystemScript.label_for_drop(drop_data)
+		label.text = RewardLoopSystemScript.label_for_drop(drop_data)
 	if body != null:
 		var mat := StandardMaterial3D.new()
 		var kind: String = str(drop_data.get("kind", ""))

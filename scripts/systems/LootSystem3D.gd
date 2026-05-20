@@ -4,7 +4,7 @@ extends RefCounted
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
-const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd")
+const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd") const RewardLoopSystemScript := preload("res://scripts/systems/RewardLoopSystem3D.gd")
 
 static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss: bool) -> Array[Dictionary]:
 	var rng: RandomNumberGenerator = state.get("rng") if state != null else RandomNumberGenerator.new()
@@ -51,7 +51,17 @@ static func _random_gem_drop(rng: RandomNumberGenerator, boss: bool) -> Dictiona
 	var spid: String = str(spirit_keys[rng.randi_range(0, spirit_keys.size() - 1)])
 	return {"kind":"spirit_gem", "gem_id":spid, "label":"Spirit Gem", "auto_pickup":false, "rarity":"gem"}
 
+
 static func apply_drop_to_state(state: Object, drop: Dictionary) -> void:
+	if state == null or drop.is_empty():
+		return
+
+	var normalized: Dictionary = RewardLoopSystemScript.normalize_drop(drop, state, 1)
+	if normalized.is_empty():
+		return
+
+	apply_drop_to_state_097c_safe(state, normalized)
+ static func apply_drop_to_state_097c_safe(state: Object, drop: Dictionary) -> void:
 	if state == null or drop.is_empty(): return
 	match str(drop.get("kind", "")):
 		"gold":

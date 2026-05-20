@@ -19,6 +19,7 @@ EXPECTED_DIRS = (
     "scripts/core",
     "scripts/systems",
     "scripts/visual",
+    "scripts/loot",
     "tools",
     "docs",
 )
