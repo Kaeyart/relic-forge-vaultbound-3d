@@ -7,6 +7,7 @@ var _last_report: Dictionary = {}
 var layer_specs: Array[Dictionary] = [
 	{"name": "VisualFoundationLayer096A", "path": "res://scripts/visual/VisualFoundationLayer3D.gd", "required": false},
 	{"name": "HubGreyboxPass096B", "path": "res://scripts/visual/HubGreyboxPass3D.gd", "required": false},
+	{"name": "HubStationLayer098C", "path": "res://scripts/visual/HubStationLayer3D.gd", "required": false},
 	{"name": "CombatArenaGreyboxPass096C", "path": "res://scripts/visual/CombatArenaGreyboxPass3D.gd", "required": false},
 	{"name": "SkillVFXLayer096D", "path": "res://scripts/visual/SkillVFXLayer3D.gd", "required": false},
 	{"name": "EnemyReadabilityLayer096E", "path": "res://scripts/visual/EnemyReadabilityLayer3D.gd", "required": false},
