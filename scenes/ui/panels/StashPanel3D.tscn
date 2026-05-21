@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://rv_patch12_stash_panel"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/StashPanel3D.gd" id="1_stash"]
+[ext_resource type="Script" path="res://scripts/ui/panels/StashPanel3D.gd" id="1_script"]
 
 [node name="StashPanel3D" type="Control"]
 layout_mode = 3
@@ -9,5 +9,5 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
-script = ExtResource("1_stash")
+mouse_filter = 1
+script = ExtResource("1_script")

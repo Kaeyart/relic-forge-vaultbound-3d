@@ -121,8 +121,7 @@ func _handle_key(keycode: int) -> void:
 		KEY_X:
 			state.call("use_mana_flask")
 		KEY_T:
-			if str(state.get("mode")) == "hub": _start_map()
-			else: _return_to_hub(true)
+			state.call("add_notice", "Use the Map Device station in the hub. Press E to extract when a map is clear.")
 		KEY_E:
 			if str(state.get("mode")) == "combat":
 				if bool(combat.get("room_clear")):
@@ -149,13 +148,13 @@ func _handle_key(keycode: int) -> void:
 		KEY_K:
 			_toggle_panel("skills")
 		KEY_C:
-			_toggle_panel("character")
+			state.call("add_notice", "Walk to the Character Shrine in the hub.")
 		KEY_M:
-			_toggle_panel("maps")
+			state.call("add_notice", "Walk to the Map Device in the hub.")
 		KEY_F:
-			_toggle_panel("crafting")
+			state.call("add_notice", "Walk to the Forge in the hub.")
 		KEY_H:
-			_toggle_panel("help")
+			state.call("add_notice", "Inventory [I] and Gems [K] are global. Other stations are in the hub.")
 		KEY_BRACKETLEFT:
 			_cycle_cursor(-1)
 		KEY_BRACKETRIGHT:
@@ -165,7 +164,10 @@ func _handle_key(keycode: int) -> void:
 
 func _handle_panel_key(keycode: int) -> void:
 	var mode: String = str(state.get("panel_mode"))
-	if keycode == KEY_ESCAPE or keycode == KEY_I or keycode == KEY_K or keycode == KEY_C or keycode == KEY_M or keycode == KEY_F or keycode == KEY_H:
+	if keycode == KEY_ESCAPE:
+		state.set("panel_mode", "")
+		return
+	if (keycode == KEY_I and mode == "inventory") or (keycode == KEY_K and mode == "skills"):
 		state.set("panel_mode", "")
 		return
 	if mode == "inventory":
@@ -198,11 +200,9 @@ func _handle_panel_key(keycode: int) -> void:
 		if not maps.is_empty():
 			if keycode == KEY_BRACKETLEFT: state.set("map_cursor", wrapi(_rf_087v_int(state.get("map_cursor")) - 1, 0, maps.size()))
 			elif keycode == KEY_BRACKETRIGHT: state.set("map_cursor", wrapi(_rf_087v_int(state.get("map_cursor")) + 1, 0, maps.size()))
-			elif keycode == KEY_T: state.set("panel_mode", ""); _start_map()
+			elif keycode == KEY_T: state.call("add_notice", "Click Launch Map from the Map Device.")
 	elif mode == "crafting":
-		if keycode == KEY_1: CraftingSystemScript.craft_selected(state, "seal")
-		elif keycode == KEY_2: CraftingSystemScript.craft_selected(state, "reforge")
-		elif keycode == KEY_3: CraftingSystemScript.craft_selected(state, "polish")
+		state.call("add_notice", "Use the Forge buttons with the mouse.")
 
 func _cycle_cursor(dir: int) -> void:
 	var backpack: Array = Array(state.get("backpack"))

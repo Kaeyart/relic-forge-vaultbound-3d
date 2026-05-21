@@ -1,94 +1,50 @@
+class_name RVBaseTextPanel3D
 extends Control
 
-const RVUIStyle := preload("res://scripts/ui/RVUIStyle3D.gd")
+# Mouse-first base panel used by patch_16.
+# Panels build clickable controls at runtime while keeping the scene files minimal and stable.
 
-var _root: MarginContainer = null
-var _columns: HBoxContainer = null
-var _built: bool = false
+var state_ref: Object = null
+var _built_once: bool = false
 
 func _ready() -> void:
-	_build_base()
-
-func update_from_state(state: Object) -> void:
-	_build_base()
-	render(state)
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	_build_if_needed()
 
 func bind_state(state: Object) -> void:
-	update_from_state(state)
+	state_ref = state
+	refresh_panel()
 
-func render(_state: Object) -> void:
-	pass
+func update_from_state(state: Object) -> void:
+	state_ref = state
+	refresh_panel()
 
-func _build_base() -> void:
-	if _built:
-		return
-	_built = true
-	mouse_filter = Control.MOUSE_FILTER_PASS
-	anchor_right = 1.0
-	anchor_bottom = 1.0
-	_root = MarginContainer.new()
-	_root.name = "PanelMargin"
-	_root.anchor_right = 1.0
-	_root.anchor_bottom = 1.0
-	_root.add_theme_constant_override("margin_left", 16)
-	_root.add_theme_constant_override("margin_top", 16)
-	_root.add_theme_constant_override("margin_right", 16)
-	_root.add_theme_constant_override("margin_bottom", 16)
-	add_child(_root)
-	_columns = RVUIStyle.make_hbox("Columns", 14)
-	_root.add_child(_columns)
+func refresh_panel() -> void:
+	_build_if_needed()
 
-func _reset_columns() -> void:
-	_build_base()
-	RVUIStyle.clear_children(_columns)
+func _build_if_needed() -> void:
+	if not _built_once:
+		_built_once = true
 
-func _section(title: String, weight: float = 1.0) -> VBoxContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = title.replace(" ", "") + "Section"
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.custom_minimum_size = Vector2(220.0 * weight, 120.0)
-	RVUIStyle.apply_panel(panel)
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	panel.add_child(margin)
-	var box: VBoxContainer = RVUIStyle.make_vbox(title.replace(" ", "") + "Box", 7)
-	margin.add_child(box)
-	box.add_child(RVUIStyle.section_title(title))
-	_columns.add_child(panel)
-	return box
+func _clear() -> void:
+	for child: Node in get_children():
+		child.queue_free()
 
-func _add_line(parent: VBoxContainer, text: String, size: int = 13, color: Color = Color(0.92, 0.88, 0.78, 1.0)) -> Label:
-	var label: Label = RVUIStyle.label(text, size, color)
-	parent.add_child(label)
-	return label
-
-func _add_rich(parent: VBoxContainer, text: String, size: int = 13) -> RichTextLabel:
-	var label: RichTextLabel = RVUIStyle.rich(text, size)
-	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	parent.add_child(label)
-	return label
-
-func _add_button_like(parent: VBoxContainer, text: String, selected: bool = false) -> Button:
-	var b: Button = Button.new()
-	b.text = text
-	b.focus_mode = Control.FOCUS_NONE
-	b.disabled = true
-	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	RVUIStyle.apply_button(b, selected)
-	parent.add_child(b)
-	return b
-
-func _state_get(state: Object, key: String, fallback: Variant = null) -> Variant:
-	if state == null:
+func _state_get(key: String, fallback: Variant = null) -> Variant:
+	if state_ref == null:
 		return fallback
-	var value: Variant = state.get(key)
+	var value: Variant = state_ref.get(key)
 	if value == null:
 		return fallback
 	return value
+
+func _state_set(key: String, value: Variant) -> void:
+	if state_ref != null:
+		state_ref.set(key, value)
+
+func _notice(text: String) -> void:
+	if state_ref != null and state_ref.has_method("add_notice"):
+		state_ref.call("add_notice", text)
 
 func _as_array(value: Variant) -> Array:
 	if typeof(value) == TYPE_ARRAY:
@@ -100,33 +56,52 @@ func _as_dict(value: Variant) -> Dictionary:
 		return Dictionary(value)
 	return {}
 
-func _to_float(value: Variant, fallback: float = 0.0) -> float:
+func _to_int(value: Variant, fallback: int = 0) -> int:
 	if value == null:
 		return fallback
 	match typeof(value):
 		TYPE_INT:
-			return float(value)
+			return int(value)
+		TYPE_FLOAT:
+			return int(round(float(value)))
+		TYPE_BOOL:
+			return 1 if bool(value) else 0
+		TYPE_STRING:
+			var s: String = str(value)
+			if s.is_valid_int():
+				return s.to_int()
+			if s.is_valid_float():
+				return int(round(s.to_float()))
+			return fallback
+		_:
+			return fallback
+
+func _to_float(value: Variant, fallback: float = 0.0) -> float:
+	if value == null:
+		return fallback
+	match typeof(value):
 		TYPE_FLOAT:
 			return float(value)
+		TYPE_INT:
+			return float(int(value))
 		TYPE_BOOL:
 			return 1.0 if bool(value) else 0.0
 		TYPE_STRING:
 			var s: String = str(value)
-			return s.to_float() if s.is_valid_float() else fallback
+			if s.is_valid_float():
+				return s.to_float()
+			return fallback
 		_:
 			return fallback
-
-func _to_int(value: Variant, fallback: int = 0) -> int:
-	return int(round(_to_float(value, float(fallback))))
 
 func _item_name(item: Dictionary) -> String:
 	return str(item.get("display_name", item.get("name", item.get("base_id", "Item"))))
 
-func _item_rarity(item: Dictionary) -> String:
-	return str(item.get("rarity", "normal")).to_lower()
-
 func _item_slot(item: Dictionary) -> String:
-	return str(item.get("slot", item.get("equip_slot", item.get("category", "misc"))))
+	return str(item.get("slot", item.get("equipment_slot", item.get("kind", ""))))
+
+func _item_rarity(item: Dictionary) -> String:
+	return str(item.get("rarity", "normal"))
 
 func _item_power(item: Dictionary) -> int:
 	if item.has("item_power"):
@@ -134,69 +109,155 @@ func _item_power(item: Dictionary) -> int:
 	if item.has("power"):
 		return _to_int(item.get("power", 0))
 	if item.has("item_level"):
-		return _to_int(item.get("item_level", 1))
-	return _to_int(item.get("level", 1))
+		return _to_int(item.get("item_level", 0))
+	return _to_int(item.get("level", 0))
 
-func _stat_map(item: Dictionary) -> Dictionary:
-	var out: Dictionary = {}
-	for dict_key: String in ["stats", "implicit_stats", "explicit_stats", "rolled_stats"]:
-		if item.has(dict_key) and typeof(item[dict_key]) == TYPE_DICTIONARY:
-			var source: Dictionary = Dictionary(item[dict_key])
-			for key: Variant in source.keys():
-				var name: String = RVUIStyle.title_case(str(key))
-				out[name] = _to_float(out.get(name, 0.0)) + _to_float(source[key])
-	if item.has("affixes") and typeof(item["affixes"]) == TYPE_ARRAY:
-		for affix_value: Variant in Array(item["affixes"]):
-			if typeof(affix_value) != TYPE_DICTIONARY:
-				continue
-			var affix: Dictionary = Dictionary(affix_value)
-			var stat_name: String = RVUIStyle.title_case(str(affix.get("stat", affix.get("stat_key", affix.get("id", "Affix")))))
-			out[stat_name] = _to_float(out.get(stat_name, 0.0)) + _to_float(affix.get("value", affix.get("amount", 0.0)))
-	return out
+func _rarity_prefix(item: Dictionary) -> String:
+	var rarity: String = _item_rarity(item).to_upper()
+	if rarity == "NORMAL":
+		return ""
+	return "[" + rarity + "] "
 
-func _describe_item(item: Dictionary) -> String:
+func _button(text: String, target: Object, method: String, binds: Array = [], min_size: Vector2 = Vector2(110, 34)) -> Button:
+	var b: Button = Button.new()
+	b.text = text
+	b.custom_minimum_size = min_size
+	b.focus_mode = Control.FOCUS_NONE
+	b.mouse_filter = Control.MOUSE_FILTER_STOP
+	var cb: Callable = Callable(target, method)
+	for value: Variant in binds:
+		cb = cb.bind(value)
+	b.pressed.connect(cb)
+	return b
+
+func _label(text: String, size: int = 13, autowrap: bool = true) -> RichTextLabel:
+	var l: RichTextLabel = RichTextLabel.new()
+	l.bbcode_enabled = true
+	l.fit_content = true
+	l.scroll_active = false
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.text = text
+	l.add_theme_font_size_override("normal_font_size", size)
+	if autowrap:
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	else:
+		l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	return l
+
+func _vbox(spacing: int = 6) -> VBoxContainer:
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", spacing)
+	box.mouse_filter = Control.MOUSE_FILTER_PASS
+	return box
+
+func _hbox(spacing: int = 6) -> HBoxContainer:
+	var box: HBoxContainer = HBoxContainer.new()
+	box.add_theme_constant_override("separation", spacing)
+	box.mouse_filter = Control.MOUSE_FILTER_PASS
+	return box
+
+func _grid(columns: int, spacing: int = 4) -> GridContainer:
+	var g: GridContainer = GridContainer.new()
+	g.columns = columns
+	g.add_theme_constant_override("h_separation", spacing)
+	g.add_theme_constant_override("v_separation", spacing)
+	g.mouse_filter = Control.MOUSE_FILTER_PASS
+	return g
+
+func _panel(title: String = "") -> PanelContainer:
+	var p: PanelContainer = PanelContainer.new()
+	p.mouse_filter = Control.MOUSE_FILTER_PASS
+	var box: VBoxContainer = _vbox(6)
+	box.name = "Content"
+	box.set_anchors_preset(Control.PRESET_FULL_RECT)
+	p.add_child(box)
+	if title != "":
+		box.add_child(_label("[color=#c59b4a][b]" + title + "[/b][/color]", 15))
+	return p
+
+func _panel_content(panel: PanelContainer) -> VBoxContainer:
+	var node: Node = panel.get_node_or_null("Content")
+	if node is VBoxContainer:
+		return node as VBoxContainer
+	var box: VBoxContainer = _vbox(6)
+	box.name = "Content"
+	panel.add_child(box)
+	return box
+
+func _set_expand(control: Control, horizontal: bool = true, vertical: bool = true) -> void:
+	if horizontal:
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if vertical:
+		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+func _short(text: String, max_len: int = 18) -> String:
+	if text.length() <= max_len:
+		return text
+	return text.substr(0, max_len - 1) + "…"
+
+func _item_summary(item: Dictionary) -> String:
 	if item.is_empty():
 		return "No item selected."
 	var lines: PackedStringArray = PackedStringArray()
-	var rarity: String = _item_rarity(item)
-	lines.append("[color=#" + RVUIStyle.rarity_color(rarity).to_html(false) + "][b]" + _item_name(item) + "[/b][/color]")
-	lines.append(rarity.capitalize() + " · " + RVUIStyle.title_case(_item_slot(item)) + " · Power " + str(_item_power(item)))
-	var quality: int = _to_int(item.get("quality", -1))
-	if quality >= 0:
-		lines.append("Quality +" + str(quality) + "%")
-	var sockets: Array = _as_array(item.get("sockets", []))
-	if not sockets.is_empty():
-		lines.append("Sockets: " + str(sockets.size()))
-	var stats: Dictionary = _stat_map(item)
-	if not stats.is_empty():
-		lines.append("")
-		lines.append("[b]Stats[/b]")
-		for key: Variant in stats.keys():
-			var stat_value: float = _to_float(stats[key])
-			var sign: String = "+" if stat_value > 0.0 else ""
-			lines.append("• " + sign + str(snappedf(stat_value, 0.01)) + " " + str(key))
-	var detail: String = str(item.get("detail_text", item.get("description", "")))
-	if detail != "" and lines.size() < 18:
-		lines.append("")
-		lines.append(detail)
+	var identified: bool = bool(item.get("identified", true))
+	lines.append("[font_size=16][color=#c59b4a][b]" + _item_name(item) + "[/b][/color][/font_size]")
+	lines.append(_item_rarity(item).capitalize() + " · " + _item_slot(item) + " · Power " + str(_item_power(item)))
+	if not identified:
+		lines.append("[color=#d65a32]Unappraised: affixes hidden. Click Appraise.[/color]")
+		return "\n".join(lines)
+	lines.append("Quality +" + str(_to_int(item.get("quality", item.get("item_quality", 0)))) + "% · Forge Potential " + str(_to_int(item.get("forge_potential", 0))))
+	if item.has("grid_w"):
+		lines.append("Grid " + str(_to_int(item.get("grid_w", 1))) + "x" + str(_to_int(item.get("grid_h", 1))) + " @ " + str(_to_int(item.get("grid_x", -1))) + "," + str(_to_int(item.get("grid_y", -1))))
+	var flags: PackedStringArray = PackedStringArray()
+	if bool(item.get("new_item", false)):
+		flags.append("NEW")
+	if bool(item.get("favorite", false)):
+		flags.append("FAVORITE")
+	if bool(item.get("locked", false)):
+		flags.append("LOCKED")
+	if not flags.is_empty():
+		lines.append("[color=#8f8777]" + " · ".join(flags) + "[/color]")
+	if typeof(item.get("affixes", [])) == TYPE_ARRAY:
+		var affixes: Array = Array(item.get("affixes", []))
+		if not affixes.is_empty():
+			lines.append("\n[color=#8f8777]Affixes[/color]")
+			for affix_value: Variant in affixes:
+				if typeof(affix_value) == TYPE_DICTIONARY:
+					var affix: Dictionary = Dictionary(affix_value)
+					var stat_name: String = str(affix.get("display_name", affix.get("stat", affix.get("id", "modifier"))))
+					var amount: String = str(affix.get("value", affix.get("amount", "")))
+					lines.append("• " + stat_name + (" " + amount if amount != "" else ""))
+				else:
+					lines.append("• " + str(affix_value))
+	if typeof(item.get("tags", [])) == TYPE_ARRAY:
+		var tags: Array = Array(item.get("tags", []))
+		if not tags.is_empty():
+			lines.append("\n[color=#8f8777]Tags[/color] " + ", ".join(_array_to_strings(tags)))
 	return "\n".join(lines)
 
-func _selected_backpack_item(state: Object) -> Dictionary:
-	var backpack: Array = _as_array(_state_get(state, "backpack", []))
-	if backpack.is_empty():
-		return {}
-	var cursor: int = clampi(_to_int(_state_get(state, "inventory_cursor", 0)), 0, backpack.size() - 1)
-	if typeof(backpack[cursor]) == TYPE_DICTIONARY:
-		return Dictionary(backpack[cursor])
+func _array_to_strings(values: Array) -> PackedStringArray:
+	var out: PackedStringArray = PackedStringArray()
+	for value: Variant in values:
+		out.append(str(value))
+	return out
+
+func _selected_backpack_index() -> int:
+	return _to_int(_state_get("inventory_cursor", 0), 0)
+
+func _selected_backpack_item() -> Dictionary:
+	var backpack: Array = _as_array(_state_get("backpack", []))
+	var index: int = _selected_backpack_index()
+	if index >= 0 and index < backpack.size() and typeof(backpack[index]) == TYPE_DICTIONARY:
+		return Dictionary(backpack[index])
 	return {}
 
-func _materials_text(state: Object) -> String:
-	var mats: Dictionary = _as_dict(_state_get(state, "materials", {}))
-	if mats.is_empty():
-		return "No materials"
-	var parts: PackedStringArray = PackedStringArray()
-	for key: Variant in mats.keys():
-		parts.append(RVUIStyle.title_case(str(key)) + ": " + str(mats[key]))
-		if parts.size() >= 6:
-			break
-	return " · ".join(parts)
+func _set_selected_backpack_index(index: int) -> void:
+	var backpack: Array = _as_array(_state_get("backpack", []))
+	if backpack.is_empty():
+		_state_set("inventory_cursor", 0)
+	else:
+		_state_set("inventory_cursor", clampi(index, 0, backpack.size() - 1))
+	refresh_panel()
+
+func _open_panel(mode: String) -> void:
+	_state_set("panel_mode", mode)
