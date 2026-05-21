@@ -1,8 +1,10 @@
 extends "res://scripts/ui/panels/BaseTextPanel3D.gd"
 
-# Patch 08: Inventory screen rebuild.
-# Goal: translate the generated inventory concept into a no-art Godot layout:
-# equipment paper-doll, backpack grid, selected item card, and comparison card.
+# patch_14_inventory_grid_item_state
+# POE-style inventory pass: real grid occupancy, item size readability,
+# identified/favorite/locked flags, and stronger item decision panels.
+
+const InventoryGridSystemScript := preload("res://scripts/systems/InventoryGridSystem3D.gd")
 
 const EQUIPMENT_SLOTS: Array[String] = [
 	"weapon",
@@ -18,27 +20,26 @@ const EQUIPMENT_SLOTS: Array[String] = [
 	"relic",
 ]
 
-const GRID_VISIBLE_SLOTS: int = 30
-const GRID_COLUMNS: int = 5
-
 func render(state: Object) -> void:
 	_reset_columns()
+	InventoryGridSystemScript.normalize_inventory_state(state)
 
 	var equipped: Dictionary = _as_dict(_state_get(state, "equipped", {}))
 	var backpack: Array = _as_array(_state_get(state, "backpack", []))
 	var cursor: int = _inventory_cursor(state, backpack.size())
 	var selected: Dictionary = _selected_backpack_item(state)
-	var selected_slot: String = _normalized_slot(_item_slot(selected)) if not selected.is_empty() else ""
+	var selected_slot: String = InventoryGridSystemScript.normalized_slot(selected) if not selected.is_empty() else ""
 
-	var equipment_box: VBoxContainer = _section("Equipment", 1.10)
-	var backpack_box: VBoxContainer = _section("Backpack", 1.28)
-	var detail_box: VBoxContainer = _section("Selected Item", 1.42)
-	var compare_box: VBoxContainer = _section("Compare", 1.12)
+	var equipment_box: VBoxContainer = _section("Equipment", 1.05)
+	var backpack_box: VBoxContainer = _section("Backpack Grid", 1.55)
+	var detail_box: VBoxContainer = _section("Selected Item", 1.30)
+	var compare_box: VBoxContainer = _section("Decision", 1.15)
 
 	_render_equipment(equipment_box, equipped, selected_slot)
-	_render_backpack(backpack_box, state, backpack, cursor)
+	_render_backpack_grid(backpack_box, state, backpack, cursor)
 	_render_selected_detail(detail_box, selected, state)
-	_render_compare(compare_box, selected, equipped)
+	_render_decision(compare_box, selected, equipped, state)
+
 
 func _render_equipment(parent: VBoxContainer, equipped: Dictionary, selected_slot: String) -> void:
 	_add_line(parent, "Paper-doll Slots", 12, RVUIStyle.color_muted())
@@ -55,300 +56,392 @@ func _render_equipment(parent: VBoxContainer, equipped: Dictionary, selected_slo
 		var item: Dictionary = {}
 		if equipped.has(slot_key) and typeof(equipped[slot_key]) == TYPE_DICTIONARY:
 			item = Dictionary(equipped[slot_key])
+
 		var highlighted: bool = _slot_matches(slot_key, selected_slot)
 		_add_equipment_slot(grid, slot_key, item, highlighted)
 
 	_add_line(parent, "", 3)
-	_add_line(parent, "Equipment shows current build anchors. Selected item slot is highlighted.", 11, RVUIStyle.color_muted())
+	_add_line(parent, "Equipment is now separate from the backpack grid.", 11, RVUIStyle.color_muted())
+	_add_line(parent, "Skill gems stay in the Gems screen; gear sockets/runes come later.", 11, RVUIStyle.color_muted())
 
-func _render_backpack(parent: VBoxContainer, state: Object, backpack: Array, cursor: int) -> void:
-	_add_line(parent, "Gold " + RVUIStyle.compact_number(_state_get(state, "gold", 0)) + "  ·  " + _materials_text(state), 12, RVUIStyle.color_gold())
+
+func _render_backpack_grid(parent: VBoxContainer, state: Object, backpack: Array, cursor: int) -> void:
+	var used_cells: int = _used_cell_count(backpack)
+	_add_line(parent, "Backpack " + str(used_cells) + "/" + str(InventoryGridSystemScript.GRID_CELLS) + " cells", 12, RVUIStyle.color_muted())
 
 	var grid: GridContainer = GridContainer.new()
-	grid.columns = GRID_COLUMNS
+	grid.columns = InventoryGridSystemScript.GRID_COLUMNS
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 6)
-	grid.add_theme_constant_override("v_separation", 6)
+	grid.add_theme_constant_override("h_separation", 5)
+	grid.add_theme_constant_override("v_separation", 5)
 	parent.add_child(grid)
 
-	var shown: int = mini(GRID_VISIBLE_SLOTS, maxi(GRID_VISIBLE_SLOTS, backpack.size()))
-	for i: int in range(shown):
-		if i < backpack.size() and typeof(backpack[i]) == TYPE_DICTIONARY:
-			_add_backpack_slot(grid, i, Dictionary(backpack[i]), i == cursor)
-		else:
-			_add_empty_grid_slot(grid)
+	var snapshot: Dictionary = InventoryGridSystemScript.layout_snapshot(state)
 
-	if backpack.size() > GRID_VISIBLE_SLOTS:
-		_add_line(parent, "+" + str(backpack.size() - GRID_VISIBLE_SLOTS) + " more items not shown in prototype grid", 11, RVUIStyle.color_muted())
+	for y: int in range(InventoryGridSystemScript.GRID_ROWS):
+		for x: int in range(InventoryGridSystemScript.GRID_COLUMNS):
+			_add_grid_cell(grid, x, y, snapshot, cursor)
 
-	_add_line(parent, "", 3)
-	_add_line(parent, "[ / ] select · [U] equip/use · [F] forge · [B] stash later", 12, RVUIStyle.color_muted())
-
-func _render_selected_detail(parent: VBoxContainer, item: Dictionary, state: Object) -> void:
-	if item.is_empty():
-		_add_line(parent, "No item selected.", 14, RVUIStyle.color_muted())
-		_add_line(parent, "Pick up loot or move the inventory cursor with [ and ].", 12, RVUIStyle.color_muted())
-		return
-
-	_add_item_header(parent, item)
-
-	var metrics: GridContainer = GridContainer.new()
-	metrics.columns = 2
-	metrics.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	metrics.add_theme_constant_override("h_separation", 8)
-	metrics.add_theme_constant_override("v_separation", 6)
-	parent.add_child(metrics)
-	_add_metric(metrics, "Item Power", str(_item_power(item)), RVUIStyle.color_gold())
-	_add_metric(metrics, "Slot", RVUIStyle.title_case(_normalized_slot(_item_slot(item))), RVUIStyle.color_text())
-	_add_metric(metrics, "Quality", "+" + str(_to_int(item.get("quality", 0))) + "%", RVUIStyle.color_text())
-	_add_metric(metrics, "Forge Potential", _forge_potential_text(item), RVUIStyle.color_gold())
-
-	_add_socket_row(parent, item)
-	_add_stat_block(parent, item)
-	_add_special_rules(parent, item)
-
-	var detail: String = str(item.get("description", item.get("flavor_text", "")))
-	if detail != "":
+	var overflow: Array[int] = _overflow_indexes(backpack)
+	if not overflow.is_empty():
 		_add_line(parent, "", 4)
-		_add_rich(parent, "[i]" + detail + "[/i]", 12)
+		_add_line(parent, "Overflow", 12, RVUIStyle.color_bad())
+		for index: int in overflow:
+			if index >= 0 and index < backpack.size() and typeof(backpack[index]) == TYPE_DICTIONARY:
+				var item: Dictionary = Dictionary(backpack[index])
+				var selected: bool = index == cursor
+				_add_button_like(parent, _inventory_row_text(index, item), selected)
 
-	_add_line(parent, "", 4)
-	_add_line(parent, "Actions", 12, RVUIStyle.color_gold())
-	_add_line(parent, "[U] Equip / Use    [F] Send to Forge    [Y] Inspect later", 12, RVUIStyle.color_muted())
-	_add_line(parent, "Inventory Cursor: " + str(_inventory_cursor(state, _as_array(_state_get(state, "backpack", [])).size()) + 1), 11, RVUIStyle.color_muted())
+	_add_line(parent, "", 5)
+	_add_line(parent, "[ / ] Select · U Equip · Y Appraise · L Lock · V Favorite · Delete Drop", 11, RVUIStyle.color_muted())
 
-func _render_compare(parent: VBoxContainer, selected: Dictionary, equipped: Dictionary) -> void:
-	if selected.is_empty():
-		_add_line(parent, "No comparison.", 13, RVUIStyle.color_muted())
-		return
 
-	var slot: String = _comparison_slot_for_item(selected)
-	var current: Dictionary = _equipped_for_slot(equipped, slot)
-	if current.is_empty():
-		_add_line(parent, "No equipped item in this slot.", 13, RVUIStyle.color_muted())
-		_add_line(parent, "Slot: " + RVUIStyle.title_case(slot), 12, RVUIStyle.color_muted())
-		return
-
-	_add_line(parent, "Currently Equipped", 12, RVUIStyle.color_muted())
-	_add_item_header(parent, current, true)
-
-	var selected_power: int = _item_power(selected)
-	var current_power: int = _item_power(current)
-	var delta_power: int = selected_power - current_power
-	_add_line(parent, "Power Delta: " + _signed_int(delta_power), 14, RVUIStyle.color_good() if delta_power >= 0 else RVUIStyle.color_bad())
-
-	_add_line(parent, "", 3)
-	_add_line(parent, "Changes if Equipped", 12, RVUIStyle.color_gold())
-
-	var selected_stats: Dictionary = _stat_map(selected)
-	var current_stats: Dictionary = _stat_map(current)
-	var keys: Array[String] = _merged_stat_keys(selected_stats, current_stats)
-	var emitted: int = 0
-	for stat_key: String in keys:
-		var new_value: float = _to_float(selected_stats.get(stat_key, 0.0))
-		var old_value: float = _to_float(current_stats.get(stat_key, 0.0))
-		var delta: float = new_value - old_value
-		if absf(delta) <= 0.001:
-			continue
-		emitted += 1
-		_add_line(parent, "• " + stat_key + "  " + _signed_float(delta), 12, RVUIStyle.color_good() if delta > 0.0 else RVUIStyle.color_bad())
-
-	if emitted == 0:
-		_add_line(parent, "No explicit stat deltas found.", 12, RVUIStyle.color_muted())
-
-func _add_equipment_slot(parent: Control, slot_key: String, item: Dictionary, highlighted: bool) -> void:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(128, 66)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	RVUIStyle.apply_panel(panel, "selected" if highlighted else "normal")
-	parent.add_child(panel)
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	panel.add_child(margin)
-
-	var box: VBoxContainer = RVUIStyle.make_vbox("SlotBox", 2)
-	margin.add_child(box)
-	box.add_child(RVUIStyle.label(RVUIStyle.title_case(slot_key), 11, RVUIStyle.color_gold(), true))
+func _render_selected_detail(parent: VBoxContainer, item: Dictionary, _state: Object) -> void:
 	if item.is_empty():
-		box.add_child(RVUIStyle.label("empty", 12, RVUIStyle.color_muted()))
+		_add_line(parent, "No backpack item selected.", 13, RVUIStyle.color_muted())
+		return
+
+	var hidden: String = InventoryGridSystemScript.hidden_affix_text(item)
+	if hidden != "":
+		_add_rich(parent, hidden, 13)
+		_add_line(parent, "", 5)
+		_add_line(parent, _grid_state_line(item), 11, RVUIStyle.color_muted())
+		_add_line(parent, _item_flags_line(item), 11, RVUIStyle.color_bad())
+		return
+
+	_add_rich(parent, _describe_item_enhanced(item), 13)
+	_add_line(parent, "", 5)
+	_add_line(parent, _grid_state_line(item), 11, RVUIStyle.color_muted())
+	_add_line(parent, _item_flags_line(item), 11, RVUIStyle.color_bad())
+	_add_line(parent, _tag_line(item), 11, RVUIStyle.color_muted())
+
+
+func _render_decision(parent: VBoxContainer, selected: Dictionary, equipped: Dictionary, _state: Object) -> void:
+	if selected.is_empty():
+		_add_line(parent, "Select a backpack item to compare.", 13, RVUIStyle.color_muted())
+		return
+
+	_add_line(parent, "Inventory Gameplay", 13, RVUIStyle.color_gold())
+	_add_line(parent, "This item now has size, grid position, and persistent flags.", 11, RVUIStyle.color_muted())
+	_add_line(parent, "", 4)
+
+	var slot: String = InventoryGridSystemScript.normalized_slot(selected)
+	var current: Dictionary = _equipped_for_slot(equipped, slot)
+
+	if current.is_empty():
+		_add_line(parent, "No equipped item in " + RVUIStyle.title_case(slot.replace("_", " ")) + ".", 12, RVUIStyle.color_muted())
 	else:
-		box.add_child(RVUIStyle.label(_item_name(item), 12, RVUIStyle.rarity_color(_item_rarity(item))))
-		box.add_child(RVUIStyle.label("P" + str(_item_power(item)), 11, RVUIStyle.color_muted()))
+		_add_rich(parent, _comparison_text(selected, current), 12)
 
-func _add_backpack_slot(parent: Control, index: int, item: Dictionary, selected: bool) -> void:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(112, 72)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	RVUIStyle.apply_panel(panel, "selected" if selected else "normal")
-	parent.add_child(panel)
+	_add_line(parent, "", 7)
+	_add_line(parent, "Actions", 13, RVUIStyle.color_gold())
+	_add_line(parent, "U Equip if equippable", 12)
+	_add_line(parent, "Y Appraise hidden affixes", 12)
+	_add_line(parent, "L Lock against drop/salvage", 12)
+	_add_line(parent, "V Mark as favorite", 12)
+	_add_line(parent, "Delete Drop if not locked/favorited", 12)
+	_add_line(parent, "", 5)
+	_add_line(parent, "Next inventory pass: stash/salvage/socket actions.", 11, RVUIStyle.color_muted())
 
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 7)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 7)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	panel.add_child(margin)
 
-	var box: VBoxContainer = RVUIStyle.make_vbox("ItemBox", 2)
-	margin.add_child(box)
-	box.add_child(RVUIStyle.label(str(index + 1) + " · " + _rarity_short(_item_rarity(item)), 10, RVUIStyle.color_muted()))
-	box.add_child(RVUIStyle.label(_compact_item_name(_item_name(item), 17), 12, RVUIStyle.rarity_color(_item_rarity(item))))
-	box.add_child(RVUIStyle.label(RVUIStyle.title_case(_normalized_slot(_item_slot(item))) + " · P" + str(_item_power(item)), 10, RVUIStyle.color_muted()))
+func _add_equipment_slot(parent: GridContainer, slot_key: String, item: Dictionary, highlighted: bool) -> void:
+	var button: Button = Button.new()
+	button.disabled = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(116, 54)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-func _add_empty_grid_slot(parent: Control) -> void:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(112, 72)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	RVUIStyle.apply_panel(panel)
-	panel.modulate = Color(1.0, 1.0, 1.0, 0.42)
-	parent.add_child(panel)
+	var label: String = RVUIStyle.title_case(slot_key.replace("_", " "))
+	if item.is_empty():
+		button.text = label + "\n—"
+	else:
+		button.text = label + "\n" + _compact_name(_item_name(item), 18)
 
-func _add_item_header(parent: VBoxContainer, item: Dictionary, compact: bool = false) -> void:
+	RVUIStyle.apply_button(button, highlighted)
+	parent.add_child(button)
+
+
+func _add_grid_cell(parent: GridContainer, x: int, y: int, snapshot: Dictionary, cursor: int) -> void:
+	var key: String = InventoryGridSystemScript.cell_key(x, y)
+	var button: Button = Button.new()
+	button.disabled = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(56, 48)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	if not snapshot.has(key):
+		button.text = "·"
+		RVUIStyle.apply_button(button, false)
+		button.modulate = Color(0.55, 0.55, 0.55, 0.55)
+		parent.add_child(button)
+		return
+
+	var cell: Dictionary = Dictionary(snapshot[key])
+	var index: int = _to_int(cell.get("index", -1), -1)
+	var item: Dictionary = Dictionary(cell.get("item", {}))
+	var selected: bool = index == cursor
+	var origin: bool = bool(cell.get("origin", false))
+
+	if origin:
+		button.text = _grid_origin_text(index, item)
+	else:
+		button.text = "↳"
+
+	RVUIStyle.apply_button(button, selected)
+	if not origin:
+		button.modulate = Color(0.68, 0.62, 0.48, 0.80)
+
+	parent.add_child(button)
+
+
+func _grid_origin_text(index: int, item: Dictionary) -> String:
 	var rarity: String = _item_rarity(item)
-	var name_color: Color = RVUIStyle.rarity_color(rarity)
-	_add_line(parent, _item_name(item), 18 if not compact else 15, name_color)
-	_add_line(parent, rarity.capitalize() + " " + RVUIStyle.title_case(_normalized_slot(_item_slot(item))), 12, RVUIStyle.color_muted())
+	var marker: String = _rarity_marker(rarity)
+	var flag: String = ""
 
-func _add_metric(parent: GridContainer, label_text: String, value_text: String, value_color: Color) -> void:
-	parent.add_child(RVUIStyle.label(label_text, 11, RVUIStyle.color_muted(), true))
-	parent.add_child(RVUIStyle.label(value_text, 13, value_color))
+	if not bool(item.get("identified", true)):
+		flag = "?"
+	elif bool(item.get("favorite", false)):
+		flag = "★"
+	elif bool(item.get("locked", false)):
+		flag = "L"
+	elif bool(item.get("new_item", false)):
+		flag = "!"
 
-func _add_socket_row(parent: VBoxContainer, item: Dictionary) -> void:
+	return marker + str(index + 1) + flag + "\n" + _compact_name(_item_name(item), 8)
+
+
+func _inventory_row_text(index: int, item: Dictionary) -> String:
+	return str(index + 1) + ". " + _item_name(item) + "  " + str(item.get("grid_w", 1)) + "x" + str(item.get("grid_h", 1))
+
+
+func _describe_item_enhanced(item: Dictionary) -> String:
+	var lines: PackedStringArray = PackedStringArray()
+	var rarity: String = _item_rarity(item)
+	var color: String = RVUIStyle.rarity_color(rarity).to_html(false)
+
+	lines.append("[color=#" + color + "][b]" + _item_name(item) + "[/b][/color]")
+	lines.append(rarity.capitalize() + " · " + RVUIStyle.title_case(InventoryGridSystemScript.normalized_slot(item).replace("_", " ")) + " · Power " + str(_item_power(item)))
+	lines.append("Item Level " + str(_to_int(item.get("item_level", 1), 1)) + " · Size " + str(item.get("grid_w", 1)) + "x" + str(item.get("grid_h", 1)))
+
+	var quality: int = _to_int(item.get("quality", -1), -1)
+	if quality >= 0:
+		lines.append("Quality +" + str(quality) + "%")
+
+	var forge_potential: int = _to_int(item.get("forge_potential", item.get("potential", -1)), -1)
+	if forge_potential >= 0:
+		lines.append("Forge Potential " + str(forge_potential))
+
 	var sockets: Array = _as_array(item.get("sockets", []))
-	var socket_count: int = sockets.size()
-	if socket_count <= 0:
-		socket_count = _to_int(item.get("socket_count", item.get("sockets_count", 0)))
-	if socket_count <= 0:
-		return
+	if not sockets.is_empty():
+		lines.append("Sockets: " + _socket_text(sockets))
 
-	_add_line(parent, "", 3)
-	var socket_text: String = "Sockets: "
-	for i: int in range(socket_count):
-		socket_text += "● "
-	_add_line(parent, socket_text, 12, RVUIStyle.color_magic())
-
-func _add_stat_block(parent: VBoxContainer, item: Dictionary) -> void:
 	var stats: Dictionary = _stat_map(item)
-	if stats.is_empty():
-		return
-	_add_line(parent, "", 3)
-	_add_line(parent, "Affixes / Stats", 12, RVUIStyle.color_gold())
-	var count: int = 0
-	for key: Variant in stats.keys():
-		count += 1
-		if count > 8:
-			_add_line(parent, "+" + str(stats.size() - 8) + " more stats", 11, RVUIStyle.color_muted())
-			break
-		var stat_value: float = _to_float(stats[key])
-		var sign: String = "+" if stat_value > 0.0 else ""
-		_add_line(parent, "✦ " + sign + str(snappedf(stat_value, 0.01)) + " " + str(key), 12, RVUIStyle.color_magic())
+	if not stats.is_empty():
+		lines.append("")
+		lines.append("[b]Stats[/b]")
+		for key: Variant in stats.keys():
+			var value: float = _to_float(stats[key])
+			var sign: String = "+" if value > 0.0 else ""
+			lines.append("• " + sign + str(snappedf(value, 0.01)) + " " + str(key))
 
-func _add_special_rules(parent: VBoxContainer, item: Dictionary) -> void:
-	var rules: Array = _as_array(item.get("rules", item.get("special_rules", [])))
-	if rules.is_empty() and item.has("unique_rule"):
-		rules.append(item.get("unique_rule"))
-	if rules.is_empty():
-		return
-	_add_line(parent, "", 3)
-	_add_line(parent, "Special", 12, RVUIStyle.color_gold())
-	for rule_value: Variant in rules:
-		_add_line(parent, "★ " + str(rule_value), 12, RVUIStyle.color_gold())
+	var detail: String = str(item.get("detail_text", item.get("description", "")))
+	if detail != "" and lines.size() < 22:
+		lines.append("")
+		lines.append(detail)
 
-func _inventory_cursor(state: Object, backpack_size: int) -> int:
-	if backpack_size <= 0:
-		return 0
-	return clampi(_to_int(_state_get(state, "inventory_cursor", 0)), 0, backpack_size - 1)
+	return "\n".join(lines)
 
-func _comparison_slot_for_item(item: Dictionary) -> String:
-	var slot: String = _normalized_slot(_item_slot(item))
-	if slot == "ring":
-		return "ring_1"
-	return slot
+
+func _comparison_text(candidate: Dictionary, current: Dictionary) -> String:
+	if not bool(candidate.get("identified", true)):
+		return "Comparison locked until appraisal."
+
+	var lines: PackedStringArray = PackedStringArray()
+	lines.append("[b]Current Equipped[/b]")
+	lines.append(_item_name(current))
+	lines.append("")
+
+	var next_stats: Dictionary = _stat_map(candidate)
+	var old_stats: Dictionary = _stat_map(current)
+	var keys: Array[String] = []
+
+	for key: Variant in next_stats.keys():
+		var k: String = str(key)
+		if not keys.has(k):
+			keys.append(k)
+
+	for key: Variant in old_stats.keys():
+		var k: String = str(key)
+		if not keys.has(k):
+			keys.append(k)
+
+	var power_delta: int = _item_power(candidate) - _item_power(current)
+	lines.append("Power: " + _signed_int(power_delta))
+
+	var socket_delta: int = _as_array(candidate.get("sockets", [])).size() - _as_array(current.get("sockets", [])).size()
+	if socket_delta != 0:
+		lines.append("Sockets: " + _signed_int(socket_delta))
+
+	var potential_delta: int = _to_int(candidate.get("forge_potential", candidate.get("potential", 0)), 0) - _to_int(current.get("forge_potential", current.get("potential", 0)), 0)
+	if potential_delta != 0:
+		lines.append("Forge Potential: " + _signed_int(potential_delta))
+
+	if not keys.is_empty():
+		lines.append("")
+		lines.append("[b]Stat Deltas[/b]")
+		for stat_key: String in keys:
+			var delta: float = _to_float(next_stats.get(stat_key, 0.0)) - _to_float(old_stats.get(stat_key, 0.0))
+			if absf(delta) <= 0.001:
+				continue
+			lines.append("• " + stat_key + ": " + _signed_float(delta))
+
+	return "\n".join(lines)
+
 
 func _equipped_for_slot(equipped: Dictionary, slot: String) -> Dictionary:
+	if slot == "":
+		return {}
+
 	if equipped.has(slot) and typeof(equipped[slot]) == TYPE_DICTIONARY:
 		return Dictionary(equipped[slot])
+
 	if slot == "ring" or slot == "ring_1" or slot == "ring_2":
 		if equipped.has("ring_1") and typeof(equipped["ring_1"]) == TYPE_DICTIONARY:
 			return Dictionary(equipped["ring_1"])
 		if equipped.has("ring_2") and typeof(equipped["ring_2"]) == TYPE_DICTIONARY:
 			return Dictionary(equipped["ring_2"])
+
 	return {}
+
+
+func _inventory_cursor(state: Object, size: int) -> int:
+	if size <= 0:
+		return 0
+
+	return clampi(_to_int(_state_get(state, "inventory_cursor", 0), 0), 0, size - 1)
+
+
+func _used_cell_count(backpack: Array) -> int:
+	var total: int = 0
+	for value: Variant in backpack:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+
+		var item: Dictionary = Dictionary(value)
+		var x: int = _to_int(item.get("grid_x", -1), -1)
+		if x < 0:
+			continue
+
+		total += maxi(1, _to_int(item.get("grid_w", 1), 1)) * maxi(1, _to_int(item.get("grid_h", 1), 1))
+
+	return total
+
+
+func _overflow_indexes(backpack: Array) -> Array[int]:
+	var out: Array[int] = []
+	for i: int in range(backpack.size()):
+		if typeof(backpack[i]) != TYPE_DICTIONARY:
+			continue
+
+		var item: Dictionary = Dictionary(backpack[i])
+		if _to_int(item.get("grid_x", -1), -1) < 0:
+			out.append(i)
+
+	return out
+
+
+func _grid_state_line(item: Dictionary) -> String:
+	var x: int = _to_int(item.get("grid_x", -1), -1)
+	var y: int = _to_int(item.get("grid_y", -1), -1)
+	var pos: String = "overflow" if x < 0 else str(x) + "," + str(y)
+	return "Grid: " + str(item.get("grid_w", 1)) + "x" + str(item.get("grid_h", 1)) + " at " + pos
+
+
+func _item_flags_line(item: Dictionary) -> String:
+	var text: String = InventoryGridSystemScript.flag_text(item)
+	if text == "":
+		return "Flags: none"
+
+	return "Flags: " + text
+
+
+func _tag_line(item: Dictionary) -> String:
+	var tags: Array = _as_array(item.get("tags", []))
+	if tags.is_empty():
+		return "Tags: —"
+
+	var parts: PackedStringArray = PackedStringArray()
+	for tag_value: Variant in tags:
+		parts.append(str(tag_value))
+		if parts.size() >= 7:
+			break
+
+	return "Tags: " + ", ".join(parts)
+
 
 func _slot_matches(slot_key: String, selected_slot: String) -> bool:
 	if selected_slot == "":
 		return false
+
 	if slot_key == selected_slot:
 		return true
-	if selected_slot == "ring" and (slot_key == "ring_1" or slot_key == "ring_2"):
+
+	if slot_key == "ring_1" and selected_slot == "ring":
 		return true
+
+	if slot_key == "ring_2" and selected_slot == "ring":
+		return true
+
 	return false
 
-func _normalized_slot(raw_slot: String) -> String:
-	var slot: String = raw_slot.to_lower()
-	match slot:
-		"helm":
-			return "helmet"
-		"body", "body_armor", "chest_armor", "armor_chest":
-			return "chest"
-		"mainhand", "main_hand":
-			return "weapon"
-		"shield":
-			return "offhand"
-		"jewelry":
-			return "ring"
-		_:
-			return slot
 
-func _forge_potential_text(item: Dictionary) -> String:
-	var potential: int = _to_int(item.get("forge_potential", item.get("potential", -1)))
-	if potential < 0:
-		return "—"
-	var max_potential: int = maxi(1, _to_int(item.get("max_forge_potential", 5)))
-	return str(potential) + " / " + str(max_potential)
+func _socket_text(sockets: Array) -> String:
+	var parts: PackedStringArray = PackedStringArray()
 
-func _rarity_short(rarity: String) -> String:
-	match rarity.to_lower():
-		"normal":
-			return "N"
-		"magic":
-			return "M"
-		"rare":
-			return "R"
+	for socket_value: Variant in sockets:
+		if typeof(socket_value) == TYPE_DICTIONARY:
+			var socket: Dictionary = Dictionary(socket_value)
+			var label: String = str(socket.get("color", socket.get("type", "socket")))
+			if socket.has("item") and typeof(socket["item"]) == TYPE_DICTIONARY:
+				label += ":" + _compact_name(_item_name(Dictionary(socket["item"])), 8)
+			parts.append(label)
+		else:
+			parts.append(str(socket_value))
+
+	return ", ".join(parts)
+
+
+func _rarity_marker(rarity: String) -> String:
+	match rarity:
 		"unique":
 			return "U"
+		"rare":
+			return "R"
+		"magic":
+			return "M"
 		_:
-			return "?"
+			return "N"
 
-func _compact_item_name(item_name: String, max_len: int) -> String:
-	if item_name.length() <= max_len:
-		return item_name
-	return item_name.substr(0, maxi(1, max_len - 1)) + "…"
 
-func _merged_stat_keys(a: Dictionary, b: Dictionary) -> Array[String]:
-	var out: Array[String] = []
-	for key_a: Variant in a.keys():
-		var text_a: String = str(key_a)
-		if not out.has(text_a):
-			out.append(text_a)
-	for key_b: Variant in b.keys():
-		var text_b: String = str(key_b)
-		if not out.has(text_b):
-			out.append(text_b)
-	return out
+func _compact_name(value: String, limit: int) -> String:
+	if value.length() <= limit:
+		return value
+
+	return value.substr(0, maxi(1, limit - 1)) + "…"
+
 
 func _signed_int(value: int) -> String:
 	if value > 0:
 		return "+" + str(value)
+
 	return str(value)
 
+
 func _signed_float(value: float) -> String:
-	var rounded_value: float = snappedf(value, 0.01)
-	if rounded_value > 0.0:
-		return "+" + str(rounded_value)
-	return str(rounded_value)
+	var rounded: float = snappedf(value, 0.01)
+	if rounded > 0.0:
+		return "+" + str(rounded)
+
+	return str(rounded)

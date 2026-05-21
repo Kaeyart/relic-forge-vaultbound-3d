@@ -5,6 +5,7 @@ const FinalUIPanelRootScene := preload("res://scenes/ui/UIPanelRoot3D.tscn")
 const StationAccessSystemScript := preload("res://scripts/systems/StationAccessSystem3D.gd")
 const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd")
 const UIAccessSystemScript := preload("res://scripts/systems/UIAccessSystem3D.gd")
+const InventoryGridSystemScript := preload("res://scripts/systems/InventoryGridSystem3D.gd")
 var _rf_087r_hud: Node = null
 var _rf_087r_ui: Node = null
 
@@ -165,7 +166,16 @@ func _handle_panel_key(keycode: int) -> void:
 	if mode == "inventory":
 		if keycode == KEY_BRACKETLEFT: _cycle_cursor(-1)
 		elif keycode == KEY_BRACKETRIGHT: _cycle_cursor(1)
-		elif keycode == KEY_U: state.call("equip_backpack_index", _rf_087v_int(state.get("inventory_cursor")))
+		elif keycode == KEY_U:
+			state.call("equip_backpack_index", _rf_087v_int(state.get("inventory_cursor")))
+		elif keycode == KEY_Y:
+			InventoryGridSystemScript.appraise_selected(state)
+		elif keycode == KEY_L:
+			InventoryGridSystemScript.toggle_locked_selected(state)
+		elif keycode == KEY_V:
+			InventoryGridSystemScript.toggle_favorite_selected(state)
+		elif keycode == KEY_DELETE or keycode == KEY_BACKSPACE:
+			InventoryGridSystemScript.drop_selected(state)
 	elif mode == "skills":
 		if keycode >= KEY_1 and keycode <= KEY_4: state.set("selected_skill_slot", keycode - KEY_1)
 		elif keycode == KEY_A: SkillGemSystemScript.cycle_active_slot_gem(state, -1)
