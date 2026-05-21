@@ -1,0 +1,4 @@
+[gd_resource type="Theme" format=3]
+
+; Patch 05 placeholder Theme resource.
+; Most prototype styling is applied by scripts/ui/RVUIStyle3D.gd so the UI remains portable.

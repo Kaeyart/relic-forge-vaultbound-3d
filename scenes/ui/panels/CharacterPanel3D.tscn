@@ -1,57 +1,10 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/BaseTextPanel3D.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/panels/CharacterPanel3D.gd" id="1_panel"]
 
 [node name="CharacterPanel3D" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource("1_script")
-panel_mode = "character"
-
-[node name="Root" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 10
-
-[node name="Left" type="PanelContainer" parent="Root"]
-custom_minimum_size = Vector2(270, 0)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="LeftText" type="RichTextLabel" parent="Root/Left"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Left"
-
-[node name="Center" type="PanelContainer" parent="Root"]
-custom_minimum_size = Vector2(460, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="CenterText" type="RichTextLabel" parent="Root/Center"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Center"
-
-[node name="Right" type="PanelContainer" parent="Root"]
-custom_minimum_size = Vector2(330, 0)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="RightText" type="RichTextLabel" parent="Root/Right"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Right"
+script = ExtResource("1_panel")

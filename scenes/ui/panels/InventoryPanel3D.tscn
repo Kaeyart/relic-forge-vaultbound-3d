@@ -1,58 +1,12 @@
-[gd_scene format=3 uid="uid://dfjmwxhc7bfu0"]
+[gd_scene format=3 uid="uid://bif6u2so84586"]
 
-[ext_resource type="Script" uid="uid://c2q4wag7tmc3" path="res://scripts/ui/panels/BaseTextPanel3D.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bwapgcl4qa87t" path="res://scripts/ui/panels/InventoryPanel3D.gd" id="1_panel"]
 
-[node name="InventoryPanel3D" type="Control" unique_id=1077053015]
+[node name="InventoryPanel3D" type="Control" unique_id=1029756218]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_script")
-
-[node name="Root" type="HBoxContainer" parent="." unique_id=1697548985]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 10
-
-[node name="Left" type="PanelContainer" parent="Root" unique_id=1516248221]
-custom_minimum_size = Vector2(270, 0)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="LeftText" type="RichTextLabel" parent="Root/Left" unique_id=175474864]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Left"
-
-[node name="Center" type="PanelContainer" parent="Root" unique_id=950123859]
-custom_minimum_size = Vector2(460, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="CenterText" type="RichTextLabel" parent="Root/Center" unique_id=646145135]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Center"
-
-[node name="Right" type="PanelContainer" parent="Root" unique_id=61132922]
-custom_minimum_size = Vector2(330, 0)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="RightText" type="RichTextLabel" parent="Root/Right" unique_id=96650047]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Right"
+script = ExtResource("1_panel")
