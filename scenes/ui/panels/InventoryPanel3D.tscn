@@ -1,184 +1,58 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://dfjmwxhc7bfu0"]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/InventoryPanel3D.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c2q4wag7tmc3" path="res://scripts/ui/panels/BaseTextPanel3D.gd" id="1_script"]
 
-[node name="InventoryPanel3D" type="Control"]
-script = ExtResource("1_script")
+[node name="InventoryPanel3D" type="Control" unique_id=1077053015]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_script")
 
-[node name="RootVBox" type="VBoxContainer" parent="."]
+[node name="Root" type="HBoxContainer" parent="." unique_id=1697548985]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
 
-[node name="HeaderBar" type="HBoxContainer" parent="RootVBox"]
-custom_minimum_size = Vector2(0, 38)
+[node name="Left" type="PanelContainer" parent="Root" unique_id=1516248221]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TitleLabel" type="Label" parent="RootVBox/HeaderBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
-text = "Inventory"
-vertical_alignment = 1
-
-[node name="CloseButton" type="Button" parent="RootVBox/HeaderBar"]
-custom_minimum_size = Vector2(100, 34)
-layout_mode = 2
-text = "Close X"
-
-[node name="MainBody" type="HBoxContainer" parent="RootVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="EquipmentPanel" type="PanelContainer" parent="RootVBox/MainBody"]
-custom_minimum_size = Vector2(315, 0)
-layout_mode = 2
-size_flags_horizontal = 0
 size_flags_vertical = 3
 
-[node name="EquipmentMargin" type="MarginContainer" parent="RootVBox/MainBody/EquipmentPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="EquipmentHBox" type="HBoxContainer" parent="RootVBox/MainBody/EquipmentPanel/EquipmentMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="LeftEquipmentColumn" type="VBoxContainer" parent="RootVBox/MainBody/EquipmentPanel/EquipmentMargin/EquipmentHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="RightEquipmentColumn" type="VBoxContainer" parent="RootVBox/MainBody/EquipmentPanel/EquipmentMargin/EquipmentHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="BackpackPanel" type="PanelContainer" parent="RootVBox/MainBody"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="BackpackMargin" type="MarginContainer" parent="RootVBox/MainBody/BackpackPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="BackpackVBox" type="VBoxContainer" parent="RootVBox/MainBody/BackpackPanel/BackpackMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="BackpackTitle" type="Label" parent="RootVBox/MainBody/BackpackPanel/BackpackMargin/BackpackVBox"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Backpack Grid"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BackpackArea" type="Control" parent="RootVBox/MainBody/BackpackPanel/BackpackMargin/BackpackVBox"]
-custom_minimum_size = Vector2(520, 340)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-mouse_filter = 1
-
-[node name="BottomPanel" type="PanelContainer" parent="RootVBox"]
-custom_minimum_size = Vector2(0, 168)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-
-[node name="BottomMargin" type="MarginContainer" parent="RootVBox/BottomPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="BottomHBox" type="HBoxContainer" parent="RootVBox/BottomPanel/BottomMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="SelectedItemLabel" type="RichTextLabel" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox"]
+[node name="LeftText" type="RichTextLabel" parent="Root/Left" unique_id=175474864]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Selected item"
+text = "Left"
 
-[node name="CompareLabel" type="RichTextLabel" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox"]
+[node name="Center" type="PanelContainer" parent="Root" unique_id=950123859]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CenterText" type="RichTextLabel" parent="Root/Center" unique_id=646145135]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Compare"
+text = "Center"
 
-[node name="ActionColumn" type="VBoxContainer" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox"]
-custom_minimum_size = Vector2(150, 0)
+[node name="Right" type="PanelContainer" parent="Root" unique_id=61132922]
+custom_minimum_size = Vector2(330, 0)
 layout_mode = 2
-size_flags_horizontal = 0
 size_flags_vertical = 3
-theme_override_constants/separation = 4
 
-[node name="EquipButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
-custom_minimum_size = Vector2(0, 28)
+[node name="RightText" type="RichTextLabel" parent="Root/Right" unique_id=96650047]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Equip"
-
-[node name="UnequipButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Unequip"
-
-[node name="DepositButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Deposit"
-
-[node name="SalvageButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Salvage"
-
-[node name="SortButton" type="Button" parent="RootVBox/BottomPanel/BottomMargin/BottomHBox/ActionColumn"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Sort"
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Right"

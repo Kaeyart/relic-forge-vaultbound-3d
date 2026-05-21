@@ -1,86 +1,57 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/CharacterPanel3D.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/panels/BaseTextPanel3D.gd" id="1_script"]
 
 [node name="CharacterPanel3D" type="Control"]
-script = ExtResource("1_script")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+script = ExtResource("1_script")
+panel_mode = "character"
 
-[node name="Grid" type="GridContainer" parent="."]
+[node name="Root" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-columns = 3
+theme_override_constants/separation = 10
 
-[node name="IdentityBox" type="PanelContainer" parent="Grid"]
+[node name="Left" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="IdentityLabel" type="RichTextLabel" parent="Grid/IdentityBox"]
-custom_minimum_size = Vector2(280, 220)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Identity"
-
-[node name="OffenseBox" type="PanelContainer" parent="Grid"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="OffenseLabel" type="RichTextLabel" parent="Grid/OffenseBox"]
-custom_minimum_size = Vector2(280, 220)
+[node name="LeftText" type="RichTextLabel" parent="Root/Left"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Offense"
+text = "Left"
 
-[node name="DefenseBox" type="PanelContainer" parent="Grid"]
+[node name="Center" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(460, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="DefenseLabel" type="RichTextLabel" parent="Grid/DefenseBox"]
-custom_minimum_size = Vector2(280, 220)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Defense"
-
-[node name="UtilityBox" type="PanelContainer" parent="Grid"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="UtilityLabel" type="RichTextLabel" parent="Grid/UtilityBox"]
-custom_minimum_size = Vector2(280, 220)
+[node name="CenterText" type="RichTextLabel" parent="Root/Center"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Utility"
+text = "Center"
 
-[node name="EquipmentBox" type="PanelContainer" parent="Grid"]
+[node name="Right" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(330, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="EquipmentLabel" type="RichTextLabel" parent="Grid/EquipmentBox"]
-custom_minimum_size = Vector2(560, 220)
+[node name="RightText" type="RichTextLabel" parent="Root/Right"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Equipment"
+text = "Right"

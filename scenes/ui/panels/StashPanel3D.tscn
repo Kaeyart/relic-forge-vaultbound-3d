@@ -1,207 +1,57 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/StashPanel3D.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/panels/BaseTextPanel3D.gd" id="1_script"]
 
 [node name="StashPanel3D" type="Control"]
-script = ExtResource("1_script")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+script = ExtResource("1_script")
+panel_mode = "stash"
 
-[node name="RootVBox" type="VBoxContainer" parent="."]
+[node name="Root" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
-[node name="HeaderBar" type="HBoxContainer" parent="RootVBox"]
-custom_minimum_size = Vector2(0, 40)
+[node name="Left" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
+size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="RootVBox/HeaderBar"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Stash"
-vertical_alignment = 1
-
-[node name="SearchLine" type="LineEdit" parent="RootVBox/HeaderBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Search current tab or whole stash..."
-
-[node name="SearchAllButton" type="CheckBox" parent="RootVBox/HeaderBar"]
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-text = "All"
-
-[node name="CloseButton" type="Button" parent="RootVBox/HeaderBar"]
-custom_minimum_size = Vector2(90, 34)
-layout_mode = 2
-text = "Close"
-
-[node name="BodyHBox" type="HBoxContainer" parent="RootVBox"]
+[node name="LeftText" type="RichTextLabel" parent="Root/Left"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="CategoryPanel" type="PanelContainer" parent="RootVBox/BodyHBox"]
-custom_minimum_size = Vector2(170, 0)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 3
-
-[node name="CategoryMargin" type="MarginContainer" parent="RootVBox/BodyHBox/CategoryPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="CategoryVBox" type="VBoxContainer" parent="RootVBox/BodyHBox/CategoryPanel/CategoryMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="CategoryTitle" type="Label" parent="RootVBox/BodyHBox/CategoryPanel/CategoryMargin/CategoryVBox"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-text = "Categories"
-horizontal_alignment = 1
-
-[node name="CategoryList" type="VBoxContainer" parent="RootVBox/BodyHBox/CategoryPanel/CategoryMargin/CategoryVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="TabPanel" type="PanelContainer" parent="RootVBox/BodyHBox"]
-custom_minimum_size = Vector2(190, 0)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 3
-
-[node name="TabMargin" type="MarginContainer" parent="RootVBox/BodyHBox/TabPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="TabVBox" type="VBoxContainer" parent="RootVBox/BodyHBox/TabPanel/TabMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="TabTitle" type="Label" parent="RootVBox/BodyHBox/TabPanel/TabMargin/TabVBox"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-text = "Tabs"
-horizontal_alignment = 1
-
-[node name="TabList" type="VBoxContainer" parent="RootVBox/BodyHBox/TabPanel/TabMargin/TabVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="ContentPanel" type="PanelContainer" parent="RootVBox/BodyHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ContentMargin" type="MarginContainer" parent="RootVBox/BodyHBox/ContentPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="ContentVBox" type="VBoxContainer" parent="RootVBox/BodyHBox/ContentPanel/ContentMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="CurrentTitle" type="Label" parent="RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Current Tab"
-
-[node name="CurrentMeta" type="RichTextLabel" parent="RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
-custom_minimum_size = Vector2(0, 74)
-layout_mode = 2
-size_flags_horizontal = 3
 bbcode_enabled = true
-text = "Affinity"
+text = "Left"
 
-[node name="ItemGrid" type="GridContainer" parent="RootVBox/BodyHBox/ContentPanel/ContentMargin/ContentVBox"]
+[node name="Center" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(460, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-columns = 5
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
 
-[node name="FooterBar" type="HBoxContainer" parent="RootVBox"]
-custom_minimum_size = Vector2(0, 46)
+[node name="CenterText" type="RichTextLabel" parent="Root/Center"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 6
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Center"
 
-[node name="BuyTabButton" type="Button" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(120, 36)
+[node name="Right" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(330, 0)
 layout_mode = 2
-text = "Buy Tab"
+size_flags_vertical = 3
 
-[node name="NewCategoryButton" type="Button" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(116, 36)
+[node name="RightText" type="RichTextLabel" parent="Root/Right"]
 layout_mode = 2
-text = "New Category"
-
-[node name="WithdrawButton" type="Button" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(96, 36)
-layout_mode = 2
-text = "Withdraw"
-
-[node name="RenameLine" type="LineEdit" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(140, 36)
-layout_mode = 2
-placeholder_text = "Tab name"
-
-[node name="IconLine" type="LineEdit" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(90, 36)
-layout_mode = 2
-placeholder_text = "Icon"
-
-[node name="ColorLine" type="LineEdit" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(100, 36)
-layout_mode = 2
-placeholder_text = "#color"
-
-[node name="AffinityOption" type="OptionButton" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(140, 36)
-layout_mode = 2
-
-[node name="ApplyButton" type="Button" parent="RootVBox/FooterBar"]
-custom_minimum_size = Vector2(96, 36)
-layout_mode = 2
-text = "Apply"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Right"

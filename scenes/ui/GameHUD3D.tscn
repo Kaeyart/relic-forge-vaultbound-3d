@@ -1,140 +1,230 @@
-[gd_scene format=3 uid="uid://bsaarr6yr2r5v"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" uid="uid://csefdtx5k5rbs" path="res://scripts/ui/GameHUD3D.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/GameHUD3D.gd" id="1_script"]
 
-[node name="GameHUD3D" type="CanvasLayer" unique_id=668263378]
+[node name="GameHUD3D" type="CanvasLayer"]
 layer = 5
 script = ExtResource("1_script")
 
-[node name="TopLeft" type="PanelContainer" parent="." unique_id=667467520]
-offset_left = 16.0
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="TopLeft" type="MarginContainer" parent="Root"]
+layout_mode = 0
+offset_left = 18.0
 offset_top = 16.0
-offset_right = 340.0
-offset_bottom = 160.0
+offset_right = 362.0
+offset_bottom = 104.0
 
-[node name="VBox" type="VBoxContainer" parent="TopLeft" unique_id=1623438161]
+[node name="RunBox" type="PanelContainer" parent="Root/TopLeft"]
 layout_mode = 2
 
-[node name="HPLabel" type="Label" parent="TopLeft/VBox" unique_id=1491863516]
+[node name="VBox" type="VBoxContainer" parent="Root/TopLeft/RunBox"]
 layout_mode = 2
-text = "HP"
 
-[node name="HPBar" type="ProgressBar" parent="TopLeft/VBox" unique_id=1552970584]
+[node name="XPLabel" type="Label" parent="Root/TopLeft/RunBox/VBox"]
 layout_mode = 2
-show_percentage = false
+theme_override_font_sizes/font_size = 15
+text = "Lv 1 XP"
 
-[node name="ManaLabel" type="Label" parent="TopLeft/VBox" unique_id=883106710]
-layout_mode = 2
-text = "Mana"
-
-[node name="ManaBar" type="ProgressBar" parent="TopLeft/VBox" unique_id=1730869688]
+[node name="XPBar" type="ProgressBar" parent="Root/TopLeft/RunBox/VBox"]
 layout_mode = 2
 show_percentage = false
 
-[node name="XPLabel" type="Label" parent="TopLeft/VBox" unique_id=689759347]
+[node name="GoldLabel" type="Label" parent="Root/TopLeft/RunBox/VBox"]
 layout_mode = 2
-text = "XP"
+theme_override_font_sizes/font_size = 14
+text = "Gold 0"
 
-[node name="XPBar" type="ProgressBar" parent="TopLeft/VBox" unique_id=2136939158]
-layout_mode = 2
-show_percentage = false
-
-[node name="ObjectivePanel" type="PanelContainer" parent="." unique_id=459882153]
-anchors_preset = 5
+[node name="TopCenter" type="MarginContainer" parent="Root"]
+layout_mode = 0
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -240.0
+offset_left = -310.0
 offset_top = 16.0
-offset_right = 240.0
-offset_bottom = 80.0
+offset_right = 310.0
+offset_bottom = 90.0
 
-[node name="VBox" type="VBoxContainer" parent="ObjectivePanel" unique_id=2026805294]
+[node name="ObjectiveBox" type="PanelContainer" parent="Root/TopCenter"]
 layout_mode = 2
 
-[node name="ObjectiveLabel" type="Label" parent="ObjectivePanel/VBox" unique_id=1887185201]
+[node name="VBox" type="VBoxContainer" parent="Root/TopCenter/ObjectiveBox"]
 layout_mode = 2
-text = "Objective"
+
+[node name="ObjectiveLabel" type="Label" parent="Root/TopCenter/ObjectiveBox/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
 horizontal_alignment = 1
+text = "VAULT HUB"
 
-[node name="NoticeLabel" type="Label" parent="ObjectivePanel/VBox" unique_id=512230530]
+[node name="NoticeLabel" type="Label" parent="Root/TopCenter/ObjectiveBox/VBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
+text = ""
 
-[node name="MenuPanel" type="PanelContainer" parent="." unique_id=675883534]
-anchors_preset = 1
+[node name="TopRight" type="MarginContainer" parent="Root"]
+layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -354.0
+offset_left = -390.0
 offset_top = 16.0
-offset_right = -51.0
-offset_bottom = 64.0
-grow_horizontal = 0
+offset_right = -18.0
+offset_bottom = 126.0
 
-[node name="HBox" type="HBoxContainer" parent="MenuPanel" unique_id=1280189766]
+[node name="MenuBox" type="PanelContainer" parent="Root/TopRight"]
 layout_mode = 2
 
-[node name="InventoryButton" type="Button" parent="MenuPanel/HBox" unique_id=1124950975]
+[node name="Grid" type="GridContainer" parent="Root/TopRight/MenuBox"]
 layout_mode = 2
-text = "Inventory"
+columns = 3
 
-[node name="SkillsButton" type="Button" parent="MenuPanel/HBox" unique_id=2012065193]
+[node name="InventoryButton" type="Button" parent="Root/TopRight/MenuBox/Grid"]
+custom_minimum_size = Vector2(112, 36)
 layout_mode = 2
-text = "Skills"
+text = "I Inventory"
 
-[node name="ForgeButton" type="Button" parent="MenuPanel/HBox" unique_id=440645035]
+[node name="SkillsButton" type="Button" parent="Root/TopRight/MenuBox/Grid"]
+custom_minimum_size = Vector2(112, 36)
 layout_mode = 2
-text = "Forge"
+text = "K Gems"
 
-[node name="MapsButton" type="Button" parent="MenuPanel/HBox" unique_id=1398661485]
+[node name="MapsButton" type="Button" parent="Root/TopRight/MenuBox/Grid"]
+custom_minimum_size = Vector2(112, 36)
 layout_mode = 2
-text = "Maps"
+text = "M Maps"
 
-[node name="CharacterButton" type="Button" parent="MenuPanel/HBox" unique_id=1737692665]
+[node name="ForgeButton" type="Button" parent="Root/TopRight/MenuBox/Grid"]
+custom_minimum_size = Vector2(112, 36)
 layout_mode = 2
-text = "Char"
+text = "F Forge"
 
-[node name="BottomPanel" type="PanelContainer" parent="." unique_id=406844814]
-anchors_preset = 7
+[node name="StashButton" type="Button" parent="Root/TopRight/MenuBox/Grid"]
+custom_minimum_size = Vector2(112, 36)
+layout_mode = 2
+text = "Stash"
+
+[node name="CharacterButton" type="Button" parent="Root/TopRight/MenuBox/Grid"]
+custom_minimum_size = Vector2(112, 36)
+layout_mode = 2
+text = "C Char"
+
+[node name="RightInfo" type="MarginContainer" parent="Root"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -370.0
+offset_top = 142.0
+offset_right = -18.0
+offset_bottom = 354.0
+
+[node name="MapModsBox" type="PanelContainer" parent="Root/RightInfo"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Root/RightInfo/MapModsBox"]
+layout_mode = 2
+
+[node name="MapModsLabel" type="RichTextLabel" parent="Root/RightInfo/MapModsBox/VBox"]
+custom_minimum_size = Vector2(330, 190)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = false
+scroll_active = false
+text = "Hub Stations"
+
+[node name="BottomLeft" type="MarginContainer" parent="Root"]
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -174.0
+offset_right = 340.0
+offset_bottom = -18.0
+
+[node name="ResourceBox" type="PanelContainer" parent="Root/BottomLeft"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Root/BottomLeft/ResourceBox"]
+layout_mode = 2
+
+[node name="HPLabel" type="Label" parent="Root/BottomLeft/ResourceBox/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Life"
+
+[node name="HPBar" type="ProgressBar" parent="Root/BottomLeft/ResourceBox/VBox"]
+layout_mode = 2
+show_percentage = false
+
+[node name="ManaLabel" type="Label" parent="Root/BottomLeft/ResourceBox/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Mana"
+
+[node name="ManaBar" type="ProgressBar" parent="Root/BottomLeft/ResourceBox/VBox"]
+layout_mode = 2
+show_percentage = false
+
+[node name="SpiritLabel" type="Label" parent="Root/BottomLeft/ResourceBox/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Spirit"
+
+[node name="BottomCenter" type="MarginContainer" parent="Root"]
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -390.0
-offset_top = -118.0
-offset_right = 390.0
+offset_left = -356.0
+offset_top = -132.0
+offset_right = 356.0
 offset_bottom = -18.0
 
-[node name="HBox" type="HBoxContainer" parent="BottomPanel" unique_id=915848876]
+[node name="SkillBar" type="PanelContainer" parent="Root/BottomCenter"]
 layout_mode = 2
 
-[node name="HealthFlask" type="Button" parent="BottomPanel/HBox" unique_id=540209898]
-custom_minimum_size = Vector2(92, 78)
+[node name="HBox" type="HBoxContainer" parent="Root/BottomCenter/SkillBar"]
 layout_mode = 2
-text = "Health
-Flask"
+theme_override_constants/separation = 8
 
-[node name="Skill1" type="Button" parent="BottomPanel/HBox" unique_id=2138995923]
-custom_minimum_size = Vector2(110, 78)
+[node name="Skill1" type="Button" parent="Root/BottomCenter/SkillBar/HBox"]
+custom_minimum_size = Vector2(166, 94)
 layout_mode = 2
 text = "1"
 
-[node name="Skill2" type="Button" parent="BottomPanel/HBox" unique_id=1619962284]
-custom_minimum_size = Vector2(110, 78)
+[node name="Skill2" type="Button" parent="Root/BottomCenter/SkillBar/HBox"]
+custom_minimum_size = Vector2(166, 94)
 layout_mode = 2
 text = "2"
 
-[node name="Skill3" type="Button" parent="BottomPanel/HBox" unique_id=335919594]
-custom_minimum_size = Vector2(110, 78)
+[node name="Skill3" type="Button" parent="Root/BottomCenter/SkillBar/HBox"]
+custom_minimum_size = Vector2(166, 94)
 layout_mode = 2
 text = "3"
 
-[node name="Skill4" type="Button" parent="BottomPanel/HBox" unique_id=549562780]
-custom_minimum_size = Vector2(110, 78)
+[node name="Skill4" type="Button" parent="Root/BottomCenter/SkillBar/HBox"]
+custom_minimum_size = Vector2(166, 94)
 layout_mode = 2
 text = "4"
 
-[node name="ManaFlask" type="Button" parent="BottomPanel/HBox" unique_id=309305517]
-custom_minimum_size = Vector2(92, 78)
+[node name="PromptBox" type="PanelContainer" parent="Root"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -410.0
+offset_top = -178.0
+offset_right = 410.0
+offset_bottom = -140.0
+
+[node name="PromptLabel" type="Label" parent="Root/PromptBox"]
 layout_mode = 2
-text = "Mana
-Flask"
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+text = "Prompt"

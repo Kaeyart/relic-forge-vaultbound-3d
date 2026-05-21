@@ -19,6 +19,7 @@ var layer_specs: Array[Dictionary] = [
 	{"name": "CombatFeelLayer098B", "path": "res://scripts/visual/CombatFeelLayer3D.gd", "required": false, "flag": "combat_feel_layer"},
 	{"name": "HubStationLayer098C", "path": "res://scripts/visual/HubStationLayer3D.gd", "required": false, "flag": "hub_station_layer"},
 	{"name": "GameFlowDirector099A", "path": "res://scripts/systems/GameFlowDirector3D.gd", "required": false, "flag": "game_flow_director"},
+	{"name": "FinalUIPanelRoot100A", "path": "res://scripts/ui/FinalUIPanelRoot3D.gd", "required": true, "flag": "final_ui_shell"},
 ]
 
 

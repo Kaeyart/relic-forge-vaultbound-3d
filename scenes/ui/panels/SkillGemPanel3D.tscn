@@ -1,231 +1,57 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/SkillGemPanel3D.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/ui/panels/BaseTextPanel3D.gd" id="1_script"]
 
 [node name="SkillGemPanel3D" type="Control"]
-script = ExtResource("1_script")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+script = ExtResource("1_script")
+panel_mode = "skills"
 
-[node name="RootHBox" type="HBoxContainer" parent="."]
+[node name="Root" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
-[node name="ActiveColumn" type="VBoxContainer" parent="RootHBox"]
-custom_minimum_size = Vector2(150, 0)
+[node name="Left" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
-size_flags_horizontal = 0
 size_flags_vertical = 3
 
-[node name="ActivePanel" type="PanelContainer" parent="RootHBox/ActiveColumn"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ActiveMargin" type="MarginContainer" parent="RootHBox/ActiveColumn/ActivePanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="ActiveVBox" type="VBoxContainer" parent="RootHBox/ActiveColumn/ActivePanel/ActiveMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="ActiveTitle" type="Label" parent="RootHBox/ActiveColumn/ActivePanel/ActiveMargin/ActiveVBox"]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Active"
-horizontal_alignment = 1
-
-[node name="ActiveSlotBox" type="VBoxContainer" parent="RootHBox/ActiveColumn/ActivePanel/ActiveMargin/ActiveVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="RemoveActiveDrop" type="Control" parent="RootHBox/ActiveColumn/ActivePanel/ActiveMargin/ActiveVBox"]
-custom_minimum_size = Vector2(0, 62)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="MainColumn" type="VBoxContainer" parent="RootHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="HeaderBar" type="HBoxContainer" parent="RootHBox/MainColumn"]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HeaderTitle" type="Label" parent="RootHBox/MainColumn/HeaderBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
-text = "Skill Gems"
-vertical_alignment = 1
-
-[node name="CloseButton" type="Button" parent="RootHBox/MainColumn/HeaderBar"]
-custom_minimum_size = Vector2(82, 32)
-layout_mode = 2
-text = "Close"
-
-[node name="SkillDetailPanel" type="PanelContainer" parent="RootHBox/MainColumn"]
-custom_minimum_size = Vector2(0, 230)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-
-[node name="DetailMargin" type="MarginContainer" parent="RootHBox/MainColumn/SkillDetailPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="DetailVBox" type="VBoxContainer" parent="RootHBox/MainColumn/SkillDetailPanel/DetailMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="DetailLabel" type="RichTextLabel" parent="RootHBox/MainColumn/SkillDetailPanel/DetailMargin/DetailVBox"]
+[node name="LeftText" type="RichTextLabel" parent="Root/Left"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Skill details"
+text = "Left"
 
-[node name="SupportTitle" type="Label" parent="RootHBox/MainColumn/SkillDetailPanel/DetailMargin/DetailVBox"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-text = "Support Sockets"
-horizontal_alignment = 1
-
-[node name="SupportSocketGrid" type="GridContainer" parent="RootHBox/MainColumn/SkillDetailPanel/DetailMargin/DetailVBox"]
-custom_minimum_size = Vector2(0, 122)
-layout_mode = 2
-size_flags_horizontal = 3
-columns = 3
-
-[node name="StashPanel" type="PanelContainer" parent="RootHBox/MainColumn"]
+[node name="Center" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(460, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="StashMargin" type="MarginContainer" parent="RootHBox/MainColumn/StashPanel"]
+[node name="CenterText" type="RichTextLabel" parent="Root/Center"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+bbcode_enabled = true
+text = "Center"
 
-[node name="StashVBox" type="VBoxContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin"]
+[node name="Right" type="PanelContainer" parent="Root"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RightText" type="RichTextLabel" parent="Root/Right"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="SpiritSummaryLabel" type="Label" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-text = "Spirit Reserved: 0 / 100"
-
-[node name="StashColumns" type="HBoxContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="ActiveStashPanel" type="PanelContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ActiveStashMargin" type="MarginContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/ActiveStashPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="ActiveStashGrid" type="GridContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/ActiveStashPanel/ActiveStashMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-columns = 1
-
-[node name="SupportStashPanel" type="PanelContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="SupportStashMargin" type="MarginContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/SupportStashPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="SupportStashGrid" type="GridContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/SupportStashPanel/SupportStashMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-columns = 1
-
-[node name="SpiritPanel" type="PanelContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="SpiritMargin" type="MarginContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/SpiritPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
-
-[node name="SpiritVBox" type="VBoxContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/SpiritPanel/SpiritMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="SpiritTitle" type="Label" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/SpiritPanel/SpiritMargin/SpiritVBox"]
-custom_minimum_size = Vector2(0, 26)
-layout_mode = 2
-text = "Spirit"
-horizontal_alignment = 1
-
-[node name="SpiritBox" type="VBoxContainer" parent="RootHBox/MainColumn/StashPanel/StashMargin/StashVBox/StashColumns/SpiritPanel/SpiritMargin/SpiritVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
+bbcode_enabled = true
+text = "Right"

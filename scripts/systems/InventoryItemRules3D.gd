@@ -3,67 +3,42 @@ extends RefCounted
 const UNIQUE_RARITY: String = "unique"
 
 const STAT_DISPLAY_NAMES: Dictionary = {
-	"max_health": "Health",
-	"max_hp": "Health",
-	"health": "Health",
-	"life": "Health",
-	"max_life": "Health",
-	"added_health": "Health",
-
-	"max_mana": "Mana",
-	"mana": "Mana",
-	"added_mana": "Mana",
-
+	"maximum life": "Maximum Life",
+	"maximum mana": "Maximum Mana",
+	"maximum spirit": "Maximum Spirit",
 	"armor": "Armor",
 	"armour": "Armor",
-	"evasion": "Evasion",
 	"ward": "Ward",
-	"block_chance": "Block Chance",
-	"block": "Block Chance",
-
-	"fire_resistance": "Fire Resistance",
-	"fire_resist": "Fire Resistance",
-	"cold_resistance": "Cold Resistance",
-	"cold_resist": "Cold Resistance",
-	"lightning_resistance": "Lightning Resistance",
-	"lightning_resist": "Lightning Resistance",
-	"void_resistance": "Void Resistance",
-	"void_resist": "Void Resistance",
-	"all_resistance": "All Resistance",
-	"all_resist": "All Resistance",
-
-	"weapon_damage": "Weapon Damage",
-	"attack_damage": "Attack Damage",
-	"spell_damage": "Spell Damage",
-	"fire_damage": "Fire Damage",
-	"lightning_damage": "Lightning Damage",
-	"void_damage": "Void Damage",
-	"projectile_damage": "Projectile Damage",
-	"minion_damage": "Minion Damage",
-
-	"crit_chance": "Critical Strike Chance",
-	"critical_chance": "Critical Strike Chance",
-	"crit_multiplier": "Critical Strike Multiplier",
-	"critical_multiplier": "Critical Strike Multiplier",
-	"attack_speed": "Attack Speed",
-	"cast_speed": "Cast Speed",
-	"cooldown_recovery": "Cooldown Recovery",
-	"movement_speed": "Movement Speed",
-
-	"spirit": "Spirit",
-	"spirit_max": "Spirit",
-	"forge_potential": "Forge Potential",
+	"block chance": "Block Chance",
+	"fire resistance": "Fire Resistance",
+	"cold resistance": "Cold Resistance",
+	"lightning resistance": "Lightning Resistance",
+	"void resistance": "Void Resistance",
+	"attack damage": "Attack Damage",
+	"spell damage": "Spell Damage",
+	"fire damage": "Fire Damage",
+	"lightning damage": "Lightning Damage",
+	"void damage": "Void Damage",
+	"projectile damage": "Projectile Damage",
+	"critical chance": "Critical Chance",
+	"critical damage": "Critical Damage",
+	"attack speed": "Attack Speed",
+	"cast speed": "Cast Speed",
+	"cooldown recovery": "Cooldown Recovery",
+	"movement speed": "Movement Speed",
+	"ignite chance": "Ignite Chance",
+	"shock chance": "Shock Chance",
+	"bleed chance": "Bleed Chance",
+	"extra projectiles": "Extra Projectiles",
+	"chain count": "Chain Count",
+	"area size": "Area Size",
 }
 
-const PERCENT_STATS: Array = [
-	"fire_resistance", "fire_resist", "cold_resistance", "cold_resist",
-	"lightning_resistance", "lightning_resist", "void_resistance", "void_resist",
-	"all_resistance", "all_resist",
-	"block_chance", "block",
-	"crit_chance", "critical_chance", "crit_multiplier", "critical_multiplier",
-	"attack_speed", "cast_speed", "cooldown_recovery", "movement_speed",
-	"weapon_damage", "attack_damage", "spell_damage", "fire_damage",
-	"lightning_damage", "void_damage", "projectile_damage", "minion_damage",
+const PERCENT_STATS: Array[String] = [
+	"block chance", "fire resistance", "cold resistance", "lightning resistance", "void resistance",
+	"attack damage", "spell damage", "fire damage", "lightning damage", "void damage", "projectile damage",
+	"critical chance", "critical damage", "attack speed", "cast speed", "cooldown recovery", "movement speed",
+	"ignite chance", "shock chance", "bleed chance", "area size",
 ]
 
 const SLOT_ORDER: Dictionary = {
@@ -78,6 +53,7 @@ const SLOT_ORDER: Dictionary = {
 	"ring2": 8,
 	"ring": 8,
 	"relic": 9,
+	"map": 10,
 	"": 99,
 }
 
@@ -86,46 +62,32 @@ const RARITY_ORDER: Dictionary = {
 	"rare": 1,
 	"magic": 2,
 	"normal": 3,
-	"": 4,
+	"currency": 4,
+	"": 9,
 }
 
-const UNIVERSAL_STATS: Array = [
-	"max_health", "max_hp", "health", "life", "max_life", "added_health",
-	"max_mana", "mana", "added_mana",
-	"fire_resistance", "fire_resist",
-	"cold_resistance", "cold_resist",
-	"lightning_resistance", "lightning_resist",
-	"void_resistance", "void_resist",
-	"all_resistance", "all_resist",
+const UNIVERSAL_STATS: Array[String] = [
+	"maximum life", "maximum mana", "maximum spirit", "fire resistance", "cold resistance", "lightning resistance", "void resistance",
 ]
-
-const WEAPON_STATS: Array = [
-	"weapon_damage", "attack_damage", "spell_damage", "fire_damage", "lightning_damage",
-	"void_damage", "projectile_damage", "minion_damage", "crit_chance",
-	"critical_chance", "crit_multiplier", "critical_multiplier", "attack_speed", "cast_speed",
+const WEAPON_STATS: Array[String] = [
+	"attack damage", "spell damage", "fire damage", "lightning damage", "void damage", "projectile damage",
+	"critical chance", "critical damage", "attack speed", "cast speed", "cooldown recovery", "ignite chance", "shock chance", "bleed chance", "extra projectiles", "chain count", "area size",
 ]
-
-const OFFHAND_STATS: Array = [
-	"armor", "armour", "ward", "block_chance", "block", "spell_damage", "cast_speed",
-	"cooldown_recovery", "crit_chance", "critical_chance",
+const OFFHAND_STATS: Array[String] = [
+	"armor", "ward", "block chance", "spell damage", "fire damage", "lightning damage", "void damage", "cast speed", "cooldown recovery", "critical chance", "chain count", "area size",
 ]
-
-const ARMOR_STATS: Array = [
-	"armor", "armour", "evasion", "ward", "movement_speed", "cooldown_recovery",
+const ARMOR_STATS: Array[String] = [
+	"armor", "ward", "movement speed", "cooldown recovery", "attack speed", "cast speed", "ignite chance", "shock chance", "bleed chance",
 ]
-
-const JEWELRY_STATS: Array = [
-	"weapon_damage", "attack_damage", "spell_damage", "fire_damage", "lightning_damage",
-	"void_damage", "projectile_damage", "minion_damage", "crit_chance", "critical_chance",
-	"crit_multiplier", "critical_multiplier", "attack_speed", "cast_speed",
-	"cooldown_recovery", "movement_speed", "spirit", "spirit_max",
+const JEWELRY_STATS: Array[String] = [
+	"attack damage", "spell damage", "fire damage", "lightning damage", "void damage", "projectile damage", "critical chance", "critical damage",
+	"attack speed", "cast speed", "cooldown recovery", "movement speed", "ignite chance", "shock chance", "bleed chance", "extra projectiles", "chain count", "area size",
 ]
 
 static func sanitize_inventory_state(state: Object) -> bool:
 	if state == null:
 		return false
 	var changed: bool = false
-
 	var backpack_value: Variant = state.get("backpack")
 	if typeof(backpack_value) == TYPE_ARRAY:
 		var backpack: Array = Array(backpack_value)
@@ -138,7 +100,6 @@ static func sanitize_inventory_state(state: Object) -> bool:
 			backpack[i] = item
 		if changed:
 			state.set("backpack", backpack)
-
 	var equipped_value: Variant = state.get("equipped")
 	if typeof(equipped_value) == TYPE_DICTIONARY:
 		var equipped: Dictionary = Dictionary(equipped_value)
@@ -151,19 +112,17 @@ static func sanitize_inventory_state(state: Object) -> bool:
 			equipped[slot_key] = eq_item
 		if changed:
 			state.set("equipped", equipped)
-
 	return changed
 
 static func sanitize_item(item: Dictionary) -> bool:
 	if item.is_empty():
 		return false
-	var rarity: String = str(item.get("rarity", "normal")).to_lower()
-	if rarity == UNIQUE_RARITY:
-		_round_all_numeric_stats(item)
+	# Unique items intentionally bypass slot policing because their job is to break normal rules.
+	if str(item.get("rarity", "normal")).to_lower() == UNIQUE_RARITY:
+		_normalize_total_stats(item)
 		return false
-
 	var changed: bool = false
-	for stat_container_key: String in ["total_stats", "stats", "affixes"]:
+	for stat_container_key: String in ["total_stats", "stats", "implicit_stats", "unique_stats"]:
 		if typeof(item.get(stat_container_key, {})) != TYPE_DICTIONARY:
 			continue
 		var stats: Dictionary = Dictionary(item.get(stat_container_key, {}))
@@ -171,33 +130,31 @@ static func sanitize_item(item: Dictionary) -> bool:
 		for key_value: Variant in stats.keys():
 			var key: String = str(key_value)
 			if is_stat_allowed_on_slot(key, normalized_slot(item)):
-				clean[key] = int(round(safe_float(stats[key_value])))
+				clean[key] = _clean_numeric_value(key, stats[key_value])
 			else:
 				changed = true
 		if clean != stats:
 			item[stat_container_key] = clean
 			changed = true
-
-	if _round_all_numeric_stats(item):
-		changed = true
 	return changed
 
-static func _round_all_numeric_stats(item: Dictionary) -> bool:
-	var changed: bool = false
-	for stat_container_key: String in ["total_stats", "stats", "affixes"]:
+static func _normalize_total_stats(item: Dictionary) -> void:
+	for stat_container_key: String in ["total_stats", "stats", "implicit_stats", "unique_stats"]:
 		if typeof(item.get(stat_container_key, {})) != TYPE_DICTIONARY:
 			continue
 		var stats: Dictionary = Dictionary(item.get(stat_container_key, {}))
 		for key_value: Variant in stats.keys():
-			var rounded: int = int(round(safe_float(stats[key_value])))
-			if stats[key_value] != rounded:
-				stats[key_value] = rounded
-				changed = true
+			stats[key_value] = _clean_numeric_value(str(key_value), stats[key_value])
 		item[stat_container_key] = stats
-	return changed
+
+static func _clean_numeric_value(key: String, value: Variant) -> float:
+	var v: float = safe_float(value)
+	if is_percent_stat(key):
+		return snappedf(v, 0.001)
+	return snappedf(v, 0.1)
 
 static func is_stat_allowed_on_slot(stat_key: String, slot: String) -> bool:
-	var key: String = stat_key.strip_edges().to_lower()
+	var key: String = _norm_stat(stat_key)
 	if UNIVERSAL_STATS.has(key):
 		return true
 	match slot:
@@ -213,7 +170,7 @@ static func is_stat_allowed_on_slot(stat_key: String, slot: String) -> bool:
 			return false
 
 static func normalized_slot(item: Dictionary) -> String:
-	var slot: String = str(item.get("slot", "")).to_lower()
+	var slot: String = str(item.get("slot", "")).to_lower().strip_edges()
 	match slot:
 		"helm":
 			return "head"
@@ -223,25 +180,27 @@ static func normalized_slot(item: Dictionary) -> String:
 			return slot
 
 static func display_stat_line(stat_key: String, raw_value: Variant) -> String:
-	var key: String = str(stat_key).strip_edges()
+	var key: String = _norm_stat(stat_key)
 	var label: String = str(STAT_DISPLAY_NAMES.get(key, _titleize_stat_key(key)))
-	var value: int = int(round(safe_float(raw_value)))
-	var prefix: String = "+" if value >= 0 else ""
-	var suffix: String = "%" if is_percent_stat(key) else ""
-	return prefix + str(value) + suffix + " " + label
+	var value: float = safe_float(raw_value)
+	var prefix: String = "+" if value >= 0.0 else ""
+	if is_percent_stat(key):
+		return prefix + str(snappedf(value * 100.0, 0.1)) + "% " + label
+	return prefix + str(int(round(value))) + " " + label
 
 static func display_stat_delta(stat_key: String, current_value: Variant, next_value: Variant) -> String:
-	var key: String = str(stat_key).strip_edges()
+	var key: String = _norm_stat(stat_key)
 	var label: String = str(STAT_DISPLAY_NAMES.get(key, _titleize_stat_key(key)))
-	var cur: int = int(round(safe_float(current_value)))
-	var nxt: int = int(round(safe_float(next_value)))
-	var diff: int = nxt - cur
-	var suffix: String = "%" if is_percent_stat(key) else ""
-	var sign: String = "+" if diff >= 0 else ""
-	return label + ": " + str(cur) + suffix + " → " + str(nxt) + suffix + " (" + sign + str(diff) + suffix + ")"
+	var cur: float = safe_float(current_value)
+	var nxt: float = safe_float(next_value)
+	var diff: float = nxt - cur
+	var sign: String = "+" if diff >= 0.0 else ""
+	if is_percent_stat(key):
+		return label + ": " + str(snappedf(cur * 100.0, 0.1)) + "% → " + str(snappedf(nxt * 100.0, 0.1)) + "% (" + sign + str(snappedf(diff * 100.0, 0.1)) + "%)"
+	return label + ": " + str(int(round(cur))) + " → " + str(int(round(nxt))) + " (" + sign + str(int(round(diff))) + ")"
 
 static func is_percent_stat(stat_key: String) -> bool:
-	return PERCENT_STATS.has(str(stat_key).strip_edges().to_lower())
+	return PERCENT_STATS.has(_norm_stat(stat_key))
 
 static func sort_key_for_item(item: Dictionary) -> Array:
 	var slot: String = normalized_slot(item)
@@ -250,7 +209,7 @@ static func sort_key_for_item(item: Dictionary) -> Array:
 		int(SLOT_ORDER.get(slot, 99)),
 		int(RARITY_ORDER.get(rarity, 99)),
 		-int(round(safe_float(item.get("item_level", 1)))),
-		str(item.get("display_name", item.get("name", "Item"))).to_lower()
+		str(item.get("display_name", item.get("name", "Item"))).to_lower(),
 	]
 
 static func compare_items_for_sort(a: Variant, b: Variant) -> bool:
@@ -280,8 +239,11 @@ static func safe_float(value: Variant, fallback: float = 0.0) -> float:
 		_:
 			return fallback
 
+static func _norm_stat(key: String) -> String:
+	return str(key).strip_edges().to_lower().replace("_", " ").replace("-", " ")
+
 static func _titleize_stat_key(key: String) -> String:
-	var words: PackedStringArray = str(key).replace("-", "_").split("_")
+	var words: PackedStringArray = str(key).replace("-", " ").replace("_", " ").split(" ", false)
 	var out: Array[String] = []
 	for word: String in words:
 		if word == "":

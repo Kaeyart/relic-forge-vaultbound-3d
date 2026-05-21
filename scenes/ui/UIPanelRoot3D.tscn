@@ -2,15 +2,15 @@
 
 [ext_resource type="Script" path="res://scripts/ui/UIPanelRoot3D.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://scenes/ui/panels/InventoryPanel3D.tscn" id="2_inv"]
-[ext_resource type="PackedScene" path="res://scenes/ui/panels/ForgePanel3D.tscn" id="3_forge"]
-[ext_resource type="PackedScene" path="res://scenes/ui/panels/SkillGemPanel3D.tscn" id="4_skill"]
-[ext_resource type="PackedScene" path="res://scenes/ui/panels/MapDevicePanel3D.tscn" id="5_map"]
-[ext_resource type="PackedScene" path="res://scenes/ui/panels/CharacterPanel3D.tscn" id="6_char"]
-[ext_resource type="PackedScene" path="res://scenes/ui/panels/StashPanel3D.tscn" id="7_stash"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/StashPanel3D.tscn" id="3_stash"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/ForgePanel3D.tscn" id="4_forge"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/SkillGemPanel3D.tscn" id="5_skill"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/MapDevicePanel3D.tscn" id="6_map"]
+[ext_resource type="PackedScene" path="res://scenes/ui/panels/CharacterPanel3D.tscn" id="7_char"]
 
 [node name="UIPanelRoot3D" type="CanvasLayer"]
-script = ExtResource("1_root")
 layer = 20
+script = ExtResource("1_root")
 
 [node name="Blocker" type="ColorRect" parent="."]
 visible = false
@@ -20,87 +20,117 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-color = Color(0, 0, 0, 0.58)
+color = Color(0.01, 0.009, 0.007, 0.72)
 
 [node name="Shell" type="PanelContainer" parent="."]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 64.0
-offset_top = 72.0
-offset_right = -64.0
-offset_bottom = -64.0
+offset_left = 46.0
+offset_top = 52.0
+offset_right = -46.0
+offset_bottom = -46.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="VBox" type="VBoxContainer" parent="Shell"]
+[node name="Root" type="HBoxContainer" parent="Shell"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Sidebar" type="VBoxContainer" parent="Shell/Root"]
+custom_minimum_size = Vector2(172, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Shell/Root/Sidebar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "VAULT"
+horizontal_alignment = 1
+
+[node name="TabInventory" type="Button" parent="Shell/Root/Sidebar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Inventory"
+
+[node name="TabStash" type="Button" parent="Shell/Root/Sidebar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Stash"
+
+[node name="TabForge" type="Button" parent="Shell/Root/Sidebar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Forge"
+
+[node name="TabSkills" type="Button" parent="Shell/Root/Sidebar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Skill Gems"
+
+[node name="TabMaps" type="Button" parent="Shell/Root/Sidebar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Map Device"
+
+[node name="TabCharacter" type="Button" parent="Shell/Root/Sidebar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Character"
+
+[node name="Spacer" type="Control" parent="Shell/Root/Sidebar"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EscHint" type="Label" parent="Shell/Root/Sidebar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Esc closes"
+horizontal_alignment = 1
+
+[node name="Main" type="VBoxContainer" parent="Shell/Root"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="Header" type="HBoxContainer" parent="Shell/VBox"]
-custom_minimum_size = Vector2(0, 44)
+[node name="Header" type="HBoxContainer" parent="Shell/Root/Main"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TitleLabel" type="Label" parent="Shell/VBox/Header"]
+[node name="TitleLabel" type="Label" parent="Shell/Root/Main/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 26
 text = "Panel"
 vertical_alignment = 1
 
-[node name="CloseButton" type="Button" parent="Shell/VBox/Header"]
-custom_minimum_size = Vector2(96, 40)
+[node name="CloseButton" type="Button" parent="Shell/Root/Main/Header"]
+custom_minimum_size = Vector2(104, 42)
 layout_mode = 2
 text = "Close"
 
-[node name="Tabs" type="HBoxContainer" parent="Shell/VBox"]
-custom_minimum_size = Vector2(0, 44)
+[node name="HintLabel" type="RichTextLabel" parent="Shell/Root/Main"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 6
+bbcode_enabled = true
+fit_content = false
+scroll_active = false
+text = "Hint"
 
-[node name="TabInventory" type="Button" parent="Shell/VBox/Tabs"]
-custom_minimum_size = Vector2(118, 38)
-layout_mode = 2
-text = "Inventory"
-
-[node name="TabStash" type="Button" parent="Shell/VBox/Tabs"]
-custom_minimum_size = Vector2(118, 38)
-layout_mode = 2
-text = "Stash"
-
-[node name="TabForge" type="Button" parent="Shell/VBox/Tabs"]
-custom_minimum_size = Vector2(118, 38)
-layout_mode = 2
-text = "Forge"
-
-[node name="TabSkills" type="Button" parent="Shell/VBox/Tabs"]
-custom_minimum_size = Vector2(118, 38)
-layout_mode = 2
-text = "Skills"
-
-[node name="TabMaps" type="Button" parent="Shell/VBox/Tabs"]
-custom_minimum_size = Vector2(118, 38)
-layout_mode = 2
-text = "Maps"
-
-[node name="TabCharacter" type="Button" parent="Shell/VBox/Tabs"]
-custom_minimum_size = Vector2(118, 38)
-layout_mode = 2
-text = "Character"
-
-[node name="Content" type="Control" parent="Shell/VBox"]
+[node name="Content" type="Control" parent="Shell/Root/Main"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 1
 
-[node name="InventoryPanel" parent="Shell/VBox/Content" instance=ExtResource("2_inv")]
+[node name="InventoryPanel" parent="Shell/Root/Main/Content" instance=ExtResource("2_inv")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -109,7 +139,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="StashPanel" parent="Shell/VBox/Content" instance=ExtResource("7_stash")]
+[node name="StashPanel" parent="Shell/Root/Main/Content" instance=ExtResource("3_stash")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -118,7 +148,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ForgePanel" parent="Shell/VBox/Content" instance=ExtResource("3_forge")]
+[node name="ForgePanel" parent="Shell/Root/Main/Content" instance=ExtResource("4_forge")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -127,7 +157,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SkillsPanel" parent="Shell/VBox/Content" instance=ExtResource("4_skill")]
+[node name="SkillsPanel" parent="Shell/Root/Main/Content" instance=ExtResource("5_skill")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -136,7 +166,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MapsPanel" parent="Shell/VBox/Content" instance=ExtResource("5_map")]
+[node name="MapsPanel" parent="Shell/Root/Main/Content" instance=ExtResource("6_map")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -145,7 +175,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CharacterPanel" parent="Shell/VBox/Content" instance=ExtResource("6_char")]
+[node name="CharacterPanel" parent="Shell/Root/Main/Content" instance=ExtResource("7_char")]
 visible = false
 layout_mode = 1
 anchors_preset = 15

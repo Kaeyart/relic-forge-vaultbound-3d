@@ -14,6 +14,7 @@ const DEFAULT_FLAGS: Dictionary = {
 	"combat_feel_layer": true,
 	"hub_station_layer": true,
 	"game_flow_director": true,
+	"final_ui_shell": true,
 }
 
 
@@ -110,5 +111,7 @@ static func layer_flag_for_name(layer_name: String) -> String:
 			return "hub_station_layer"
 		"GameFlowDirector099A":
 			return "game_flow_director"
+		"FinalUIPanelRoot100A":
+			return "final_ui_shell"
 		_:
 			return ""
