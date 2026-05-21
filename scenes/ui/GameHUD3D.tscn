@@ -3,4 +3,5 @@
 [ext_resource type="Script" path="res://scripts/ui/GameHUD3D.gd" id="1_hud"]
 
 [node name="GameHUD3D" type="CanvasLayer"]
+layer = 50
 script = ExtResource("1_hud")
