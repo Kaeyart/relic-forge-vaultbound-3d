@@ -1,13 +1,75 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/panels/SkillGemPanel3D.gd" id="1_skillgem_panel"]
+[ext_resource type="Script" path="res://scripts/ui/panels/SkillGemPanel3D.gd" id="1_skill_panel"]
 
-[node name="SkillsPanel" type="Control"]
+[node name="SkillGemPanel3D" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
-script = ExtResource("1_skillgem_panel")
+script = ExtResource("1_skill_panel")
+
+[node name="Root" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Columns" type="HBoxContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Left" type="PanelContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LeftText" type="RichTextLabel" parent="Root/Columns/Left"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = false
+scroll_active = true
+text = "Skill rows"
+
+[node name="Center" type="PanelContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(460, 0)
+
+[node name="CenterText" type="RichTextLabel" parent="Root/Columns/Center"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = false
+scroll_active = true
+text = "Selected skill"
+
+[node name="Right" type="PanelContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightText" type="RichTextLabel" parent="Root/Columns/Right"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = false
+scroll_active = true
+text = "Compatible supports"
+
+[node name="Bottom" type="PanelContainer" parent="Root"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 78)
+
+[node name="BottomText" type="RichTextLabel" parent="Root/Bottom"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = false
+scroll_active = false
+text = "Controls"

@@ -134,11 +134,16 @@ func _handle_key(keycode: int) -> void:
 		KEY_SPACE:
 			if str(state.get("mode")) == "combat": _cast_selected_skill(_mouse_world())
 		KEY_Q:
-			state.set("selected_skill_slot", wrapi(_rf_087v_int(state.get("selected_skill_slot")) - 1, 0, 4))
+			var prev_slot: int = wrapi(_rf_087v_int(state.get("selected_skill_slot")) - 1, 0, 5)
+			state.set("selected_skill_slot", prev_slot)
+			state.set("selected_hotbar_slot", prev_slot)
 		KEY_R:
-			state.set("selected_skill_slot", wrapi(_rf_087v_int(state.get("selected_skill_slot")) + 1, 0, 4))
-		KEY_1, KEY_2, KEY_3, KEY_4:
+			var next_slot: int = wrapi(_rf_087v_int(state.get("selected_skill_slot")) + 1, 0, 5)
+			state.set("selected_skill_slot", next_slot)
+			state.set("selected_hotbar_slot", next_slot)
+		KEY_1, KEY_2, KEY_3, KEY_4, KEY_5:
 			state.set("selected_skill_slot", keycode - KEY_1)
+			state.set("selected_hotbar_slot", keycode - KEY_1)
 		KEY_I:
 			_toggle_panel("inventory")
 		KEY_K:
@@ -177,12 +182,17 @@ func _handle_panel_key(keycode: int) -> void:
 		elif keycode == KEY_DELETE or keycode == KEY_BACKSPACE:
 			InventoryGridSystemScript.drop_selected(state)
 	elif mode == "skills":
-		if keycode >= KEY_1 and keycode <= KEY_4: state.set("selected_skill_slot", keycode - KEY_1)
+		if keycode >= KEY_1 and keycode <= KEY_5:
+			state.set("selected_skill_slot", keycode - KEY_1)
+			state.set("selected_hotbar_slot", keycode - KEY_1)
 		elif keycode == KEY_A: SkillGemSystemScript.cycle_active_slot_gem(state, -1)
 		elif keycode == KEY_D: SkillGemSystemScript.cycle_active_slot_gem(state, 1)
 		elif keycode == KEY_S: SkillGemSystemScript.add_next_valid_support(state)
 		elif keycode == KEY_W: SkillGemSystemScript.remove_last_support(state)
 		elif keycode == KEY_G: SkillGemSystemScript.toggle_next_spirit(state)
+		elif keycode == KEY_Y: SkillGemSystemScript.carve_first_uncut(state, "active")
+		elif keycode == KEY_T: SkillGemSystemScript.carve_first_uncut(state, "support")
+		elif keycode == KEY_B: SkillGemSystemScript.carve_first_uncut(state, "spirit")
 	elif mode == "maps":
 		var maps: Array = Array(state.get("map_stash"))
 		if not maps.is_empty():
