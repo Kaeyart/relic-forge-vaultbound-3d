@@ -31,10 +31,10 @@ const RuntimeLayerManagerScript := preload("res://scripts/core/RuntimeLayerManag
 @onready var player: Node3D = $Player
 @onready var camera: Camera3D = $Camera3D
 @onready var pet: Node3D = $PickupPet
-@onready var status_label: Label = $UI/Root/StatusLabel
-@onready var help_label: Label = $UI/Root/HelpLabel
-@onready var panel_root: PanelContainer = $UI/Root/PanelRoot
-@onready var panel_text: Label = $UI/Root/PanelRoot/PanelText
+@onready var status_label: Label = get_node_or_null("UI/Root/StatusLabel") as Label
+@onready var help_label: Label = get_node_or_null("UI/Root/HelpLabel") as Label
+@onready var panel_root: PanelContainer = get_node_or_null("UI/Root/PanelRoot") as PanelContainer
+@onready var panel_text: Label = get_node_or_null("UI/Root/PanelRoot/PanelText") as Label
 
 var state: Object = GameStateScript.new()
 var autosave_timer: float = 0.0
@@ -230,22 +230,8 @@ func _mouse_world() -> Vector3:
 	return from + dir * t
 
 func _update_ui() -> void:
-	var cast: Dictionary = SkillGemSystemScript.selected_cast_data(state)
-	status_label.text = "Lv " + str(state.get("level")) + " " + str(state.get("class_display_name")) + " | HP " + str(_rf_087v_int(state.get("player_hp"))) + "/" + str(_rf_087v_int(state.get("max_hp"))) + " | Mana " + str(_rf_087v_int(state.get("player_mana"))) + "/" + str(_rf_087v_int(state.get("max_mana"))) + " | Spirit " + str(state.get("spirit_reserved")) + "/" + str(state.get("spirit_max")) + " | Gold " + str(state.get("gold")) + " | Skill " + str(cast.get("name", ""))
-	if _rf_087v_float(state.get("notice_time")) > 0.0:
-		help_label.text = str(state.get("notice_text"))
-	else:
-		help_label.text = "T/E map · LeftClick/Space cast · I inventory · K skills · F forge · M maps · C character · H help"
-	var mode: String = str(state.get("panel_mode"))
-	panel_root.visible = mode != ""
-	if mode == "": return
-	match mode:
-		"inventory": panel_text.text = _inventory_text()
-		"skills": panel_text.text = SkillGemSystemScript.panel_text(state)
-		"character": panel_text.text = _character_text()
-		"maps": panel_text.text = MapLoopSystemScript.panel_text(state)
-		"crafting": panel_text.text = CraftingSystemScript.panel_text(state)
-		_: panel_text.text = _help_text()
+	_rf_087r_hide_legacy_text_ui()
+	return
 
 func _inventory_text() -> String:
 	var text: String = "INVENTORY\n[ / ] Select · U Equip · F Forge\n\nEquipped:\n"
@@ -304,8 +290,24 @@ func _rf_087r_update_final_ui(_delta: float) -> void:
 	_rf_087r_hide_legacy_text_ui()
 
 func _rf_087r_hide_legacy_text_ui() -> void:
-	for name_value: Variant in ["PanelRoot", "UIPanelRoot", "SkillLoadoutPanel", "HUD"]:
-		var node: Node = get_node_or_null(str(name_value))
+	var legacy_paths: Array[String] = [
+		"UI",
+		"UI/Root",
+		"UI/Root/StatusLabel",
+		"UI/Root/HelpLabel",
+		"UI/Root/PanelRoot",
+		"UI/Root/PanelRoot/PanelText",
+		"HUD",
+		"HUD3D",
+		"SimpleHUD3D",
+		"PanelRoot",
+		"UIPanelRoot",
+		"SkillLoadoutPanel",
+		"SkillLoadoutPanel3D",
+		"FinalUIPanelRoot",
+	]
+	for path_value: String in legacy_paths:
+		var node: Node = get_node_or_null(path_value)
 		if node == null:
 			continue
 		if node == _rf_087r_hud or node == _rf_087r_ui:
@@ -314,6 +316,15 @@ func _rf_087r_hide_legacy_text_ui() -> void:
 			(node as CanvasItem).visible = false
 		if node is Control:
 			(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child: Node in get_children():
+		if child == _rf_087r_hud or child == _rf_087r_ui:
+			continue
+		var n: String = str(child.name).to_lower()
+		if n in ["ui", "hud", "hud3d", "simplehud3d", "skillloadoutpanel", "skillloadoutpanel3d", "finaluipanelroot"]:
+			if child is CanvasItem:
+				(child as CanvasItem).visible = false
+			if child is Control:
+				(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _rf_087u_float(value: Variant, fallback: float = 0.0) -> float:
 	if value == null:
