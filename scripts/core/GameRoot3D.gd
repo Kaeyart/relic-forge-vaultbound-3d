@@ -21,7 +21,7 @@ const HubGreyboxPassScript := preload("res://scripts/visual/HubGreyboxPass3D.gd"
 const CombatArenaGreyboxPassScript := preload("res://scripts/visual/CombatArenaGreyboxPass3D.gd")
 const SkillVFXLayerScript := preload("res://scripts/visual/SkillVFXLayer3D.gd")
 const EnemyReadabilityLayerScript := preload("res://scripts/visual/EnemyReadabilityLayer3D.gd")
-const LootPresentationLayerScript := preload("res://scripts/visual/LootPresentationLayer3D.gd")
+const LootPresentationLayerScript: GDScript = preload("res://scripts/visual/LootPresentationLayer3D.gd")
 const CombatFeedbackLayerScript := preload("res://scripts/visual/CombatFeedbackLayer3D.gd")
 const CombatDirectorLayerScript := preload("res://scripts/visual/CombatDirectorLayer3D.gd")
 const RuntimeLayerManagerScript := preload("res://scripts/core/RuntimeLayerManager3D.gd")
@@ -295,6 +295,7 @@ func _rf_087r_ensure_final_ui() -> void:
 		_rf_087r_ui.call("bind_state", state)
 
 func _rf_087r_update_final_ui(_delta: float) -> void:
+	_rf_099a_disable_legacy_embedded_ui()
 	_rf_087r_ensure_final_ui()
 	if _rf_087r_hud != null and _rf_087r_hud.has_method("update_from_state"):
 		_rf_087r_hud.call("update_from_state", state)
@@ -587,3 +588,24 @@ func _rf_097b_ensure_runtime_layer_manager() -> void:
 
 	if _rf_097b_runtime_layer_manager != null and _rf_097b_runtime_layer_manager.has_method("bind_game"):
 		_rf_097b_runtime_layer_manager.call("bind_game", self)
+
+
+func _rf_099a_disable_legacy_embedded_ui() -> void:
+	var legacy_ui: CanvasLayer = get_node_or_null("UI") as CanvasLayer
+	if legacy_ui != null:
+		legacy_ui.visible = false
+		for child: Node in legacy_ui.get_children():
+			if child is Control:
+				(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var legacy_paths: Array[String] = [
+		"UI/Root/StatusLabel",
+		"UI/Root/HelpLabel",
+		"UI/Root/PanelRoot",
+		"UI/Root/PanelRoot/PanelText"
+	]
+	for path: String in legacy_paths:
+		var n: Node = get_node_or_null(path)
+		if n is CanvasItem:
+			(n as CanvasItem).visible = false
+		if n is Control:
+			(n as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
