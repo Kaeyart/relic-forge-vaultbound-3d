@@ -6,7 +6,7 @@ extends RefCounted
 # Physical station screens: Map Device, Forge, Stash.
 # Character shrine / extra stations are intentionally not exposed in this pass.
 
-const GLOBAL_PANEL_MODES: Array[String] = ["inventory", "skills"]
+const GLOBAL_PANEL_MODES: Array[String] = ["inventory", "skills", "passives", "ascendancy"]
 const STATION_PANEL_MODES: Array[String] = ["maps", "crafting", "stash"]
 
 const STATION_NAMES: Dictionary = {
@@ -91,6 +91,10 @@ static func panel_title(mode: String) -> String:
 			return "Inventory"
 		"skills":
 			return "Skill Gems"
+		"passives":
+			return "Passive Tree"
+		"ascendancy":
+			return "Ascendancy"
 		"maps":
 			return "Map Device"
 		"crafting":

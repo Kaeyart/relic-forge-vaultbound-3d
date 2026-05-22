@@ -150,6 +150,10 @@ func _handle_key(keycode: int) -> void:
 			_toggle_panel("inventory")
 		KEY_K:
 			_toggle_panel("skills")
+		KEY_P:
+			_toggle_panel("passives")
+		KEY_O:
+			_toggle_panel("ascendancy")
 		KEY_C:
 			state.call("add_notice", "Walk to the Character Shrine in the hub.")
 		KEY_M:

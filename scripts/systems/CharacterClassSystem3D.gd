@@ -1,27 +1,56 @@
 class_name RVCharacterClassSystem3D
 extends RefCounted
 
+const ClassDBScript: GDScript = preload("res://scripts/data/ClassDB3D.gd")
+
 static func classes() -> Dictionary:
-	return {
-		"sorceress":{"name":"Sorceress", "tags":["spell","fire","lightning","mana"], "rules":["class_sorceress"], "stats":{"Spell Damage":0.10,"Maximum Mana":20.0}, "actives":["fireball","storm_lance","void_rift"]},
-		"warden":{"name":"Warden", "tags":["attack","melee","armor","bleed"], "rules":["class_warden"], "stats":{"Attack Damage":0.10,"Maximum Life":24.0,"Armor":24.0}, "actives":["arc_slash","fireball"]},
-		"voidbinder":{"name":"Voidbinder", "tags":["void","spell","sacrifice"], "rules":["class_voidbinder"], "stats":{"Void Damage":0.14,"Maximum Mana":12.0}, "actives":["void_rift","fireball"]},
-		"machinist":{"name":"Machinist", "tags":["trap","projectile","cooldown"], "rules":["class_machinist"], "stats":{"Projectile Damage":0.10,"Cooldown Recovery":0.05}, "actives":["ember_mine","fireball","storm_lance"]}
-	}
+	return ClassDBScript.classes()
+
+static func class_ids() -> Array[String]:
+	return ClassDBScript.class_ids()
 
 static func ensure_defaults(state: Object) -> void:
-	if state == null: return
+	if state == null:
+		return
 	var id: String = str(state.get("class_id"))
-	if id == "" or not classes().has(id):
+	if id == "" or not ClassDBScript.has_class(id):
 		id = "sorceress"
 		state.set("class_id", id)
-	var data: Dictionary = Dictionary(classes().get(id, {}))
-	state.set("class_display_name", str(data.get("name", id.capitalize())))
+	var data: Dictionary = ClassDBScript.class_data(id)
+	state.set("class_display_name", str(data.get("display_name", id.capitalize())))
 	state.set("class_tags", Array(data.get("tags", [])).duplicate(true))
 	state.set("class_rules", Array(data.get("rules", [])).duplicate(true))
+	if state.get("selected_ascendancy_id") == null:
+		state.set("selected_ascendancy_id", "")
 
 static func class_bundle(state: Object) -> Dictionary:
-	if state == null: return {}
+	if state == null:
+		return {}
 	var id: String = str(state.get("class_id"))
-	var data: Dictionary = Dictionary(classes().get(id, classes()["sorceress"]))
-	return {"stats":Dictionary(data.get("stats", {})).duplicate(true), "rules":Array(data.get("rules", [])).duplicate(true)}
+	return ClassDBScript.class_bundle(id)
+
+static func set_class(state: Object, class_id: String) -> String:
+	if state == null:
+		return "No state."
+	if not ClassDBScript.has_class(class_id):
+		return "Unknown class: " + class_id
+	state.set("class_id", class_id)
+	state.set("selected_ascendancy_id", "")
+	state.set("allocated_ascendancy_nodes", {})
+	ensure_defaults(state)
+	if state.has_method("recompute_stats"):
+		state.call("recompute_stats")
+	var data: Dictionary = ClassDBScript.class_data(class_id)
+	return "Class set to " + str(data.get("display_name", class_id.capitalize())) + "."
+
+static func class_summary_text(state: Object) -> String:
+	if state == null:
+		return "No class."
+	ensure_defaults(state)
+	var id: String = str(state.get("class_id"))
+	var data: Dictionary = ClassDBScript.class_data(id)
+	var text: String = "[color=#c59b4a][b]" + str(data.get("display_name", id.capitalize())) + "[/b][/color]\n"
+	text += str(data.get("description", "")) + "\n"
+	text += "Tags: " + ", ".join(Array(data.get("tags", []))) + "\n"
+	text += "Ascendancies: " + ", ".join(Array(data.get("ascendancies", [])))
+	return text

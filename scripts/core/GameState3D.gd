@@ -8,6 +8,9 @@ const ItemValidationSystemScript := preload("res://scripts/systems/ItemValidatio
 const ItemEndgameSystemScript := preload("res://scripts/systems/ItemEndgameSystem3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
 const ClassSystemScript := preload("res://scripts/systems/CharacterClassSystem3D.gd")
+const ClassProgressionSystemScript: GDScript = preload("res://scripts/systems/ClassProgressionSystem3D.gd")
+const PassiveTreeSystemScript: GDScript = preload("res://scripts/systems/PassiveTreeSystem3D.gd")
+const AscendancySystemScript: GDScript = preload("res://scripts/systems/AscendancySystem3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 
 const SAVE_VERSION: int = 87
@@ -55,6 +58,17 @@ var class_id: String = "sorceress"
 var class_display_name: String = "Sorceress"
 var class_tags: Array[String] = []
 var class_rules: Array[String] = []
+var selected_ascendancy_id: String = ""
+var ascendancy_points: int = 0
+var atlas_passive_points: int = 0
+var allocated_passive_nodes: Dictionary = {}
+var allocated_ascendancy_nodes: Dictionary = {}
+var allocated_atlas_passive_nodes: Dictionary = {}
+var weapon_set_index: int = 0
+var weapon_set_passive_points: int = 0
+var allocated_weapon_set_nodes_1: Dictionary = {}
+var allocated_weapon_set_nodes_2: Dictionary = {}
+var class_progression_seeded_033: bool = false
 
 var level: int = 1
 var xp: float = 0.0
@@ -142,6 +156,7 @@ func ensure_defaults() -> void:
 		rng = RandomNumberGenerator.new()
 	rng.randomize()
 	ClassSystemScript.ensure_defaults(self)
+	ClassProgressionSystemScript.ensure_progression_defaults(self)
 	GemSystemScript.ensure_defaults(self)
 	ItemizationSystemScript.ensure_itemization_defaults(self)
 	ItemEndgameSystemScript.ensure_endgame_defaults(self)
@@ -168,6 +183,9 @@ func recompute_stats() -> void:
 	var class_bundle: Dictionary = ClassSystemScript.class_bundle(self)
 	_merge_stats(Dictionary(class_bundle.get("stats", {})))
 	_merge_rules(Array(class_bundle.get("rules", [])))
+	var progression_bundle: Dictionary = ClassProgressionSystemScript.full_progression_bundle(self)
+	_merge_stats(Dictionary(progression_bundle.get("stats", {})))
+	_merge_rules(Array(progression_bundle.get("rules", [])))
 	for slot_key: Variant in equipped.keys():
 		var item_value: Variant = equipped[slot_key]
 		if typeof(item_value) == TYPE_DICTIONARY:
@@ -214,6 +232,7 @@ func add_xp(amount: float) -> void:
 		xp -= xp_to_next()
 		level += 1
 		passive_points += 1
+		ClassProgressionSystemScript.award_level_rewards(self, level)
 		add_notice("Level Up: " + str(level))
 	recompute_stats()
 
@@ -429,6 +448,17 @@ func to_save_dict() -> Dictionary:
 	data["spirit_gem_slots"] = spirit_gem_slots
 	data["spirit_reserved"] = spirit_reserved
 	data["spirit_max"] = spirit_max
+	data["selected_ascendancy_id"] = selected_ascendancy_id
+	data["ascendancy_points"] = ascendancy_points
+	data["atlas_passive_points"] = atlas_passive_points
+	data["allocated_passive_nodes"] = allocated_passive_nodes
+	data["allocated_ascendancy_nodes"] = allocated_ascendancy_nodes
+	data["allocated_atlas_passive_nodes"] = allocated_atlas_passive_nodes
+	data["weapon_set_index"] = weapon_set_index
+	data["weapon_set_passive_points"] = weapon_set_passive_points
+	data["allocated_weapon_set_nodes_1"] = allocated_weapon_set_nodes_1
+	data["allocated_weapon_set_nodes_2"] = allocated_weapon_set_nodes_2
+	data["class_progression_seeded_033"] = class_progression_seeded_033
 	data["runic_ward_current"] = get("runic_ward_current")
 	data["runic_ward_max"] = get("runic_ward_max")
 	data["equipped_gem_page"] = equipped_gem_page
@@ -498,6 +528,22 @@ func apply_save_dict(data: Dictionary) -> void:
 		spirit_gem_slots = Array(data.get("spirit_gem_slots", []))
 	spirit_reserved = int(data.get("spirit_reserved", spirit_reserved))
 	spirit_max = int(data.get("spirit_max", spirit_max))
+	selected_ascendancy_id = str(data.get("selected_ascendancy_id", selected_ascendancy_id))
+	ascendancy_points = int(data.get("ascendancy_points", ascendancy_points))
+	atlas_passive_points = int(data.get("atlas_passive_points", atlas_passive_points))
+	if data.has("allocated_passive_nodes") and typeof(data.get("allocated_passive_nodes")) == TYPE_DICTIONARY:
+		allocated_passive_nodes = Dictionary(data.get("allocated_passive_nodes", {})).duplicate(true)
+	if data.has("allocated_ascendancy_nodes") and typeof(data.get("allocated_ascendancy_nodes")) == TYPE_DICTIONARY:
+		allocated_ascendancy_nodes = Dictionary(data.get("allocated_ascendancy_nodes", {})).duplicate(true)
+	if data.has("allocated_atlas_passive_nodes") and typeof(data.get("allocated_atlas_passive_nodes")) == TYPE_DICTIONARY:
+		allocated_atlas_passive_nodes = Dictionary(data.get("allocated_atlas_passive_nodes", {})).duplicate(true)
+	weapon_set_index = int(data.get("weapon_set_index", weapon_set_index))
+	weapon_set_passive_points = int(data.get("weapon_set_passive_points", weapon_set_passive_points))
+	if data.has("allocated_weapon_set_nodes_1") and typeof(data.get("allocated_weapon_set_nodes_1")) == TYPE_DICTIONARY:
+		allocated_weapon_set_nodes_1 = Dictionary(data.get("allocated_weapon_set_nodes_1", {})).duplicate(true)
+	if data.has("allocated_weapon_set_nodes_2") and typeof(data.get("allocated_weapon_set_nodes_2")) == TYPE_DICTIONARY:
+		allocated_weapon_set_nodes_2 = Dictionary(data.get("allocated_weapon_set_nodes_2", {})).duplicate(true)
+	class_progression_seeded_033 = bool(data.get("class_progression_seeded_033", class_progression_seeded_033))
 	set("runic_ward_current", data.get("runic_ward_current", get("runic_ward_current")))
 	set("runic_ward_max", data.get("runic_ward_max", get("runic_ward_max")))
 
