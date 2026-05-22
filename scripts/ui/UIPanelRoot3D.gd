@@ -17,6 +17,8 @@ var _sidebar: VBoxContainer = null
 var _content: Control = null
 var _active_panel: Node = null
 var _active_mode: String = ""
+var _last_sidebar_mode: String = ""
+var _last_content_signature: String = ""
 
 func _ready() -> void:
 	_build_shell()
@@ -78,20 +80,37 @@ func _build_shell() -> void:
 	_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	shell.add_child(_content)
 
+
 func _refresh() -> void:
 	_build_shell()
 	var mode: String = _panel_mode()
-	_root.visible = mode != ""
+
+	if _root != null:
+		_root.visible = mode != ""
 
 	if mode == "":
 		_active_mode = ""
+		_last_sidebar_mode = ""
+		_last_content_signature = ""
 		_clear_active_panel()
 		return
 
-	_build_sidebar(mode)
 	if mode != _active_mode:
+		_build_sidebar(mode)
 		_load_panel(mode)
+		_last_sidebar_mode = mode
+		_last_content_signature = _panel_signature(mode)
+		return
 
+	if mode != _last_sidebar_mode:
+		_build_sidebar(mode)
+		_last_sidebar_mode = mode
+
+	var signature: String = _panel_signature(mode)
+	if signature == _last_content_signature:
+		return
+
+	_last_content_signature = signature
 	if _active_panel != null:
 		if _active_panel.has_method("update_from_state"):
 			_active_panel.call("update_from_state", state_ref)
@@ -172,6 +191,76 @@ func _panel_mode() -> String:
 	if value == null:
 		return ""
 	return str(value)
+
+
+func _panel_signature(mode: String) -> String:
+	if state_ref == null:
+		return mode + ":no_state"
+
+	match mode:
+		"skills":
+			return JSON.stringify([
+				mode,
+				state_ref.get("gem_inventory"),
+				state_ref.get("equipped_gem_page"),
+				state_ref.get("hotbar_slots"),
+				state_ref.get("spirit_gem_slots"),
+				state_ref.get("selected_gem_uid"),
+				state_ref.get("selected_uncut_uid"),
+				state_ref.get("selected_support_uid"),
+				state_ref.get("selected_spirit_uid"),
+				state_ref.get("selected_hotbar_slot"),
+				state_ref.get("gem_last_message"),
+			])
+
+		"inventory":
+			return JSON.stringify([
+				mode,
+				state_ref.get("backpack"),
+				state_ref.get("equipped"),
+				state_ref.get("inventory_cursor"),
+			])
+
+		"maps":
+			return JSON.stringify([
+				mode,
+				state_ref.get("map_stash"),
+				state_ref.get("map_cursor"),
+				state_ref.get("current_map_activity"),
+			])
+
+		"crafting":
+			return JSON.stringify([
+				mode,
+				state_ref.get("backpack"),
+				state_ref.get("equipped"),
+				state_ref.get("materials"),
+				state_ref.get("inventory_cursor"),
+			])
+
+		"stash":
+			return JSON.stringify([
+				mode,
+				state_ref.get("stash"),
+				state_ref.get("backpack"),
+				state_ref.get("stash_selected_item_index"),
+				state_ref.get("selected_stash_category_id"),
+				state_ref.get("selected_stash_tab_id"),
+			])
+
+		"character":
+			return JSON.stringify([
+				mode,
+				state_ref.get("level"),
+				state_ref.get("xp"),
+				state_ref.get("equipped"),
+				state_ref.get("build_stats"),
+				state_ref.get("build_rules"),
+			])
+
+		_:
+			return JSON.stringify([mode, state_ref.get("panel_mode")])
+
 
 func _rich_label(text: String, size: int) -> RichTextLabel:
 	var label: RichTextLabel = RichTextLabel.new()

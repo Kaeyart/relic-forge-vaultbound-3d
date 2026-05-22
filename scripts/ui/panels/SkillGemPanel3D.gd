@@ -843,11 +843,11 @@ func _button(text_value: String, action: Callable, selected: bool = false, heigh
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.custom_minimum_size = Vector2(0, height)
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", 13)
 	button.add_theme_color_override("font_color", TEXT if selected else MUTED)
 	button.add_theme_stylebox_override("normal", _style(BG_SEL if selected else BG_2, GOLD if selected else BORDER, 2 if selected else 1))
 	button.add_theme_stylebox_override("hover", _style(Color(0.18, 0.12, 0.05, 1.0), GOLD, 2))
-	button.pressed.connect(action)
 	button.gui_input.connect(_on_button_gui_input.bind(action))
 	return button
 
@@ -861,7 +861,7 @@ func _small_button(text_value: String, action: Callable) -> Button:
 func _on_button_gui_input(event: InputEvent, action: Callable) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
-		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+		if mouse_event.pressed and (mouse_event.button_index == MOUSE_BUTTON_LEFT or mouse_event.button_index == MOUSE_BUTTON_RIGHT):
 			action.call()
 			get_viewport().set_input_as_handled()
 
