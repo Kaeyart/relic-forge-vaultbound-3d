@@ -1,18 +1,19 @@
 class_name RVStationAccessSystem3D
 extends RefCounted
 
-# Patch 26: hard-stabilized station access.
-# Only the real hub stations remain: Map Device, Forge, Stash.
-# Inventory and Skill Gems stay global through their own keys/UI; character/gem/extra stations are removed.
+# Patch 27: station access aligned to the concept hub.
+# Only the three physical hub stations are interactive: Map Device, Forge, Stash.
+# Labels sit above the matching environment props; no HUD prompt spam.
 
-const CONTAINER_NAME: String = "HubStationAccessLayout026"
-const INTERACT_RADIUS: float = 2.75
-const FORGIVING_E_RADIUS: float = 6.25
+const CONTAINER_NAME: String = "HubStationAccessLayout027"
+const INTERACT_RADIUS: float = 2.55
+const FORGIVING_E_RADIUS: float = 4.10
 
 const LEGACY_CONTAINER_NAMES: Array[String] = [
 	"HubStationAccessLayout013",
 	"HubStationAccessLayout018",
 	"HubStationAccessLayout026",
+	"HubStationAccessLayout027",
 	"HubStationLayer098C",
 	"HubStations",
 ]
@@ -22,24 +23,28 @@ const STATIONS: Array[Dictionary] = [
 		"id": "map_device",
 		"display_name": "Map Device",
 		"panel_mode": "maps",
-		"position": Vector3(0.0, 0.0, -4.3),
-		"accent": Color(0.95, 0.50, 0.16, 1.0),
+		"position": Vector3(0.0, 0.0, 0.0),
+		"label_position": Vector3(0.0, 2.18, 1.15),
+		"accent": Color(0.18, 0.50, 1.0, 1.0),
 	},
 	{
 		"id": "forge",
 		"display_name": "Forge",
 		"panel_mode": "crafting",
-		"position": Vector3(-4.1, 0.0, 1.8),
-		"accent": Color(0.95, 0.25, 0.08, 1.0),
+		"position": Vector3(-5.35, 0.0, -1.05),
+		"label_position": Vector3(-5.35, 1.85, 0.42),
+		"accent": Color(1.0, 0.34, 0.08, 1.0),
 	},
 	{
 		"id": "stash",
 		"display_name": "Stash",
 		"panel_mode": "stash",
-		"position": Vector3(4.1, 0.0, 1.8),
-		"accent": Color(0.38, 0.68, 0.96, 1.0),
+		"position": Vector3(5.35, 0.0, -1.05),
+		"label_position": Vector3(5.35, 1.85, 0.42),
+		"accent": Color(0.95, 0.72, 0.34, 1.0),
 	},
 ]
+
 
 static func ensure_physical_stations(game_root: Node) -> void:
 	if game_root == null:
@@ -124,7 +129,6 @@ static func handle_station_input(event: InputEvent, game_root: Node, state: Obje
 
 
 static func station_prompt(_state: Object) -> String:
-	# Clean screen rule: no HUD prompt spam. Station names live above stations.
 	return ""
 
 
@@ -137,8 +141,6 @@ static func _activate_station(state: Object, station_id: String) -> bool:
 	if mode == "":
 		return false
 
-	# Direct station activation. This intentionally bypasses older station-gating
-	# compatibility paths that have caused false negatives.
 	_safe_set(state, "panel_mode", mode)
 	_safe_set(state, "near_station_mode", mode)
 	_safe_set(state, "near_station_name", str(station.get("display_name", "")))
@@ -173,11 +175,12 @@ static func _build_station(container: Node3D, station: Dictionary) -> void:
 	var id: String = str(station.get("id", "station"))
 	var display_name: String = str(station.get("display_name", id))
 	var pos: Vector3 = _station_position(station)
+	var label_pos: Vector3 = _station_label_position(station)
 	var accent: Color = station.get("accent", Color(0.95, 0.65, 0.25, 1.0)) as Color
 
-	var base_mat: Material = _mat("StationBase_" + id, Color(0.08, 0.065, 0.050, 1.0), false)
 	var accent_mat: Material = _mat("StationAccent_" + id, accent, true)
-	var muted_mat: Material = _mat("StationMuted_" + id, Color(accent.r * 0.32, accent.g * 0.32, accent.b * 0.32, 0.78), true)
+	var plate_mat: Material = _mat("StationLabelPlate_" + id, Color(0.015, 0.012, 0.009, 1.0), false)
+	var ring_mat: Material = _mat("StationRing_" + id, Color(accent.r * 0.35, accent.g * 0.35, accent.b * 0.35, 0.88), true)
 
 	var anchor: Node3D = Node3D.new()
 	anchor.name = "Station_" + id
@@ -187,31 +190,23 @@ static func _build_station(container: Node3D, station: Dictionary) -> void:
 	anchor.set_meta("station_panel", str(station.get("panel_mode", "")))
 	container.add_child(anchor)
 
-	var ring: MeshInstance3D = _disc("StationRing", 1.18, 0.045, Vector3.ZERO, muted_mat)
+	# Thin interaction halo only. Environment props are built by HubGreyboxPass3D.
+	var ring: MeshInstance3D = _disc("InteractionHalo", 1.12, 0.025, Vector3(0.0, 0.04, 0.0), ring_mat)
 	anchor.add_child(ring)
+	var pin: MeshInstance3D = _sphere("InteractionPin", 0.13, Vector3(0.0, 0.36, 0.0), accent_mat)
+	anchor.add_child(pin)
 
-	var pedestal: MeshInstance3D = _box("StationPedestal", Vector3(1.05, 0.30, 0.82), Vector3(0.0, 0.18, 0.0), base_mat)
-	anchor.add_child(pedestal)
+	# Concept-style station name plate above the station.
+	var label_anchor: Node3D = Node3D.new()
+	label_anchor.name = "LabelAnchor"
+	label_anchor.position = label_pos - pos
+	anchor.add_child(label_anchor)
 
-	_build_station_icon(anchor, id, accent_mat, base_mat)
+	var plate: MeshInstance3D = _box("StationLabelPlate", Vector3(2.25, 0.055, 0.48), Vector3(0.0, -0.06, 0.03), plate_mat)
+	label_anchor.add_child(plate)
 
-	var label: Label3D = _label("StationLabel", display_name.to_upper(), Vector3(0.0, 1.52, 0.0), Color(0.96, 0.84, 0.55, 1.0), 24)
-	anchor.add_child(label)
-
-
-static func _build_station_icon(anchor: Node3D, id: String, accent_mat: Material, base_mat: Material) -> void:
-	match id:
-		"map_device":
-			anchor.add_child(_disc("MapDevicePortal", 0.66, 0.12, Vector3(0.0, 0.46, 0.0), accent_mat))
-			anchor.add_child(_sphere("MapDeviceCore", 0.27, Vector3(0.0, 0.76, 0.0), accent_mat))
-		"forge":
-			anchor.add_child(_box("ForgeAnvil", Vector3(1.12, 0.26, 0.48), Vector3(0.0, 0.56, 0.0), base_mat))
-			anchor.add_child(_box("ForgeFire", Vector3(0.42, 0.45, 0.42), Vector3(0.0, 0.86, 0.0), accent_mat))
-		"stash":
-			anchor.add_child(_box("StashChest", Vector3(1.08, 0.52, 0.72), Vector3(0.0, 0.58, 0.0), base_mat))
-			anchor.add_child(_box("StashLock", Vector3(0.25, 0.28, 0.08), Vector3(0.0, 0.58, -0.38), accent_mat))
-		_:
-			anchor.add_child(_sphere("StationMarker", 0.32, Vector3(0.0, 0.72, 0.0), accent_mat))
+	var label: Label3D = _label("StationLabel", display_name, Vector3(0.0, 0.02, 0.0), Color(0.96, 0.84, 0.55, 1.0), 26)
+	label_anchor.add_child(label)
 
 
 static func _update_station_visuals(game_root: Node, active_id: String) -> void:
@@ -231,12 +226,12 @@ static func _update_station_visuals(game_root: Node, active_id: String) -> void:
 		var anchor: Node3D = child as Node3D
 		if anchor == null:
 			continue
-		var ring: MeshInstance3D = anchor.get_node_or_null("StationRing") as MeshInstance3D
+		var ring: MeshInstance3D = anchor.get_node_or_null("InteractionHalo") as MeshInstance3D
 		if ring != null:
 			ring.scale = Vector3.ONE * (1.20 if is_active else 1.0)
 			if ring.material_override is StandardMaterial3D:
 				var mat: StandardMaterial3D = ring.material_override as StandardMaterial3D
-				mat.emission_energy_multiplier = 1.45 if is_active else 0.42
+				mat.emission_energy_multiplier = 1.10 if is_active else 0.28
 
 
 static func _remove_legacy_station_nodes(game_root: Node, hub: Node3D) -> void:
@@ -306,6 +301,13 @@ static func _station_position(station: Dictionary) -> Vector3:
 	return Vector3.ZERO
 
 
+static func _station_label_position(station: Dictionary) -> Vector3:
+	var value: Variant = station.get("label_position", _station_position(station) + Vector3(0.0, 1.6, 0.0))
+	if typeof(value) == TYPE_VECTOR3:
+		return value as Vector3
+	return _station_position(station) + Vector3(0.0, 1.6, 0.0)
+
+
 static func _player_position(state: Object, player: Node3D) -> Vector3:
 	if player != null:
 		return player.global_position
@@ -335,11 +337,11 @@ static func _mat(label: String, color: Color, emissive: bool = false) -> Standar
 	mat.resource_name = label
 	mat.albedo_color = color
 	mat.roughness = 0.82
-	mat.metallic = 0.25
+	mat.metallic = 0.28
 	if emissive:
 		mat.emission_enabled = true
 		mat.emission = Color(color.r, color.g, color.b, 1.0)
-		mat.emission_energy_multiplier = 0.50
+		mat.emission_energy_multiplier = 0.38
 	return mat
 
 
@@ -389,7 +391,7 @@ static func _label(label_name: String, text: String, pos: Vector3, color: Color,
 	label.position = pos
 	label.font_size = size
 	label.modulate = color
-	label.outline_size = 8
-	label.outline_modulate = Color(0.0, 0.0, 0.0, 0.92)
+	label.outline_size = 10
+	label.outline_modulate = Color(0.0, 0.0, 0.0, 0.96)
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	return label

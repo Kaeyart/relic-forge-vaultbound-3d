@@ -230,7 +230,7 @@ func _return_to_hub(save_now: bool) -> void:
 	hub.visible = true
 	combat.call("stop_map")
 	combat.visible = false
-	player.global_position = Vector3(0, 0, 0)
+	player.global_position = Vector3(0, 0, 4.45)
 	pet.global_position = player.global_position + Vector3(-1, 0.5, 0.5)
 	state.call("full_restore")
 	if save_now: SaveSystemScript.save(state)
