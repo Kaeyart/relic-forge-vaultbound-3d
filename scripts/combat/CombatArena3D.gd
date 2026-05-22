@@ -54,9 +54,10 @@ func start_map(state: Object, activity: Dictionary = {}) -> void:
 	_clear_children(loot_root)
 	_build_arena(str(activity.get("layout", "box_blockers")))
 	var pack_bonus: int = int(round(float(_map_stat(activity, "Pack Size")) * 10.0))
-	_spawn_pack(Vector3(-5, 0, -4), 4 + pack_bonus, false)
-	_spawn_pack(Vector3(5, 0, -2), 4, false)
-	_spawn_pack(Vector3(-3, 0, 3), 3, true)
+	var danger_bonus: int = clampi(int(activity.get("danger_score", 1)) / 4, 0, 5)
+	_spawn_pack(Vector3(-5, 0, -4), 4 + pack_bonus + danger_bonus, false)
+	_spawn_pack(Vector3(5, 0, -2), 4 + danger_bonus, false)
+	_spawn_pack(Vector3(-3, 0, 3), 3 + danger_bonus, true)
 	_spawn_enemy(Vector3(0, 0, 6), true, true)
 
 func stop_map() -> void:
@@ -99,7 +100,7 @@ func update_combat(state: Object, player: Node3D, delta: float) -> void:
 		var drop: Dictionary = Dictionary(loot_node.get("drop_data"))
 		if LootPickupSystemScript.player_can_auto_pick(drop) and (loot_node as Node3D).global_position.distance_to(player_pos) < 1.2:
 			LootPickupSystemScript.apply_pickup(state, loot_node)
-	if _living_enemy_count() <= 0 and not room_clear:
+	if _boss_completion_ready() and not room_clear:
 		room_clear = true
 		MapLoopSystemScript.complete_current_map(state)
 		_spawn_boss_reward_pile(state, Vector3(0, 0, 5.2))
@@ -391,6 +392,19 @@ func loot_nodes() -> Array:
 
 func constrain_player_position(pos: Vector3) -> Vector3:
 	return Vector3(clampf(pos.x, -8.7, 8.7), 0.0, clampf(pos.z, -8.7, 8.7))
+
+func _boss_completion_ready() -> bool:
+	var has_boss: bool = false
+	for enemy_node: Node in enemies_root.get_children():
+		if enemy_node == null or not is_instance_valid(enemy_node):
+			continue
+		if bool(enemy_node.get("is_boss")):
+			has_boss = true
+			if bool(enemy_node.get("alive")):
+				return false
+	if has_boss:
+		return true
+	return _living_enemy_count() <= 0
 
 func _living_enemy_count() -> int:
 	var count: int = 0

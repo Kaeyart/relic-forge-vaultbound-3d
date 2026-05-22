@@ -23,6 +23,19 @@ var stash_selected_item_index: int = -1
 var stash_search_query: String = ""
 var stash_search_all: bool = false
 var map_completion: Dictionary = {}
+
+# RF-025 Atlas / Waystone / Precursor Tablet map state
+var atlas_nodes: Dictionary = {}
+var atlas_origin_node_id: String = "node_0_0"
+var selected_atlas_node_id: String = "node_0_0"
+var atlas_completed_nodes: Dictionary = {}
+var atlas_failed_nodes: Dictionary = {}
+var waystone_inventory: Array = []
+var selected_waystone_uid: String = ""
+var tablet_inventory: Array = []
+var selected_tablet_uids: Array = []
+var active_map_node_id: String = ""
+var active_map_seed: int = 0
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var mode: String = "hub"
 var panel_mode: String = ""
@@ -408,11 +421,42 @@ func to_save_dict() -> Dictionary:
 	data["selected_spirit_uid"] = selected_spirit_uid
 	data["gem_last_message"] = gem_last_message
 	data["gem_uid_counter"] = gem_uid_counter
+	data["atlas_nodes"] = atlas_nodes
+	data["atlas_origin_node_id"] = atlas_origin_node_id
+	data["selected_atlas_node_id"] = selected_atlas_node_id
+	data["atlas_completed_nodes"] = atlas_completed_nodes
+	data["atlas_failed_nodes"] = atlas_failed_nodes
+	data["waystone_inventory"] = waystone_inventory
+	data["selected_waystone_uid"] = selected_waystone_uid
+	data["tablet_inventory"] = tablet_inventory
+	data["selected_tablet_uids"] = selected_tablet_uids
+	data["active_map_node_id"] = active_map_node_id
+	data["active_map_seed"] = active_map_seed
+
 	return data
 
 
 func apply_save_dict(data: Dictionary) -> void:
 	_rf_pre_090f_apply_save_dict(data)
+
+
+	if data.has("atlas_nodes") and typeof(data.get("atlas_nodes")) == TYPE_DICTIONARY:
+		atlas_nodes = Dictionary(data.get("atlas_nodes", {})).duplicate(true)
+	atlas_origin_node_id = str(data.get("atlas_origin_node_id", atlas_origin_node_id))
+	selected_atlas_node_id = str(data.get("selected_atlas_node_id", selected_atlas_node_id))
+	if data.has("atlas_completed_nodes") and typeof(data.get("atlas_completed_nodes")) == TYPE_DICTIONARY:
+		atlas_completed_nodes = Dictionary(data.get("atlas_completed_nodes", {})).duplicate(true)
+	if data.has("atlas_failed_nodes") and typeof(data.get("atlas_failed_nodes")) == TYPE_DICTIONARY:
+		atlas_failed_nodes = Dictionary(data.get("atlas_failed_nodes", {})).duplicate(true)
+	if data.has("waystone_inventory") and typeof(data.get("waystone_inventory")) == TYPE_ARRAY:
+		waystone_inventory = Array(data.get("waystone_inventory", []))
+	selected_waystone_uid = str(data.get("selected_waystone_uid", selected_waystone_uid))
+	if data.has("tablet_inventory") and typeof(data.get("tablet_inventory")) == TYPE_ARRAY:
+		tablet_inventory = Array(data.get("tablet_inventory", []))
+	if data.has("selected_tablet_uids") and typeof(data.get("selected_tablet_uids")) == TYPE_ARRAY:
+		selected_tablet_uids = Array(data.get("selected_tablet_uids", []))
+	active_map_node_id = str(data.get("active_map_node_id", active_map_node_id))
+	active_map_seed = int(data.get("active_map_seed", active_map_seed))
 
 	if data.has("stash_categories"):
 		stash_categories = Array(data.get("stash_categories", []))
