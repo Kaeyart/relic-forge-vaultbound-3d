@@ -1,7 +1,9 @@
 class_name RVUIAccessSystem3D
 extends RefCounted
 
-const UIFoundationSystemScript := preload("res://scripts/systems/UIFoundationSystem3D.gd")
+# Patch 18: one source of truth for UI access.
+# Global screens: Inventory and Skill Gems.
+# Station screens: Map Device, Forge, Stash, Character Shrine.
 
 const GLOBAL_PANEL_MODES: Array[String] = ["inventory", "skills"]
 const STATION_PANEL_MODES: Array[String] = ["maps", "crafting", "stash", "character"]
@@ -16,17 +18,16 @@ const STATION_NAMES: Dictionary = {
 static func normalize_mode(mode: String) -> String:
 	var m: String = str(mode).strip_edges().to_lower()
 	match m:
-		"forge":
+		"forge", "craft", "crafting_panel":
 			return "crafting"
-		"skill", "gems", "gem", "skill_gems":
+		"skill", "gems", "gem", "skill_gems", "skillgem", "skill_gem":
 			return "skills"
-		"map", "map_device":
+		"map", "map_device", "mapdevice":
 			return "maps"
-		"char", "stats":
+		"char", "stats", "character_sheet":
 			return "character"
 		_:
 			return m
-
 
 static func request_panel(state: Object, mode: String, from_station: bool = false) -> bool:
 	if state == null:
@@ -38,12 +39,11 @@ static func request_panel(state: Object, mode: String, from_station: bool = fals
 		return true
 
 	if not can_open_panel(state, m, from_station):
-		_notice(state, _blocked_message(m))
+		# Patch 18 intentionally avoids noisy screen notices here.
 		return false
 
 	state.set("panel_mode", m)
 	return true
-
 
 static func toggle_panel(state: Object, mode: String, from_station: bool = false) -> bool:
 	if state == null:
@@ -56,22 +56,21 @@ static func toggle_panel(state: Object, mode: String, from_station: bool = false
 
 	return request_panel(state, m, from_station)
 
-
 static func close_panel(state: Object) -> void:
 	if state != null:
 		state.set("panel_mode", "")
-
 
 static func can_open_panel(state: Object, mode: String, from_station: bool = false) -> bool:
 	if state == null:
 		return false
 
 	var m: String = normalize_mode(mode)
+
 	if GLOBAL_PANEL_MODES.has(m):
 		return true
 
 	if not STATION_PANEL_MODES.has(m):
-		return true
+		return false
 
 	if str(_state_get(state, "mode", "hub")) != "hub":
 		return false
@@ -81,11 +80,8 @@ static func can_open_panel(state: Object, mode: String, from_station: bool = fal
 
 	return _near_station_allows(state, m)
 
-
 static func panel_title(mode: String) -> String:
 	var m: String = normalize_mode(mode)
-	if UIFoundationSystemScript != null and UIFoundationSystemScript.has_method("panel_title"):
-		return str(UIFoundationSystemScript.panel_title(m))
 	match m:
 		"inventory":
 			return "Inventory"
@@ -100,17 +96,25 @@ static func panel_title(mode: String) -> String:
 		"character":
 			return "Character"
 		_:
-			return m.capitalize()
-
+			return m.replace("_", " ").capitalize()
 
 static func panel_hint(mode: String) -> String:
 	var m: String = normalize_mode(mode)
-	if STATION_PANEL_MODES.has(m):
-		return "Station access only · walk to the " + str(STATION_NAMES.get(m, "station")) + " in the hub."
-	if UIFoundationSystemScript != null and UIFoundationSystemScript.has_method("panel_hint"):
-		return str(UIFoundationSystemScript.panel_hint(m))
-	return "Mouse-first UI · click visible rows, slots, and actions."
-
+	match m:
+		"inventory":
+			return "Inspect, equip, appraise, favorite, lock, stash, or drop items."
+		"skills":
+			return "Manage active gems, support sockets, spirit gems, uncut gems, and hotbar bindings."
+		"maps":
+			return "Map Device station. Select a map, inspect danger, then launch."
+		"crafting":
+			return "Forge station. Select an item and apply controlled upgrades."
+		"stash":
+			return "Stash station. Store and retrieve long-term loot."
+		"character":
+			return "Character Shrine. Review offense, defense, resources, and build rules."
+		_:
+			return "Click visible rows, slots, and actions."
 
 static func _near_station_allows(state: Object, mode: String) -> bool:
 	var m: String = normalize_mode(mode)
@@ -125,8 +129,8 @@ static func _near_station_allows(state: Object, mode: String) -> bool:
 	]
 
 	for key: String in direct_keys:
-		var v: String = normalize_mode(str(_state_get(state, key, "")))
-		if v == m:
+		var value: String = normalize_mode(str(_state_get(state, key, "")))
+		if value == m:
 			return true
 
 	var id_text: String = str(_state_get(state, "near_station_id", "")).to_lower()
@@ -144,24 +148,6 @@ static func _near_station_allows(state: Object, mode: String) -> bool:
 			return combined.find("character") >= 0 or combined.find("shrine") >= 0
 		_:
 			return false
-
-
-static func _blocked_message(mode: String) -> String:
-	var m: String = normalize_mode(mode)
-	if STATION_PANEL_MODES.has(m):
-		return "Walk to the " + str(STATION_NAMES.get(m, "station")) + " in the hub to open this."
-	return "That panel is not available right now."
-
-
-static func _notice(state: Object, text: String) -> void:
-	if state == null:
-		return
-	if state.has_method("add_notice"):
-		state.call("add_notice", text)
-	else:
-		state.set("notice_text", text)
-		state.set("notice_time", 2.0)
-
 
 static func _state_get(state: Object, key: String, fallback: Variant = null) -> Variant:
 	if state == null:

@@ -121,6 +121,8 @@ func ensure_defaults() -> void:
 	selected_skill_slot = clampi(selected_skill_slot, 0, max(0, active_skill_slots.size() - 1))
 	recompute_stats()
 
+
+
 func recompute_stats() -> void:
 	build_stats = {}
 	build_rules = []
@@ -178,6 +180,8 @@ func add_xp(amount: float) -> void:
 		passive_points += 1
 		add_notice("Level Up: " + str(level))
 	recompute_stats()
+
+
 
 func on_enemy_killed(enemy_level: int, elite: bool, boss: bool) -> void:
 	kills += 1

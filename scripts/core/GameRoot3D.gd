@@ -129,7 +129,7 @@ func _handle_key(keycode: int) -> void:
 				else:
 					combat.call("manual_pickup_near", state, player.global_position)
 			else:
-				state.call("add_notice", "Use E near hub stations. Press T to start a map.")
+				return
 		KEY_SPACE:
 			if str(state.get("mode")) == "combat": _cast_selected_skill(_mouse_world())
 		KEY_Q:
@@ -192,9 +192,9 @@ func _handle_panel_key(keycode: int) -> void:
 		elif keycode == KEY_S: SkillGemSystemScript.add_next_valid_support(state)
 		elif keycode == KEY_W: SkillGemSystemScript.remove_last_support(state)
 		elif keycode == KEY_G: SkillGemSystemScript.toggle_next_spirit(state)
-		elif keycode == KEY_Y: SkillGemSystemScript.carve_first_uncut(state, "active")
-		elif keycode == KEY_T: SkillGemSystemScript.carve_first_uncut(state, "support")
-		elif keycode == KEY_B: SkillGemSystemScript.carve_first_uncut(state, "spirit")
+		elif keycode == KEY_Y: state.call("add_notice", "Use the Gem screen with the mouse: select an Uncut Gem, then choose what to carve.")
+		elif keycode == KEY_T: state.call("add_notice", "Use the Gem screen with the mouse: select an Uncut Support Gem, then choose a support.")
+		elif keycode == KEY_B: state.call("add_notice", "Use the Gem screen with the mouse: select an Uncut Spirit Gem, then choose a spirit gem.")
 	elif mode == "maps":
 		var maps: Array = Array(state.get("map_stash"))
 		if not maps.is_empty():

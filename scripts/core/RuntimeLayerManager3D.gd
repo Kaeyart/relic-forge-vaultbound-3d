@@ -15,9 +15,7 @@ var layer_specs: Array[Dictionary] = [
 	{"name": "LootPresentationLayer096F", "path": "res://scripts/visual/LootPresentationLayer3D.gd", "required": false, "flag": "loot_presentation_layer"},
 	{"name": "CombatFeedbackLayer096G", "path": "res://scripts/visual/CombatFeedbackLayer3D.gd", "required": false, "flag": "combat_feedback_layer"},
 	{"name": "CombatDirectorLayer097A", "path": "res://scripts/visual/CombatDirectorLayer3D.gd", "required": false, "flag": "combat_director_layer"},
-	{"name": "VerticalSliceDebugOverlay098A", "path": "res://scripts/visual/VerticalSliceDebugOverlay3D.gd", "required": false, "flag": "vertical_slice_debug_overlay"},
 	{"name": "CombatFeelLayer098B", "path": "res://scripts/visual/CombatFeelLayer3D.gd", "required": false, "flag": "combat_feel_layer"},
-	{"name": "HubStationLayer098C", "path": "res://scripts/visual/HubStationLayer3D.gd", "required": false, "flag": "hub_station_layer"},
 	{"name": "GameFlowDirector099A", "path": "res://scripts/systems/GameFlowDirector3D.gd", "required": false, "flag": "game_flow_director"},
 ]
 
