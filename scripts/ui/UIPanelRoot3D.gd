@@ -61,16 +61,16 @@ func _build_shell() -> void:
 	var shell: HBoxContainer = HBoxContainer.new()
 	shell.name = "Shell"
 	shell.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shell.offset_left = 24
-	shell.offset_top = 24
-	shell.offset_right = -24
-	shell.offset_bottom = -24
-	shell.add_theme_constant_override("separation", 10)
+	shell.offset_left = 8
+	shell.offset_top = 8
+	shell.offset_right = -8
+	shell.offset_bottom = -8
+	shell.add_theme_constant_override("separation", 8)
 	_root.add_child(shell)
 
 	_sidebar = VBoxContainer.new()
 	_sidebar.name = "Sidebar"
-	_sidebar.custom_minimum_size = Vector2(190, 0)
+	_sidebar.custom_minimum_size = Vector2(172, 0)
 	_sidebar.add_theme_constant_override("separation", 6)
 	shell.add_child(_sidebar)
 
@@ -121,7 +121,7 @@ func _build_sidebar(active: String) -> void:
 	for child: Node in _sidebar.get_children():
 		child.queue_free()
 
-	var title: RichTextLabel = _rich_label("[font_size=18][color=#c59b4a][b]" + UIAccessSystemScript.panel_title(active).to_upper() + "[/b][/color][/font_size]\n[color=#8f8777]" + UIAccessSystemScript.panel_hint(active) + "[/color]", 13)
+	var title: RichTextLabel = _rich_label("[font_size=15][color=#c59b4a][b]" + UIAccessSystemScript.panel_title(active).to_upper() + "[/b][/color][/font_size]\n[color=#8f8777]" + UIAccessSystemScript.panel_hint(active) + "[/color]", 12)
 	_sidebar.add_child(title)
 
 	var active_label: RichTextLabel = _rich_label("[color=#c59b4a]Current[/color]\n" + UIAccessSystemScript.panel_title(active), 14)
@@ -135,7 +135,7 @@ func _build_sidebar(active: String) -> void:
 
 	var close_button: Button = Button.new()
 	close_button.text = "Close"
-	close_button.custom_minimum_size = Vector2(170, 42)
+	close_button.custom_minimum_size = Vector2(152, 36)
 	close_button.focus_mode = Control.FOCUS_NONE
 	close_button.pressed.connect(Callable(self, "_close"))
 	_sidebar.add_child(close_button)
@@ -143,7 +143,7 @@ func _build_sidebar(active: String) -> void:
 func _add_sidebar_button(mode: String, active: String) -> void:
 	var button: Button = Button.new()
 	button.text = ("▶ " if mode == active else "") + UIAccessSystemScript.panel_title(mode)
-	button.custom_minimum_size = Vector2(170, 42)
+	button.custom_minimum_size = Vector2(152, 36)
 	button.focus_mode = Control.FOCUS_NONE
 	button.disabled = not UIAccessSystemScript.can_open_panel(state_ref, mode, false)
 	button.pressed.connect(Callable(self, "_set_mode").bind(mode))

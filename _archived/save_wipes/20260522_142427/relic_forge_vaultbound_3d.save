@@ -1,0 +1,614 @@
+{
+	"active_gem_inventory": [
+		{
+			"gem_id": "fireball",
+			"kind": "active",
+			"level": 2.0,
+			"name": "Fireball",
+			"tags": [
+				"spell",
+				"fire",
+				"projectile"
+			],
+			"uid": "active_1",
+			"xp": 211.8
+		},
+		{
+			"gem_id": "storm_lance",
+			"kind": "active",
+			"level": 2.0,
+			"name": "Storm Lance",
+			"tags": [
+				"spell",
+				"lightning",
+				"projectile",
+				"line"
+			],
+			"uid": "active_2",
+			"xp": 211.8
+		},
+		{
+			"gem_id": "arc_slash",
+			"kind": "active",
+			"level": 2.0,
+			"name": "Arc Slash",
+			"tags": [
+				"attack",
+				"melee",
+				"physical",
+				"area"
+			],
+			"uid": "active_3",
+			"xp": 211.8
+		},
+		{
+			"gem_id": "void_rift",
+			"kind": "active",
+			"level": 2.0,
+			"name": "Void Rift",
+			"tags": [
+				"spell",
+				"void",
+				"area"
+			],
+			"uid": "active_4",
+			"xp": 211.8
+		},
+		{
+			"gem_id": "ember_mine",
+			"kind": "active",
+			"level": 1.0,
+			"name": "Ember Mine",
+			"tags": [
+				"trap",
+				"fire",
+				"area"
+			],
+			"uid": "active_5",
+			"xp": 0.0
+		}
+	],
+	"completed_maps": {
+		"ash_vault": true
+	},
+	"deaths": 0,
+	"equipped": {
+		"amulet": {
+
+		},
+		"boots": {
+
+		},
+		"chest": {
+
+		},
+		"gloves": {
+
+		},
+		"head": {
+
+		},
+		"offhand": {
+
+		},
+		"relic": {
+
+		},
+		"ring1": {
+
+		},
+		"ring2": {
+
+		},
+		"weapon": {
+
+		}
+	},
+	"gem_uid_counter": 20,
+	"gold": 191,
+	"health_flask_charges": 3,
+	"inventory": [
+		{
+			"base_id": "apprentice_wand",
+			"crafted_mods": [],
+			"display_name": "Runed Apprentice Wand",
+			"forge_potential": 21.0,
+			"implicit_stats": {
+				"spell_damage": 0.04
+			},
+			"item_level": 1.0,
+			"item_type": "weapon",
+			"prefixes": [],
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "weapon",
+			"suffixes": [
+				{
+					"id": "projectile_focus",
+					"min_level": 1.0,
+					"name": "Piercer's",
+					"stats": {
+						"projectile_damage": 0.11
+					},
+					"tags": [
+						"weapon",
+						"projectile"
+					],
+					"type": "suffix"
+				}
+			],
+			"tags": [
+				"weapon",
+				"caster",
+				"spell",
+				"projectile"
+			],
+			"total_stats": {
+				"projectile_damage": 0.11,
+				"spell_damage": 0.04
+			},
+			"uid": "item_1146659_1205"
+		},
+		{
+			"base_id": "cloth_robe",
+			"crafted_mods": [],
+			"display_name": "Runed Cloth Robe",
+			"forge_potential": 12.0,
+			"implicit_stats": {
+				"maximum_mana": 8.0
+			},
+			"item_level": 1.0,
+			"item_type": "armor",
+			"prefixes": [
+				{
+					"id": "storm_spell",
+					"min_level": 1.0,
+					"name": "Stormcall",
+					"stats": {
+						"lightning_damage": 0.09,
+						"spell_damage": 0.08
+					},
+					"tags": [
+						"weapon",
+						"caster",
+						"lightning"
+					],
+					"type": "prefix"
+				}
+			],
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "chest",
+			"suffixes": [],
+			"tags": [
+				"armor",
+				"caster",
+				"life"
+			],
+			"total_stats": {
+				"lightning_damage": 0.09,
+				"maximum_mana": 8.0,
+				"spell_damage": 0.08
+			},
+			"uid": "item_1147361_7824"
+		},
+		{
+			"base_id": "ash_amulet",
+			"crafted_mods": [],
+			"display_name": "Runed Ash Amulet",
+			"forge_potential": 13.0,
+			"implicit_stats": {
+				"fire_damage": 0.04
+			},
+			"item_level": 1.0,
+			"item_type": "jewelry",
+			"prefixes": [
+				{
+					"id": "squire_life",
+					"min_level": 1.0,
+					"name": "Squire's",
+					"stats": {
+						"maximum_life": 18.0
+					},
+					"tags": [
+						"armor",
+						"jewelry",
+						"life"
+					],
+					"type": "prefix"
+				}
+			],
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "amulet",
+			"suffixes": [
+				{
+					"id": "void_res",
+					"min_level": 1.0,
+					"name": "of Hollow Warding",
+					"stats": {
+						"void_resistance": 0.11
+					},
+					"tags": [
+						"armor",
+						"jewelry",
+						"resistance"
+					],
+					"type": "suffix"
+				}
+			],
+			"tags": [
+				"jewelry",
+				"caster",
+				"fire",
+				"resistance"
+			],
+			"total_stats": {
+				"fire_damage": 0.04,
+				"maximum_life": 18.0,
+				"void_resistance": 0.11
+			},
+			"uid": "item_26093677_8412"
+		},
+		{
+			"base_id": "iron_cuirass",
+			"crafted_mods": [],
+			"display_name": "Vault-Forged Iron Cuirass",
+			"forge_potential": 21.0,
+			"implicit_stats": {
+				"armor": 14.0
+			},
+			"item_level": 1.0,
+			"item_type": "armor",
+			"prefixes": [
+				{
+					"id": "squire_life",
+					"min_level": 1.0,
+					"name": "Squire's",
+					"stats": {
+						"maximum_life": 18.0
+					},
+					"tags": [
+						"armor",
+						"jewelry",
+						"life"
+					],
+					"type": "prefix"
+				},
+				{
+					"id": "ironhide",
+					"min_level": 1.0,
+					"name": "Ironhide",
+					"stats": {
+						"armor": 16.0
+					},
+					"tags": [
+						"armor",
+						"defense"
+					],
+					"type": "prefix"
+				}
+			],
+			"rarity": "rare",
+			"required_level": 1.0,
+			"slot": "chest",
+			"suffixes": [
+				{
+					"id": "void_res",
+					"min_level": 1.0,
+					"name": "of Hollow Warding",
+					"stats": {
+						"void_resistance": 0.11
+					},
+					"tags": [
+						"armor",
+						"jewelry",
+						"resistance"
+					],
+					"type": "suffix"
+				},
+				{
+					"id": "fire_res",
+					"min_level": 1.0,
+					"name": "of Ash Warding",
+					"stats": {
+						"fire_resistance": 0.11
+					},
+					"tags": [
+						"armor",
+						"jewelry",
+						"resistance"
+					],
+					"type": "suffix"
+				},
+				{
+					"id": "lightning_res",
+					"min_level": 1.0,
+					"name": "of Copper Warding",
+					"stats": {
+						"lightning_resistance": 0.11
+					},
+					"tags": [
+						"armor",
+						"jewelry",
+						"resistance"
+					],
+					"type": "suffix"
+				}
+			],
+			"tags": [
+				"armor",
+				"defense",
+				"life"
+			],
+			"total_stats": {
+				"armor": 30.0,
+				"fire_resistance": 0.11,
+				"lightning_resistance": 0.11,
+				"maximum_life": 18.0,
+				"void_resistance": 0.11
+			},
+			"uid": "item_31424051_4533"
+		}
+	],
+	"inventory_cursor": 0,
+	"kills": 12,
+	"level": 3,
+	"mana_flask_charges": 3,
+	"map_stash": [
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault Map T1",
+			"item_type": "map",
+			"map_level": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "",
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"uid": "map_1147382_2455"
+		},
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault Map T1",
+			"item_type": "map",
+			"map_level": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "",
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"uid": "map_9884467_8029"
+		},
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault Map T1",
+			"item_type": "map",
+			"map_level": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "",
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"uid": "map_19010383_9412"
+		},
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault Map T1",
+			"item_type": "map",
+			"map_level": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "",
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"uid": "map_31424118_6801"
+		}
+	],
+	"mode": "hub",
+	"selected_skill_slot": 0,
+	"skill_loadout": [
+		{
+			"active_uid": "active_1",
+			"support_uids": []
+		},
+		{
+			"active_uid": "active_2",
+			"support_uids": []
+		},
+		{
+			"active_uid": "active_3",
+			"support_uids": []
+		},
+		{
+			"active_uid": "active_4",
+			"support_uids": []
+		}
+	],
+	"spirit_gem_inventory": [
+		{
+			"enabled": false,
+			"gem_id": "clarity",
+			"kind": "spirit",
+			"level": 1.0,
+			"name": "Clarity",
+			"reservation": 10.0,
+			"uid": "spirit_14",
+			"xp": 0.0
+		},
+		{
+			"enabled": false,
+			"gem_id": "vitality",
+			"kind": "spirit",
+			"level": 1.0,
+			"name": "Vitality",
+			"reservation": 15.0,
+			"uid": "spirit_15",
+			"xp": 0.0
+		},
+		{
+			"enabled": false,
+			"gem_id": "ember_pact",
+			"kind": "spirit",
+			"level": 1.0,
+			"name": "Ember Pact",
+			"reservation": 20.0,
+			"uid": "spirit_16",
+			"xp": 0.0
+		},
+		{
+			"enabled": false,
+			"gem_id": "storm_rhythm",
+			"kind": "spirit",
+			"level": 1.0,
+			"name": "Storm Rhythm",
+			"reservation": 20.0,
+			"uid": "spirit_17",
+			"xp": 0.0
+		},
+		{
+			"enabled": false,
+			"gem_id": "void_tithe",
+			"kind": "spirit",
+			"level": 1.0,
+			"name": "Void Tithe",
+			"reservation": 25.0,
+			"uid": "spirit_18",
+			"xp": 0.0
+		},
+		{
+			"enabled": false,
+			"gem_id": "iron_skin",
+			"kind": "spirit",
+			"level": 1.0,
+			"name": "Iron Skin",
+			"reservation": 15.0,
+			"uid": "spirit_19",
+			"xp": 0.0
+		}
+	],
+	"support_gem_inventory": [
+		{
+			"gem_id": "controlled_power",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Controlled Power",
+			"tags": [
+				"spell",
+				"attack",
+				"projectile",
+				"area",
+				"melee",
+				"fire",
+				"lightning",
+				"void"
+			],
+			"uid": "support_6",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "efficient_casting",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Efficient Casting",
+			"tags": [
+				"spell",
+				"trap"
+			],
+			"uid": "support_7",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "greater_area",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Greater Area",
+			"tags": [
+				"area",
+				"melee",
+				"trap"
+			],
+			"uid": "support_8",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "split_projectile",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Split Projectile",
+			"tags": [
+				"projectile"
+			],
+			"uid": "support_9",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "chain_current",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Chain Current",
+			"tags": [
+				"lightning",
+				"projectile"
+			],
+			"uid": "support_10",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "ignition",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Ignition",
+			"tags": [
+				"fire"
+			],
+			"uid": "support_11",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "bleed_edge",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Bleed Edge",
+			"tags": [
+				"melee",
+				"attack",
+				"physical"
+			],
+			"uid": "support_12",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "echoing_void",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Echoing Void",
+			"tags": [
+				"void"
+			],
+			"uid": "support_13",
+			"xp": 0.0
+		},
+		{
+			"gem_id": "ignition",
+			"kind": "support",
+			"level": 1.0,
+			"name": "Ignition",
+			"tags": [
+				"fire"
+			],
+			"uid": "gemdrop_31424088_support",
+			"xp": 0.0
+		}
+	],
+	"version": 7,
+	"xp": 30.3246933557255
+}

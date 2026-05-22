@@ -1,0 +1,79 @@
+{
+	"backpack": [],
+	"equipped": {
+		"amulet": null,
+		"boots": null,
+		"chest": null,
+		"gloves": null,
+		"head": {
+			"desc": "Risk/reward caster gear. Dropped at depth 1.",
+			"drop_depth": 1.0,
+			"flags": [],
+			"name": "Rare Blood Head",
+			"rarity": "Rare",
+			"slot": "head",
+			"stats": {
+				"max_hp": 9.0,
+				"max_mana": 9.0,
+				"spell_damage": 0.065
+			}
+		},
+		"offhand": null,
+		"relic": null,
+		"ring1": null,
+		"ring2": null,
+		"weapon": {
+			"desc": "Weak starter focus. Replace this through crafting or dungeon loot.",
+			"flags": [],
+			"name": "Cracked Initiate Focus",
+			"rarity": "Starter",
+			"slot": "weapon",
+			"stats": {
+				"spell_damage": 0.03
+			}
+		}
+	},
+	"gold": 24,
+	"level": 1,
+	"loadout": [
+		"Fireball",
+		"Cleave"
+	],
+	"mastery_points": 0.0,
+	"materials": {
+		"echo_glass": 0.0,
+		"embers": 18,
+		"runes": 0.0,
+		"shards": 6
+	},
+	"name": "Vaultbound",
+	"passives": {
+		"ash": 0.0,
+		"blood": 0.0,
+		"frost": 0.0,
+		"relic": 0.0,
+		"steel": 0.0,
+		"storm": 0.0,
+		"trap": 0.0,
+		"void": 0.0
+	},
+	"skill_board": {
+		"Blade Trap": 0.0,
+		"Cleave": 0.0,
+		"Fireball": 0.0,
+		"Frost Nova": 0.0,
+		"Storm Lance": 0.0,
+		"Void Rift": 0.0
+	},
+	"stash": [],
+	"stats": {
+		"deaths": 0.0,
+		"highest_contract": 1.0,
+		"items_crafted": 0.0,
+		"kills_total": 8,
+		"rooms_total": 0.0,
+		"runs_total": 3
+	},
+	"version": 9.0,
+	"xp": 96.0
+}

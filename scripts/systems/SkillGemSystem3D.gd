@@ -293,6 +293,7 @@ static func ensure_defaults(state: Object) -> void:
 	inventory = _normalize_inventory(state, inventory)
 	inventory = _ensure_starter_gem_inventory_access(state, inventory)
 	state.set("gem_inventory", inventory)
+	_rf_102a_ensure_fresh_starter_loadout(state)
 
 	_recalculate_spirit(state)
 	_refresh_active_skill_slots_mirror(state)
@@ -1686,29 +1687,134 @@ static func _rf_normalize_spirit_stat_key(key: String) -> String:
 		_:
 			return key.replace("_", " ").capitalize()
 
-static func make_gem_item_from_drop(drop: Dictionary) -> Dictionary:
-	if drop.is_empty():
-		return {}
+static func _rf_102a_ensure_fresh_starter_loadout(state: Object) -> void:
+	if state == null:
+		return
 
-	var source_kind: String = str(drop.get("kind", drop.get("item_kind", "")))
-	var gem_id: String = str(drop.get("gem_id", ""))
-	var gem_level: int = maxi(1, int(drop.get("gem_level", drop.get("level", 1))))
-	var rarity: String = str(drop.get("rarity", "gem"))
+	# Fresh-save testability rule:
+	# the player must always have a usable active gem, one spirit gem,
+	# several supports, and one uncut gem of each category to test carving.
+	var page: Array = _as_array(_state_get(state, "equipped_gem_page", []))
+	if page.is_empty():
+		page = []
+	while page.size() < MAX_ACTIVE_ROWS:
+		page.append({})
+
+	var first_uid: String = _rf_102a_first_active_uid(page)
+	if first_uid == "":
+		var starter_active: Dictionary = _make_active_instance(state, "fireball", 1)
+		page[0] = starter_active
+		first_uid = str(starter_active.get("uid", ""))
+	state.set("equipped_gem_page", page)
+	state.set("selected_gem_uid", str(_state_get(state, "selected_gem_uid", first_uid)) if str(_state_get(state, "selected_gem_uid", "")) != "" else first_uid)
+
+	var hotbar: Array = _as_array(_state_get(state, "hotbar_slots", []))
+	while hotbar.size() < HOTBAR_SIZE:
+		hotbar.append("")
+	if str(hotbar[0]) == "" and first_uid != "":
+		hotbar[0] = first_uid
+	state.set("hotbar_slots", hotbar)
+	state.set("selected_hotbar_slot", clampi(_to_int(_state_get(state, "selected_hotbar_slot", 0)), 0, HOTBAR_SIZE - 1))
+	state.set("selected_skill_slot", clampi(_to_int(_state_get(state, "selected_skill_slot", 0)), 0, HOTBAR_SIZE - 1))
+
+	var inventory: Array = _as_array(_state_get(state, "gem_inventory", []))
+	var starter_supports: Array[String] = [
+		"split_projectile",
+		"ignition",
+		"controlled_power",
+		"greater_area",
+		"chain_current",
+		"life_leech",
+	]
+	for support_id: String in starter_supports:
+		if not _rf_102a_inventory_has_gem(inventory, KIND_SUPPORT, support_id):
+			inventory.append(_make_support_instance(state, support_id, 1))
+
+	if not _rf_102a_has_uncut(inventory, KIND_UNCUT_ACTIVE):
+		inventory.append(_make_uncut_instance(state, KIND_UNCUT_ACTIVE, 1))
+	if not _rf_102a_has_uncut(inventory, KIND_UNCUT_SUPPORT):
+		inventory.append(_make_uncut_instance(state, KIND_UNCUT_SUPPORT, 1))
+	if not _rf_102a_has_uncut(inventory, KIND_UNCUT_SPIRIT):
+		inventory.append(_make_uncut_instance(state, KIND_UNCUT_SPIRIT, 1))
+	state.set("gem_inventory", inventory)
+
+	var spirits: Array = _as_array(_state_get(state, "spirit_gem_slots", []))
+	if not _rf_102a_has_spirit(spirits, "ember_pact"):
+		spirits.append(_make_spirit_instance(state, "ember_pact", 1))
+	state.set("spirit_gem_slots", spirits)
+
+	if str(_state_get(state, "gem_last_message", "")) == "" or str(_state_get(state, "gem_last_message", "")) == "Gem system ready.":
+		_set_message(state, "Starter gem loadout granted: Fireball, Ember Pact, supports, and uncut gems.")
+
+	_recalculate_spirit(state)
+	_refresh_active_skill_slots_mirror(state)
+
+
+static func _rf_102a_inventory_has_gem(inventory: Array, kind_value: String, gem_id_value: String) -> bool:
+	for value: Variant in inventory:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+		var gem: Dictionary = Dictionary(value)
+		if str(gem.get("kind", "")) == kind_value and str(gem.get("gem_id", "")) == gem_id_value and str(gem.get("equipped_to", "")) == "":
+			return true
+	return false
+
+
+static func _rf_102a_has_uncut(inventory: Array, kind_value: String) -> bool:
+	for value: Variant in inventory:
+		if typeof(value) == TYPE_DICTIONARY and str(Dictionary(value).get("kind", "")) == kind_value:
+			return true
+	return false
+
+
+static func _rf_102a_has_spirit(spirits: Array, gem_id_value: String) -> bool:
+	for value: Variant in spirits:
+		if typeof(value) == TYPE_DICTIONARY and str(Dictionary(value).get("gem_id", "")) == gem_id_value:
+			return true
+	return false
+
+
+static func _rf_102a_first_active_uid(page: Array) -> String:
+	for value: Variant in page:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+		var gem: Dictionary = Dictionary(value)
+		if gem.is_empty():
+			continue
+		if str(gem.get("kind", "")) == KIND_ACTIVE:
+			var uid: String = str(gem.get("uid", ""))
+			if uid != "":
+				return uid
+	return ""
+
+static func make_gem_item_from_drop(drop_or_kind: Variant, gem_id_arg: String = "") -> Dictionary:
+	var source_kind: String = ""
+	var gem_id_value: String = ""
+	var gem_level: int = 1
+
+	if typeof(drop_or_kind) == TYPE_DICTIONARY:
+		var drop: Dictionary = Dictionary(drop_or_kind)
+		source_kind = str(drop.get("kind", drop.get("item_kind", "")))
+		gem_id_value = str(drop.get("gem_id", gem_id_arg))
+		gem_level = maxi(1, int(drop.get("gem_level", drop.get("level", 1))))
+	else:
+		source_kind = str(drop_or_kind)
+		gem_id_value = gem_id_arg
 
 	var uncut_kind: String = "uncut_skill_gem"
 	var display_type: String = "Uncut Skill Gem"
 	var can_create: String = "active"
 
 	match source_kind:
-		"active_gem", "skill_gem", "uncut_skill_gem", "uncut_active_gem":
+		"active_gem", "skill_gem", "active", "skill", "uncut_skill_gem", "uncut_active_gem":
 			uncut_kind = "uncut_skill_gem"
 			display_type = "Uncut Skill Gem"
 			can_create = "active"
-		"support_gem", "uncut_support_gem":
+		"support_gem", "support", "uncut_support_gem":
 			uncut_kind = "uncut_support_gem"
 			display_type = "Uncut Support Gem"
 			can_create = "support"
-		"spirit_gem", "uncut_spirit_gem":
+		"spirit_gem", "spirit", "uncut_spirit_gem":
 			uncut_kind = "uncut_spirit_gem"
 			display_type = "Uncut Spirit Gem"
 			can_create = "spirit"
@@ -1722,9 +1828,7 @@ static func make_gem_item_from_drop(drop: Dictionary) -> Dictionary:
 				display_type = "Uncut Spirit Gem"
 				can_create = "spirit"
 
-	var uid: String = str(drop.get("uid", ""))
-	if uid == "":
-		uid = uncut_kind + "_" + str(Time.get_ticks_msec()) + "_" + str(randi() % 100000)
+	var uid: String = uncut_kind + "_" + str(Time.get_ticks_msec()) + "_" + str(randi() % 100000)
 
 	return {
 		"uid": uid,
@@ -1733,8 +1837,8 @@ static func make_gem_item_from_drop(drop: Dictionary) -> Dictionary:
 		"item_kind": uncut_kind,
 		"category": "gem",
 		"slot": "",
-		"rarity": rarity,
-		"gem_id": gem_id,
+		"rarity": "gem",
+		"gem_id": gem_id_value,
 		"gem_level": gem_level,
 		"gem_tier": gem_level,
 		"level": gem_level,

@@ -1,0 +1,822 @@
+{
+	"active_gems_owned": {
+
+	},
+	"active_skill_slots": [],
+	"backpack": [
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Support Gem Lv.3",
+			"favorite": false,
+			"gem_level": 3.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 2.0,
+			"grid_y": 0.0,
+			"id": "uncut_support_core_1574953_33551",
+			"identified": true,
+			"inventory_version": 2.0,
+			"item_kind": "uncut_support",
+			"item_level": 3.0,
+			"kind": "uncut_support",
+			"level": 3.0,
+			"locked": false,
+			"name": "Uncut Support Gem",
+			"new_item": false,
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1574954_39522"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Support Gem Lv.5",
+			"favorite": false,
+			"gem_level": 5.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 3.0,
+			"grid_y": 0.0,
+			"id": "uncut_support_core_1574960_98071",
+			"identified": true,
+			"inventory_version": 2.0,
+			"item_kind": "uncut_support",
+			"item_level": 5.0,
+			"kind": "uncut_support",
+			"level": 5.0,
+			"locked": false,
+			"name": "Uncut Support Gem",
+			"new_item": false,
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1574961_78539"
+		},
+		{
+			"base_id": "uncut_spirit",
+			"category": "skill_gem",
+			"detail_text": "Uncut Spirit Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Spirit Gem Lv.3",
+			"favorite": false,
+			"gem_level": 3.0,
+			"gem_type": "uncut_spirit",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 4.0,
+			"grid_y": 0.0,
+			"id": "uncut_spirit_core_1574966_13356",
+			"identified": true,
+			"inventory_version": 2.0,
+			"item_kind": "uncut_spirit",
+			"item_level": 3.0,
+			"kind": "uncut_spirit",
+			"level": 3.0,
+			"locked": false,
+			"name": "Uncut Spirit Gem",
+			"new_item": false,
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_spirit",
+			"slot": "uncut_spirit",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_spirit"
+			],
+			"uid": "uncut_spirit_core_1574968_45648"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Support Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1615558_82901",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 3.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1615560_33389"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Support Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1615565_47099",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 5.0,
+			"name": "Uncut Support Gem",
+			"new_item": false,
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1615566_69124"
+		},
+		{
+			"base_id": "uncut_spirit",
+			"category": "skill_gem",
+			"detail_text": "Uncut Spirit Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Spirit Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_spirit",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_spirit_core_1615572_70172",
+			"identified": true,
+			"item_kind": "uncut_spirit",
+			"kind": "uncut_spirit",
+			"level": 3.0,
+			"name": "Uncut Spirit Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_spirit",
+			"slot": "uncut_spirit",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_spirit"
+			],
+			"uid": "uncut_spirit_core_1615573_87361"
+		},
+		{
+			"base_id": "uncut_active",
+			"category": "skill_gem",
+			"detail_text": "Uncut Skill Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Skill Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_active",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_active_core_1439805_19423",
+			"identified": true,
+			"item_kind": "uncut_active",
+			"kind": "uncut_active",
+			"level": 3.0,
+			"name": "Uncut Skill Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_active",
+			"slot": "uncut_active",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_active"
+			],
+			"uid": "uncut_active_core_1439806_40521"
+		},
+		{
+			"base_id": "uncut_active",
+			"category": "skill_gem",
+			"detail_text": "Uncut Skill Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Skill Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_active",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_active_core_1439814_32994",
+			"identified": true,
+			"item_kind": "uncut_active",
+			"kind": "uncut_active",
+			"level": 5.0,
+			"name": "Uncut Skill Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_active",
+			"slot": "uncut_active",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_active"
+			],
+			"uid": "uncut_active_core_1439815_23817"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Support Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1439821_61995",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 3.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1439823_34515"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Support Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1439828_61780",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 5.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1439829_59408"
+		},
+		{
+			"base_id": "uncut_spirit",
+			"category": "skill_gem",
+			"detail_text": "Uncut Spirit Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Spirit Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_spirit",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_spirit_core_1439835_40071",
+			"identified": true,
+			"item_kind": "uncut_spirit",
+			"kind": "uncut_spirit",
+			"level": 3.0,
+			"name": "Uncut Spirit Gem",
+			"new_item": false,
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_spirit",
+			"slot": "uncut_spirit",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_spirit"
+			],
+			"uid": "uncut_spirit_core_1439836_38972"
+		},
+		{
+			"base_id": "uncut_active",
+			"category": "skill_gem",
+			"detail_text": "Uncut Skill Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Skill Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_active",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_active_core_1163018_74610",
+			"identified": true,
+			"item_kind": "uncut_active",
+			"kind": "uncut_active",
+			"level": 3.0,
+			"name": "Uncut Skill Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_active",
+			"slot": "uncut_active",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_active"
+			],
+			"uid": "uncut_active_core_1163019_865"
+		},
+		{
+			"base_id": "uncut_active",
+			"category": "skill_gem",
+			"detail_text": "Uncut Skill Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Skill Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_active",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_active_core_1163030_76918",
+			"identified": true,
+			"item_kind": "uncut_active",
+			"kind": "uncut_active",
+			"level": 5.0,
+			"name": "Uncut Skill Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_active",
+			"slot": "uncut_active",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_active"
+			],
+			"uid": "uncut_active_core_1163031_42175"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Support Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1163036_37164",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 3.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1163037_78351"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Support Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1163042_50683",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 5.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1163043_45275"
+		},
+		{
+			"base_id": "uncut_spirit",
+			"category": "skill_gem",
+			"detail_text": "Uncut Spirit Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Spirit Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_spirit",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_spirit_core_1163048_18221",
+			"identified": true,
+			"item_kind": "uncut_spirit",
+			"kind": "uncut_spirit",
+			"level": 3.0,
+			"name": "Uncut Spirit Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_spirit",
+			"slot": "uncut_spirit",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_spirit"
+			],
+			"uid": "uncut_spirit_core_1163049_26583"
+		},
+		{
+			"base_id": "uncut_active",
+			"category": "skill_gem",
+			"detail_text": "Uncut Skill Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Skill Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_active",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_active_core_1251344_59300",
+			"identified": true,
+			"item_kind": "uncut_active",
+			"kind": "uncut_active",
+			"level": 3.0,
+			"name": "Uncut Skill Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_active",
+			"slot": "uncut_active",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_active"
+			],
+			"uid": "uncut_active_core_1251346_44566"
+		},
+		{
+			"base_id": "uncut_active",
+			"category": "skill_gem",
+			"detail_text": "Uncut Skill Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Skill Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_active",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_active_core_1251354_52011",
+			"identified": true,
+			"item_kind": "uncut_active",
+			"kind": "uncut_active",
+			"level": 5.0,
+			"name": "Uncut Skill Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_active",
+			"slot": "uncut_active",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_active"
+			],
+			"uid": "uncut_active_core_1251355_93640"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Support Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1251361_93815",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 3.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1251362_97090"
+		},
+		{
+			"base_id": "uncut_support",
+			"category": "skill_gem",
+			"detail_text": "Uncut Support Gem\nChoose what to carve at the Gem Bench.\nCreates a level 5 gem.",
+			"display_name": "Uncut Support Gem Lv.5",
+			"gem_level": 5.0,
+			"gem_type": "uncut_support",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_support_core_1251368_45033",
+			"identified": true,
+			"item_kind": "uncut_support",
+			"kind": "uncut_support",
+			"level": 5.0,
+			"name": "Uncut Support Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_support",
+			"slot": "uncut_support",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_support"
+			],
+			"uid": "uncut_support_core_1251369_34523"
+		},
+		{
+			"base_id": "uncut_spirit",
+			"category": "skill_gem",
+			"detail_text": "Uncut Spirit Gem\nChoose what to carve at the Gem Bench.\nCreates a level 3 gem.",
+			"display_name": "Uncut Spirit Gem Lv.3",
+			"gem_level": 3.0,
+			"gem_type": "uncut_spirit",
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"id": "uncut_spirit_core_1251374_14993",
+			"identified": true,
+			"item_kind": "uncut_spirit",
+			"kind": "uncut_spirit",
+			"level": 3.0,
+			"name": "Uncut Spirit Gem",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "uncut_spirit",
+			"slot": "uncut_spirit",
+			"tags": [
+				"gem",
+				"uncut",
+				"uncut_spirit"
+			],
+			"uid": "uncut_spirit_core_1251376_18464"
+		}
+	],
+	"class_id": "sorceress",
+	"completed_maps": {
+
+	},
+	"deaths": 370,
+	"equipped": {
+		"amulet": {
+
+		},
+		"boots": {
+
+		},
+		"chest": {
+
+		},
+		"gloves": {
+
+		},
+		"head": {
+
+		},
+		"offhand": {
+
+		},
+		"relic": {
+
+		},
+		"ring1": {
+
+		},
+		"ring2": {
+
+		},
+		"weapon": {
+			"base_id": "ash_wand",
+			"base_name": "Ash Wand",
+			"category": "equipment",
+			"crafted_mods": [],
+			"display_name": "Runic Ash Wand",
+			"forge_potential": 28.0,
+			"implicit_stats": {
+				"Cast Speed": 0.03,
+				"Spell Damage": 0.06
+			},
+			"item_kind": "equipment",
+			"item_level": 1.0,
+			"item_type": "weapon",
+			"kind": "item",
+			"prefixes": [
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"amulet",
+						"ring1",
+						"ring2",
+						"relic"
+					],
+					"id": "weapon_spell_power",
+					"min_level": 1.0,
+					"name": "Runic",
+					"slot": "prefix",
+					"stats": {
+						"Spell Damage": 0.134073414802551
+					},
+					"tags": [
+						"spell",
+						"caster"
+					],
+					"tier": 1.0,
+					"weight": 110.0
+				}
+			],
+			"quality": 0.0,
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "weapon",
+			"sockets": 2.0,
+			"suffixes": [],
+			"tags": [
+				"weapon",
+				"spell",
+				"caster",
+				"fire",
+				"projectile"
+			],
+			"total_stats": {
+				"Cast Speed": 0.03,
+				"Spell Damage": 0.194073414802551
+			},
+			"uid": "item_1556595_4141173173",
+			"unique_rules": [],
+			"unique_stats": {
+
+			},
+			"weapon_family": "wand"
+		}
+	},
+	"gem_progression_seeded": false,
+	"gold": 0,
+	"inventory_cursor": 4,
+	"kills": 0,
+	"level": 1,
+	"map_completion": {
+
+	},
+	"map_cursor": 0,
+	"map_stash": [
+		{
+			"base_id": "ash_vault",
+			"bonus_requirement": "Bonus: complete this map.",
+			"category": "map",
+			"completion_requirement": "Clear the map.",
+			"display_name": "Ash Vault",
+			"entries": 5.0,
+			"item_kind": "map",
+			"item_quantity": 0.0,
+			"item_rarity": 0.0,
+			"kind": "map",
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"map_tier": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "map",
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"uid": "map_1556761_883848370"
+		}
+	],
+	"maps_completed": 0,
+	"materials": {
+		"echo_glass": 0.0,
+		"embers": 25.0,
+		"runes": 2.0,
+		"shards": 12.0,
+		"socket_prisms": 1.0
+	},
+	"passive_points": 0,
+	"selected_skill_slot": 0,
+	"selected_spirit_cursor": 0,
+	"selected_stash_category_id": "cat_general",
+	"selected_stash_tab_id": "tab_general_1",
+	"selected_support_cursor": 0,
+	"spirit_gem_slots": [
+		{
+			"enabled": false,
+			"gem_id": "ember_pact",
+			"kind": "spirit_gem",
+			"level": 1,
+			"quality": 0,
+			"reservation": 30,
+			"spirit_id": "clarity",
+			"support_socket_count": 2,
+			"support_sockets": [
+				"<null>",
+				"<null>",
+				"",
+				"",
+				"",
+				""
+			],
+			"tags": [
+				"spirit",
+				"persistent",
+				"fire",
+				"buff"
+			],
+			"uid": "spirit_clarity_71901966_73039",
+			"unlocked_support_sockets": 2.0,
+			"xp": 0
+		},
+		{
+			"enabled": false,
+			"gem_id": "ember_pact",
+			"kind": "spirit_gem",
+			"level": 1,
+			"quality": 0,
+			"reservation": 30,
+			"spirit_id": "vitality",
+			"support_socket_count": 2,
+			"support_sockets": [
+				"<null>",
+				"<null>",
+				"",
+				"",
+				"",
+				""
+			],
+			"tags": [
+				"spirit",
+				"persistent",
+				"fire",
+				"buff"
+			],
+			"uid": "spirit_vitality_71901995_28148",
+			"unlocked_support_sockets": 2.0,
+			"xp": 0
+		},
+		{
+			"enabled": false,
+			"gem_id": "ember_pact",
+			"kind": "spirit_gem",
+			"level": 1,
+			"quality": 0,
+			"reservation": 30,
+			"spirit_id": "ember_pact",
+			"support_socket_count": 2,
+			"support_sockets": [
+				"<null>",
+				"<null>",
+				"",
+				"",
+				"",
+				""
+			],
+			"tags": [
+				"spirit",
+				"persistent",
+				"fire",
+				"buff"
+			],
+			"uid": "spirit_ember_pact_71902014_65272",
+			"unlocked_support_sockets": 2.0,
+			"xp": 0
+		}
+	],
+	"spirit_gems_owned": {
+
+	},
+	"spirit_max": 30,
+	"spirit_reserved": 0,
+	"stash": [],
+	"stash_categories": [],
+	"stash_search_all": false,
+	"stash_search_query": "",
+	"stash_selected_item_index": -1,
+	"stash_tabs": [],
+	"support_gems_owned": {
+
+	},
+	"version": 87,
+	"xp": 0.0
+}

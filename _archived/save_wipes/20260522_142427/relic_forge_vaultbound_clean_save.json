@@ -1,0 +1,242 @@
+{
+	"active_skills": [
+		"Blade Trap",
+		"Fireball"
+	],
+	"backpack": [
+		{
+			"affixes": [
+				"Cold Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 12.0,
+			"name": "Magic Relic",
+			"rarity": "Magic",
+			"slot": "relic",
+			"stats": {
+				"Cold Damage": 0.096
+			}
+		},
+		{
+			"affixes": [
+				"Void Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 11.0,
+			"name": "Magic Weapon",
+			"rarity": "Magic",
+			"slot": "weapon",
+			"stats": {
+				"Void Damage": 0.088
+			}
+		},
+		{
+			"affixes": [
+				"Lightning Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 12.0,
+			"name": "Rare Weapon",
+			"rarity": "Rare",
+			"slot": "weapon",
+			"stats": {
+				"Lightning Damage": 0.096
+			}
+		},
+		{
+			"affixes": [],
+			"forge_potential": 8.0,
+			"name": "Starter Wand",
+			"rarity": "Common",
+			"slot": "weapon",
+			"stats": {
+				"Spell Damage": 0.06
+			}
+		},
+		{
+			"affixes": [
+				"Melee Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 11.0,
+			"name": "Magic Weapon",
+			"rarity": "Magic",
+			"slot": "weapon",
+			"stats": {
+				"Melee Damage": 0.088
+			}
+		},
+		{
+			"affixes": [
+				"Global Damage"
+			],
+			"description": "A basic crafted item.",
+			"forge_potential": 14.0,
+			"name": "Crafted Item",
+			"rarity": "Crafted",
+			"slot": "relic",
+			"stats": {
+				"Global Damage": 0.054
+			}
+		},
+		{
+			"affixes": [
+				"Global Damage"
+			],
+			"description": "A basic crafted item.",
+			"forge_potential": 14.0,
+			"name": "Crafted Item",
+			"rarity": "Crafted",
+			"slot": "relic",
+			"stats": {
+				"Global Damage": 0.054
+			}
+		},
+		{
+			"affixes": [
+				"Melee Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 11,
+			"name": "Legendary Offhand",
+			"rarity": "Legendary",
+			"slot": "offhand",
+			"stats": {
+				"Melee Damage": 0.088
+			}
+		}
+	],
+	"deaths": 0,
+	"equipped": {
+		"amulet": {
+
+		},
+		"boots": {
+			"affixes": [
+				"Lightning Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 14.0,
+			"name": "Magic Boots",
+			"rarity": "Magic",
+			"slot": "boots",
+			"stats": {
+				"Lightning Damage": 0.112
+			}
+		},
+		"chest": {
+			"affixes": [
+				"Void Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 13.0,
+			"name": "Rare Chest",
+			"rarity": "Rare",
+			"slot": "chest",
+			"stats": {
+				"Void Damage": 0.104
+			}
+		},
+		"gloves": {
+
+		},
+		"head": {
+
+		},
+		"offhand": {
+			"affixes": [
+				"Cold Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 12.0,
+			"name": "Magic Offhand",
+			"rarity": "Magic",
+			"slot": "offhand",
+			"stats": {
+				"Cold Damage": 0.096
+			}
+		},
+		"relic": {
+			"affixes": [
+				"Global Damage"
+			],
+			"description": "A basic crafted item.",
+			"forge_potential": 14.0,
+			"name": "Crafted Item",
+			"rarity": "Crafted",
+			"slot": "relic",
+			"stats": {
+				"Global Damage": 0.054
+			}
+		},
+		"ring1": {
+
+		},
+		"ring2": {
+
+		},
+		"weapon": {
+			"affixes": [
+				"Void Damage"
+			],
+			"description": "A simple generated item.",
+			"forge_potential": 11.0,
+			"name": "Rare Weapon",
+			"rarity": "Rare",
+			"slot": "weapon",
+			"stats": {
+				"Void Damage": 0.088
+			}
+		}
+	},
+	"gold": 430,
+	"kills": 59,
+	"level": 4,
+	"mastery_points": 0,
+	"materials": {
+		"echo_glass": 0.0,
+		"embers": 69,
+		"runes": 0.0,
+		"shards": 23
+	},
+	"passive_nodes": {
+		"cold_1": false,
+		"fire_1": true,
+		"life_1": true,
+		"lightning_1": false,
+		"mana_1": true,
+		"melee_1": false,
+		"trap_1": false,
+		"void_1": false
+	},
+	"refund_points": 6,
+	"rooms_cleared": 9,
+	"selected_skill_index": 1,
+	"skill_ranks": {
+		"Blade Trap": 0.0,
+		"Cleave": 0.0,
+		"Fireball": 0.0,
+		"Frost Nova": 0.0,
+		"Storm Lance": 0.0,
+		"Void Rift": 0.0
+	},
+	"skill_supports": {
+		"Blade Trap": [],
+		"Cleave": [],
+		"Fireball": [],
+		"Frost Nova": [],
+		"Storm Lance": [],
+		"Void Rift": []
+	},
+	"stash": [],
+	"unlocked_skills": [
+		"Fireball",
+		"Cleave",
+		"Frost Nova",
+		"Storm Lance",
+		"Void Rift",
+		"Blade Trap"
+	],
+	"version": 21,
+	"xp": 594.5341305249
+}

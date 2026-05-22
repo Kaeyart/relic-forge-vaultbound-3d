@@ -1,0 +1,55 @@
+{
+	"backpack": [],
+	"character_level": 2.0,
+	"character_name": "Vaultbound",
+	"character_xp": 38.5,
+	"crafted_items": 0.0,
+	"equipped": {
+		"amulet": null,
+		"boots": null,
+		"chest": null,
+		"gloves": null,
+		"head": null,
+		"offhand": null,
+		"relic": null,
+		"ring1": null,
+		"ring2": null,
+		"weapon": null
+	},
+	"highest_depth": 3.0,
+	"kills_total": 14.0,
+	"loadout_skills": [
+		"Blade Trap",
+		"Fireball"
+	],
+	"mastery_alloc": {
+		"ash": 0.0,
+		"blood": 0.0,
+		"frost": 0.0,
+		"relic": 0.0,
+		"steel": 0.0,
+		"storm": 0.0,
+		"trap": 0.0,
+		"void": 0.0
+	},
+	"mastery_points": 1.0,
+	"materials": {
+		"echo_glass": 0.0,
+		"embers": 14.0,
+		"runes": 1.0,
+		"shards": 9.0
+	},
+	"rooms_cleared_total": 3.0,
+	"runs_started": 0.0,
+	"stash": [],
+	"total_mastery_points_earned": 1.0,
+	"unlocked_skills": [
+		"Fireball",
+		"Cleave",
+		"Frost Nova",
+		"Storm Lance",
+		"Void Rift",
+		"Blade Trap"
+	],
+	"version": 7.0
+}

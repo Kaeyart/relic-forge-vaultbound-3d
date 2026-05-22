@@ -64,63 +64,63 @@ func _build_layout() -> void:
 	var root: MarginContainer = MarginContainer.new()
 	root.name = "GemTransactionRoot"
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 16)
-	root.add_theme_constant_override("margin_right", 16)
-	root.add_theme_constant_override("margin_top", 12)
-	root.add_theme_constant_override("margin_bottom", 12)
+	root.add_theme_constant_override("margin_left", 6)
+	root.add_theme_constant_override("margin_right", 6)
+	root.add_theme_constant_override("margin_top", 6)
+	root.add_theme_constant_override("margin_bottom", 6)
 	add_child(root)
 
 	var main: VBoxContainer = VBoxContainer.new()
 	main.name = "Main"
-	main.add_theme_constant_override("separation", 10)
+	main.add_theme_constant_override("separation", 6)
 	root.add_child(main)
 
 	var header: PanelContainer = _panel(BG, GOLD, 2)
-	header.custom_minimum_size = Vector2(0, 58)
+	header.custom_minimum_size = Vector2(0, 46)
 	main.add_child(header)
 
-	var header_margin: MarginContainer = _margin(14, 8, 14, 8)
+	var header_margin: MarginContainer = _margin(10, 5, 10, 5)
 	header.add_child(header_margin)
 
 	var header_row: HBoxContainer = HBoxContainer.new()
-	header_row.add_theme_constant_override("separation", 12)
+	header_row.add_theme_constant_override("separation", 8)
 	header_margin.add_child(header_row)
 
 	var title: Label = Label.new()
 	title.text = "SKILL GEMS · GEMCUTTING BENCH"
-	title.add_theme_font_size_override("font_size", 23)
+	title.add_theme_font_size_override("font_size", 18)
 	title.add_theme_color_override("font_color", GOLD)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_row.add_child(title)
 
-	var hint: RichTextLabel = _rich("[color=#c59b4a]Mouse-first:[/color] click an Uncut Gem, click the exact carve result, click support sockets to socket/remove. Right-click also activates the visible row.", 13)
-	hint.custom_minimum_size = Vector2(680, 42)
+	var hint: RichTextLabel = _rich("[color=#c59b4a]Mouse-first:[/color] Click Uncut → click result. Click support → click socket.", 11)
+	hint.custom_minimum_size = Vector2(360, 34)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_row.add_child(hint)
 
 	var body: HBoxContainer = HBoxContainer.new()
 	body.name = "Body"
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 10)
+	body.add_theme_constant_override("separation", 8)
 	main.add_child(body)
 
 	var left: VBoxContainer = VBoxContainer.new()
-	left.custom_minimum_size = Vector2(330, 0)
+	left.custom_minimum_size = Vector2(235, 0)
 	left.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left.add_theme_constant_override("separation", 10)
+	left.add_theme_constant_override("separation", 6)
 	body.add_child(left)
 
 	var hotbar_panel: PanelContainer = _panel(BG, BORDER, 1)
 	hotbar_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left.add_child(hotbar_panel)
-	var hotbar_margin: MarginContainer = _margin(10, 10, 10, 10)
+	var hotbar_margin: MarginContainer = _margin(7, 7, 7, 7)
 	hotbar_panel.add_child(hotbar_margin)
 	var hotbar_main: VBoxContainer = VBoxContainer.new()
-	hotbar_main.add_theme_constant_override("separation", 7)
+	hotbar_main.add_theme_constant_override("separation", 5)
 	hotbar_margin.add_child(hotbar_main)
 	hotbar_main.add_child(_section("HOTBAR BINDINGS"))
 	hotbar_box = VBoxContainer.new()
-	hotbar_box.add_theme_constant_override("separation", 6)
+	hotbar_box.add_theme_constant_override("separation", 4)
 	hotbar_main.add_child(hotbar_box)
 
 	var page_panel: PanelContainer = _panel(BG, BORDER, 1)
@@ -129,18 +129,18 @@ func _build_layout() -> void:
 	var page_scroll: ScrollContainer = ScrollContainer.new()
 	page_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	page_panel.add_child(page_scroll)
-	var page_margin: MarginContainer = _margin(10, 10, 10, 10)
+	var page_margin: MarginContainer = _margin(7, 7, 7, 7)
 	page_scroll.add_child(page_margin)
 	var page_main: VBoxContainer = VBoxContainer.new()
-	page_main.add_theme_constant_override("separation", 7)
+	page_main.add_theme_constant_override("separation", 5)
 	page_margin.add_child(page_main)
 	page_main.add_child(_section("EQUIPPED GEM PAGE"))
 	gem_page_box = VBoxContainer.new()
-	gem_page_box.add_theme_constant_override("separation", 6)
+	gem_page_box.add_theme_constant_override("separation", 4)
 	page_main.add_child(gem_page_box)
 
 	var center_panel: PanelContainer = _panel(BG, BORDER, 1)
-	center_panel.custom_minimum_size = Vector2(560, 0)
+	center_panel.custom_minimum_size = Vector2(410, 0)
 	center_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(center_panel)
@@ -148,10 +148,10 @@ func _build_layout() -> void:
 	var center_scroll: ScrollContainer = ScrollContainer.new()
 	center_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	center_panel.add_child(center_scroll)
-	var center_margin: MarginContainer = _margin(14, 14, 14, 14)
+	var center_margin: MarginContainer = _margin(8, 8, 8, 8)
 	center_scroll.add_child(center_margin)
 	var center_main: VBoxContainer = VBoxContainer.new()
-	center_main.add_theme_constant_override("separation", 12)
+	center_main.add_theme_constant_override("separation", 8)
 	center_margin.add_child(center_main)
 	center_main.add_child(_section("SELECTED GEM"))
 	detail_box = VBoxContainer.new()
@@ -159,43 +159,43 @@ func _build_layout() -> void:
 	center_main.add_child(detail_box)
 	center_main.add_child(_section("SUPPORT SOCKETS"))
 	socket_box = HBoxContainer.new()
-	socket_box.add_theme_constant_override("separation", 8)
+	socket_box.add_theme_constant_override("separation", 5)
 	center_main.add_child(socket_box)
 	center_main.add_child(_section("GEMCUTTING TARGETS"))
 	carve_box = VBoxContainer.new()
-	carve_box.add_theme_constant_override("separation", 6)
+	carve_box.add_theme_constant_override("separation", 4)
 	center_main.add_child(carve_box)
 
 	var right_panel: PanelContainer = _panel(BG, BORDER, 1)
-	right_panel.custom_minimum_size = Vector2(410, 0)
+	right_panel.custom_minimum_size = Vector2(260, 0)
 	right_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(right_panel)
 
 	var right_scroll: ScrollContainer = ScrollContainer.new()
 	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	right_panel.add_child(right_scroll)
-	var right_margin: MarginContainer = _margin(12, 12, 12, 12)
+	var right_margin: MarginContainer = _margin(8, 8, 8, 8)
 	right_scroll.add_child(right_margin)
 	var right_main: VBoxContainer = VBoxContainer.new()
-	right_main.add_theme_constant_override("separation", 12)
+	right_main.add_theme_constant_override("separation", 8)
 	right_margin.add_child(right_main)
 	right_main.add_child(_section("UNCUT GEMS"))
 	inventory_box = VBoxContainer.new()
-	inventory_box.add_theme_constant_override("separation", 6)
+	inventory_box.add_theme_constant_override("separation", 4)
 	right_main.add_child(inventory_box)
 	right_main.add_child(_section("SUPPORT GEMS"))
 	support_box = VBoxContainer.new()
-	support_box.add_theme_constant_override("separation", 6)
+	support_box.add_theme_constant_override("separation", 4)
 	right_main.add_child(support_box)
 	right_main.add_child(_section("SPIRIT GEMS"))
 	spirit_box = VBoxContainer.new()
-	spirit_box.add_theme_constant_override("separation", 6)
+	spirit_box.add_theme_constant_override("separation", 4)
 	right_main.add_child(spirit_box)
 
 	var footer_panel: PanelContainer = _panel(BG_2, BORDER, 1)
-	footer_panel.custom_minimum_size = Vector2(0, 46)
+	footer_panel.custom_minimum_size = Vector2(0, 38)
 	main.add_child(footer_panel)
-	var footer_margin: MarginContainer = _margin(12, 7, 12, 7)
+	var footer_margin: MarginContainer = _margin(8, 5, 8, 5)
 	footer_panel.add_child(footer_margin)
 	footer_label = _rich("", 13)
 	footer_margin.add_child(footer_label)
@@ -232,7 +232,7 @@ func _render_hotbar() -> void:
 		var name_text: String = "Empty"
 		if not active.is_empty():
 			name_text = SkillGemSystemScript.active_display_name(active)
-		var button: Button = _button(str(i + 1) + " · " + name_text, _select_hotbar.bind(i), i == selected, 44)
+		var button: Button = _button(str(i + 1) + " · " + name_text, _select_hotbar.bind(i), i == selected, 34)
 		hotbar_box.add_child(button)
 
 
@@ -252,8 +252,8 @@ func _render_gem_page() -> void:
 			var level: int = _to_int(gem.get("level", 1), 1)
 			var sockets_used: int = _socket_used_count(gem)
 			var sockets_max: int = SkillGemSystemScript.support_socket_count_for_gem(gem)
-			label = "Row " + str(i + 1) + " · " + SkillGemSystemScript.active_display_name(gem) + "\nLv " + str(level) + " · " + str(sockets_used) + "/" + str(sockets_max) + " supports"
-		var button: Button = _button(label, _select_active_gem.bind(uid), uid != "" and uid == selected_uid, 64)
+			label = str(i + 1) + " · " + SkillGemSystemScript.active_display_name(gem) + "  Lv " + str(level) + "  " + str(sockets_used) + "/" + str(sockets_max)
+		var button: Button = _button(label, _select_active_gem.bind(uid), uid != "" and uid == selected_uid, 42)
 		button.disabled = gem.is_empty()
 		gem_page_box.add_child(button)
 
@@ -333,8 +333,8 @@ func _render_sockets() -> void:
 			action = _unsocket.bind(target_uid, i)
 		else:
 			label += "\nEmpty\nClick to socket"
-		var button: Button = _button(label, action, false, 82)
-		button.custom_minimum_size = Vector2(130, 82)
+		var button: Button = _button(label, action, false, 68)
+		button.custom_minimum_size = Vector2(84, 68)
 		button.disabled = disabled
 		socket_box.add_child(button)
 
@@ -352,16 +352,16 @@ func _render_carve_targets() -> void:
 		carve_box.add_child(_muted("No carve targets for " + _gem_label(uncut) + "."))
 		return
 	var grid: GridContainer = GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.columns = 1
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
 	carve_box.add_child(grid)
 	var kind_value: String = str(uncut.get("kind", ""))
 	var uncut_uid: String = str(uncut.get("uid", ""))
 	for value: Variant in targets:
 		var gem_id: String = str(value)
 		var name_text: String = SkillGemSystemScript.display_name_for_target(kind_value, gem_id)
-		grid.add_child(_button(name_text + "\nCarve this gem", _carve_target.bind(uncut_uid, gem_id), false, 58))
+		grid.add_child(_button(name_text + " · carve", _carve_target.bind(uncut_uid, gem_id), false, 42))
 
 
 func _render_uncut_inventory() -> void:
@@ -379,8 +379,8 @@ func _render_uncut_inventory() -> void:
 			continue
 		var gem: Dictionary = Dictionary(value)
 		var uid: String = str(gem.get("uid", ""))
-		var label: String = _gem_label(gem) + "\nClick to select · then choose carve target"
-		inventory_box.add_child(_button(label, _select_uncut.bind(uid), uid == selected, 58))
+		var label: String = _gem_label(gem) + "\nClick → choose target"
+		inventory_box.add_child(_button(label, _select_uncut.bind(uid), uid == selected, 44))
 
 
 func _render_support_inventory() -> void:
@@ -403,7 +403,7 @@ func _render_support_inventory() -> void:
 			label += "\nSocketed"
 		else:
 			label += "\nAvailable · click then click socket"
-		support_box.add_child(_button(label, _select_support.bind(uid), uid == selected, 54))
+		support_box.add_child(_button(label, _select_support.bind(uid), uid == selected, 42))
 
 
 func _render_spirit_inventory() -> void:
@@ -422,7 +422,7 @@ func _render_spirit_inventory() -> void:
 		var uid: String = str(gem.get("uid", ""))
 		var enabled_text: String = "Enabled" if bool(gem.get("enabled", false)) else "Disabled"
 		var label: String = SkillGemSystemScript.spirit_display_name(gem) + "\n" + enabled_text + " · Reserves " + str(SkillGemSystemScript.spirit_reservation(gem))
-		spirit_box.add_child(_button(label, _select_spirit.bind(uid), uid == selected, 56))
+		spirit_box.add_child(_button(label, _select_spirit.bind(uid), uid == selected, 42))
 
 
 func _render_footer() -> void:
@@ -681,19 +681,40 @@ func _ensure_testable_gems_if_empty() -> void:
 	if state_ref == null:
 		return
 	var inventory: Array = _as_array(_state_get("gem_inventory", []))
-	var page: Array = _as_array(_state_get("equipped_gem_page", []))
-	var has_any: bool = not inventory.is_empty()
-	for value: Variant in page:
-		if typeof(value) == TYPE_DICTIONARY and not Dictionary(value).is_empty():
-			has_any = true
-			break
-	if has_any:
-		return
-	inventory.append(_make_uncut_item("uncut_active_gem", 1))
-	inventory.append(_make_uncut_item("uncut_support_gem", 1))
-	inventory.append(_make_uncut_item("uncut_spirit_gem", 1))
-	state_ref.set("gem_inventory", inventory)
-	_set_message("Starter Uncut Gems created for testing.")
+	var has_uncut_active: bool = false
+	var has_uncut_support: bool = false
+	var has_uncut_spirit: bool = false
+	var has_support: bool = false
+	for value: Variant in inventory:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+		var gem: Dictionary = Dictionary(value)
+		var kind: String = str(gem.get("kind", gem.get("item_kind", "")))
+		if kind == "uncut_active_gem" or kind == "uncut_skill_gem":
+			has_uncut_active = true
+		elif kind == "uncut_support_gem":
+			has_uncut_support = true
+		elif kind == "uncut_spirit_gem":
+			has_uncut_spirit = true
+		elif kind == "support_gem" and str(gem.get("equipped_to", "")) == "":
+			has_support = true
+	var added: int = 0
+	if not has_uncut_active:
+		inventory.append(_make_uncut_item("uncut_active_gem", 3))
+		added += 1
+	if not has_uncut_support:
+		inventory.append(_make_uncut_item("uncut_support_gem", 3))
+		added += 1
+	if not has_uncut_spirit:
+		inventory.append(_make_uncut_item("uncut_spirit_gem", 2))
+		added += 1
+	if not has_support:
+		inventory.append({"uid": "support_ui_split_" + str(Time.get_ticks_msec()), "kind": "support_gem", "gem_id": "split_projectile", "level": 1, "quality": 0, "equipped_to": "", "socket_index": -1})
+		inventory.append({"uid": "support_ui_ignite_" + str(Time.get_ticks_msec()), "kind": "support_gem", "gem_id": "ignition", "level": 1, "quality": 0, "equipped_to": "", "socket_index": -1})
+		added += 2
+	if added > 0:
+		state_ref.set("gem_inventory", inventory)
+		_set_message("Seeded missing Gem Bench test items.")
 
 
 func _normalize_imported_gem(gem: Dictionary) -> void:
@@ -844,7 +865,7 @@ func _button(text_value: String, action: Callable, selected: bool = false, heigh
 	button.custom_minimum_size = Vector2(0, height)
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.focus_mode = Control.FOCUS_NONE
-	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_font_size_override("font_size", 11)
 	button.add_theme_color_override("font_color", TEXT if selected else MUTED)
 	button.add_theme_stylebox_override("normal", _style(BG_SEL if selected else BG_2, GOLD if selected else BORDER, 2 if selected else 1))
 	button.add_theme_stylebox_override("hover", _style(Color(0.18, 0.12, 0.05, 1.0), GOLD, 2))
@@ -869,7 +890,7 @@ func _on_button_gui_input(event: InputEvent, action: Callable) -> void:
 func _section(text_value: String) -> Label:
 	var label: Label = Label.new()
 	label.text = text_value
-	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_font_size_override("font_size", 12)
 	label.add_theme_color_override("font_color", GOLD)
 	return label
 

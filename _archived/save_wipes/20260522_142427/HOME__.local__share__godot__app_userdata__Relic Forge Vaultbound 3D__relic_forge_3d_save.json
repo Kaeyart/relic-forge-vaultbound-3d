@@ -1,0 +1,2524 @@
+{
+	"active_gems_owned": {
+		"arc_slash": true,
+		"fireball": true,
+		"storm_lance": true,
+		"void_rift": true
+	},
+	"active_skill_slots": [
+		{
+			"active": "arc_slash",
+			"active_id": "arc_slash",
+			"gem_id": "arc_slash",
+			"kind": "active",
+			"level": 3,
+			"quality": 0,
+			"supports": [],
+			"unlocked_support_sockets": 2,
+			"xp": 242
+		},
+		{
+			"active": "storm_lance",
+			"active_id": "storm_lance",
+			"gem_id": "storm_lance",
+			"kind": "active",
+			"level": 2,
+			"quality": 0,
+			"supports": [],
+			"unlocked_support_sockets": 2,
+			"xp": 172
+		},
+		{
+			"active": "arc_slash",
+			"active_id": "arc_slash",
+			"gem_id": "arc_slash",
+			"kind": "active",
+			"level": 4,
+			"quality": 0,
+			"supports": [
+				{
+					"gem_id": "bleed_edge",
+					"kind": "support",
+					"level": 1,
+					"quality": 0,
+					"support_id": "bleed_edge",
+					"xp": 0
+				},
+				{
+					"gem_id": "controlled_power",
+					"kind": "support",
+					"level": 1,
+					"quality": 0,
+					"support_id": "controlled_power",
+					"xp": 0
+				}
+			],
+			"unlocked_support_sockets": 2,
+			"xp": 297
+		},
+		{
+			"active": "void_rift",
+			"active_id": "void_rift",
+			"gem_id": "void_rift",
+			"kind": "active",
+			"level": 5,
+			"quality": 0,
+			"supports": [],
+			"unlocked_support_sockets": 3,
+			"xp": 123
+		}
+	],
+	"backpack": [
+		{
+			"affixes": {
+
+			},
+			"base_color": "green",
+			"base_id": "controlled_power",
+			"carved": true,
+			"category": "skill_gem",
+			"display_name": "Controlled Power",
+			"gem_color": "green",
+			"gem_id": "controlled_power",
+			"gem_level": 1.0,
+			"gem_quality": 0.0,
+			"gem_type": "support",
+			"gem_xp": 0.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 0.0,
+			"grid_y": 0.0,
+			"id": "gem_controlled_power_223267_7496",
+			"item_kind": "support_gem",
+			"kind": "support_gem",
+			"level": 1.0,
+			"name": "Controlled Power",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "support",
+			"slot": "support_gem",
+			"stats": {
+
+			},
+			"tags": [
+				"gem",
+				"support_gem",
+				"support"
+			],
+			"total_stats": {
+
+			},
+			"xp": 0.0
+		},
+		{
+			"affixes": {
+
+			},
+			"base_id": "ash_vault",
+			"bonus_requirement": "Bonus: complete this map.",
+			"category": "map",
+			"completion_requirement": "Clear the map.",
+			"display_name": "Ash Vault",
+			"entries": 6.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 1.0,
+			"grid_y": 0.0,
+			"item_kind": "map",
+			"item_quantity": 0.0,
+			"item_rarity": 0.0,
+			"kind": "map",
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"map_tier": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "map",
+			"stats": {
+
+			},
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"total_stats": {
+
+			},
+			"uid": "map_222491121_1508631366"
+		},
+		{
+			"affixes": [],
+			"base_id": "void_relic_blade",
+			"base_name": "Void-Touched Blade",
+			"crafted_mods": [],
+			"display_name": "Void-Touched Blade",
+			"forge_potential": 38.0,
+			"grid_h": 3.0,
+			"grid_w": 2.0,
+			"grid_x": 8.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Void Damage": 0.05
+			},
+			"item_kind": "gear",
+			"item_level": 1.0,
+			"item_type": "weapon",
+			"kind": "item",
+			"prefixes": [],
+			"quality": 0.0,
+			"rarity": "normal",
+			"required_level": 1.0,
+			"slot": "weapon",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"weapon",
+				"attack",
+				"void",
+				"melee"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_231942828_3100342305"
+		},
+		{
+			"affixes": [],
+			"base_id": "forge_gloves",
+			"base_name": "Forge Gloves",
+			"crafted_mods": [],
+			"display_name": "Forge Gloves",
+			"forge_potential": 35.0,
+			"grid_h": 2.0,
+			"grid_w": 2.0,
+			"grid_x": 0.0,
+			"grid_y": 3.0,
+			"implicit_stats": {
+				"Armor": 10.0
+			},
+			"item_kind": "gear",
+			"item_level": 1.0,
+			"item_type": "armor",
+			"kind": "item",
+			"prefixes": [],
+			"quality": 0.0,
+			"rarity": "normal",
+			"required_level": 1.0,
+			"slot": "gloves",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"armor",
+				"gloves"
+			],
+			"total_stats": {
+				"Armor": 10.0
+			},
+			"uid": "item_222491049_1452353152"
+		},
+		{
+			"affixes": {
+
+			},
+			"base_id": "ash_vault",
+			"bonus_requirement": "Bonus: complete this map.",
+			"category": "map",
+			"completion_requirement": "Clear the map.",
+			"display_name": "Ash Vault",
+			"entries": 6.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 4.0,
+			"grid_y": 1.0,
+			"item_kind": "map",
+			"item_quantity": 0.0,
+			"item_rarity": 0.0,
+			"kind": "map",
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"map_tier": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "map",
+			"stats": {
+
+			},
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"total_stats": {
+
+			},
+			"uid": "map_231942139_2183491902"
+		},
+		{
+			"affixes": {
+
+			},
+			"base_color": "green",
+			"base_id": "split_projectile",
+			"carved": true,
+			"category": "skill_gem",
+			"display_name": "Split Projectile",
+			"gem_color": "green",
+			"gem_id": "split_projectile",
+			"gem_level": 1.0,
+			"gem_quality": 0.0,
+			"gem_type": "support",
+			"gem_xp": 0.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 7.0,
+			"grid_y": 1.0,
+			"id": "gem_split_projectile_234842_2692",
+			"item_kind": "support_gem",
+			"kind": "support_gem",
+			"level": 1.0,
+			"name": "Split Projectile",
+			"quality": 0.0,
+			"rarity": "magic",
+			"skill_gem_type": "support",
+			"slot": "support_gem",
+			"stats": {
+
+			},
+			"tags": [
+				"gem",
+				"support_gem",
+				"support"
+			],
+			"total_stats": {
+
+			},
+			"xp": 0.0
+		},
+		{
+			"affixes": {
+
+			},
+			"base_id": "guard_chest",
+			"base_name": "Guard Chestplate",
+			"crafted_mods": [],
+			"display_name": "Guard Chestplate",
+			"forge_potential": 28.0,
+			"grid_h": 3.0,
+			"grid_w": 2.0,
+			"grid_x": 2.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Armor": 24.0,
+				"Maximum Life": 8.0
+			},
+			"item_level": 1.0,
+			"item_type": "armor",
+			"prefixes": [],
+			"rarity": "normal",
+			"required_level": 1.0,
+			"slot": "chest",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"armor",
+				"chest"
+			],
+			"total_stats": {
+				"Armor": 24.0
+			},
+			"uid": "item_43098828_2451611445"
+		},
+		{
+			"affixes": [
+				{
+					"domain": [
+						"weapon",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"fire"
+					],
+					"id": "weapon_fire",
+					"min_level": 1.0,
+					"name": "Ember",
+					"roll_quality": 88.0,
+					"slot": "prefix",
+					"stats": {
+						"Fire Damage": 0.13
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon"
+					],
+					"groups": [
+						"weapon",
+						"attack"
+					],
+					"id": "weapon_phys",
+					"min_level": 1.0,
+					"name": "Honed",
+					"roll_quality": 92.0,
+					"slot": "prefix",
+					"stats": {
+						"Attack Damage": 0.15
+					},
+					"tier": 1.0
+				}
+			],
+			"base_id": "ash_staff",
+			"base_name": "Ash Staff",
+			"crafted_mods": [],
+			"display_name": "Ember Ash Staff",
+			"forge_potential": 30.0,
+			"grid_h": 3.0,
+			"grid_w": 2.0,
+			"grid_x": 4.0,
+			"grid_y": 3.0,
+			"implicit_stats": {
+				"Fire Damage": 0.04,
+				"Spell Damage": 0.06
+			},
+			"item_kind": "gear",
+			"item_level": 1.0,
+			"item_type": "weapon",
+			"kind": "item",
+			"prefixes": [
+				{
+					"domain": [
+						"weapon",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"fire"
+					],
+					"id": "weapon_fire",
+					"min_level": 1.0,
+					"name": "Ember",
+					"roll_quality": 88.0,
+					"slot": "prefix",
+					"stats": {
+						"Fire Damage": 0.13
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon"
+					],
+					"groups": [
+						"weapon",
+						"attack"
+					],
+					"id": "weapon_phys",
+					"min_level": 1.0,
+					"name": "Honed",
+					"roll_quality": 92.0,
+					"slot": "prefix",
+					"stats": {
+						"Attack Damage": 0.15
+					},
+					"tier": 1.0
+				}
+			],
+			"quality": 0.0,
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "weapon",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"weapon",
+				"spell",
+				"fire",
+				"caster"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_13771619_1206828743"
+		},
+		{
+			"affixes": {
+
+			},
+			"base_id": "ember_focus",
+			"base_tags": [
+				"offhand",
+				"spell",
+				"caster",
+				"fire",
+				"mana"
+			],
+			"crafted_mods": [],
+			"display_name": "Ember Focus",
+			"forge_potential": 22.0,
+			"grid_h": 2.0,
+			"grid_w": 2.0,
+			"grid_x": 5.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"fire_damage": 2.0,
+				"max_mana": 10.0
+			},
+			"item_level": 5.0,
+			"item_type": "offhand",
+			"level": 5.0,
+			"name": "Ember Focus",
+			"prefixes": [],
+			"quality": 0.0,
+			"rarity": "normal",
+			"required_level": 3.0,
+			"slot": "offhand",
+			"stats": {
+				"max_mana": 10.0
+			},
+			"suffixes": [],
+			"tags": [
+				"offhand",
+				"spell",
+				"caster",
+				"fire",
+				"mana"
+			],
+			"total_stats": {
+				"max_mana": 10.0
+			},
+			"type": "offhand",
+			"uid": "item_3588773842_392516"
+		},
+		{
+			"affixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"mana"
+					],
+					"id": "armor_mana",
+					"min_level": 1.0,
+					"name": "Lucid",
+					"roll_quality": 100.0,
+					"slot": "prefix",
+					"stats": {
+						"Maximum Mana": 20.0
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"life"
+					],
+					"id": "armor_life",
+					"min_level": 1.0,
+					"name": "Stalwart",
+					"roll_quality": 114.0,
+					"slot": "prefix",
+					"stats": {
+						"Maximum Life": 27.0
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"lightning"
+					],
+					"id": "weapon_lightning",
+					"min_level": 1.0,
+					"name": "Stormbound",
+					"roll_quality": 99.0,
+					"slot": "prefix",
+					"stats": {
+						"Lightning Damage": 0.15
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"lightning"
+					],
+					"id": "res_lightning",
+					"min_level": 1.0,
+					"name": "Grounded",
+					"roll_quality": 110.0,
+					"slot": "suffix",
+					"stats": {
+						"Lightning Resistance": 0.15
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"cold"
+					],
+					"id": "res_cold",
+					"min_level": 1.0,
+					"name": "Frostguard",
+					"roll_quality": 114.0,
+					"slot": "suffix",
+					"stats": {
+						"Cold Resistance": 0.16
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"fire"
+					],
+					"id": "res_fire",
+					"min_level": 1.0,
+					"name": "Ashproof",
+					"roll_quality": 112.0,
+					"slot": "suffix",
+					"stats": {
+						"Fire Resistance": 0.16
+					},
+					"tier": 1.0
+				}
+			],
+			"base_id": "penitent_relic",
+			"base_name": "Penitent Relic",
+			"crafted_mods": [],
+			"display_name": "Vault-Forged Penitent Relic",
+			"forge_potential": 21.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 7.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Maximum Life": 12.0
+			},
+			"item_kind": "gear",
+			"item_level": 2.0,
+			"item_type": "relic",
+			"kind": "item",
+			"prefixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"mana"
+					],
+					"id": "armor_mana",
+					"min_level": 1.0,
+					"name": "Lucid",
+					"roll_quality": 100.0,
+					"slot": "prefix",
+					"stats": {
+						"Maximum Mana": 20.0
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"life"
+					],
+					"id": "armor_life",
+					"min_level": 1.0,
+					"name": "Stalwart",
+					"roll_quality": 114.0,
+					"slot": "prefix",
+					"stats": {
+						"Maximum Life": 27.0
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"lightning"
+					],
+					"id": "weapon_lightning",
+					"min_level": 1.0,
+					"name": "Stormbound",
+					"roll_quality": 99.0,
+					"slot": "prefix",
+					"stats": {
+						"Lightning Damage": 0.15
+					},
+					"tier": 1.0
+				}
+			],
+			"quality": 0.0,
+			"rarity": "rare",
+			"required_level": 2.0,
+			"slot": "relic",
+			"stats": {
+
+			},
+			"suffixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"lightning"
+					],
+					"id": "res_lightning",
+					"min_level": 1.0,
+					"name": "Grounded",
+					"roll_quality": 110.0,
+					"slot": "suffix",
+					"stats": {
+						"Lightning Resistance": 0.15
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"cold"
+					],
+					"id": "res_cold",
+					"min_level": 1.0,
+					"name": "Frostguard",
+					"roll_quality": 114.0,
+					"slot": "suffix",
+					"stats": {
+						"Cold Resistance": 0.16
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"fire"
+					],
+					"id": "res_fire",
+					"min_level": 1.0,
+					"name": "Ashproof",
+					"roll_quality": 112.0,
+					"slot": "suffix",
+					"stats": {
+						"Fire Resistance": 0.16
+					},
+					"tier": 1.0
+				}
+			],
+			"tags": [
+				"relic",
+				"life",
+				"spirit"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_231942628_1825964690"
+		}
+	],
+	"class_id": "sorceress",
+	"completed_maps": {
+		"ash_vault": true
+	},
+	"deaths": 15828,
+	"equipped": {
+		"amulet": {
+			"affixes": {
+
+			},
+			"base_id": "ember_amulet",
+			"base_tags": [
+				"jewelry",
+				"fire",
+				"spell",
+				"caster",
+				"damage",
+				"mana"
+			],
+			"crafted_mods": [],
+			"display_name": "Ember Amulet",
+			"forge_potential": 19.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 4.0,
+			"grid_y": 5.0,
+			"implicit_stats": {
+				"max_mana": 5.0,
+				"spell_damage": 2.0
+			},
+			"item_level": 5.0,
+			"item_type": "jewelry",
+			"level": 5.0,
+			"name": "Ember Amulet",
+			"prefixes": [],
+			"quality": 0.0,
+			"rarity": "normal",
+			"required_level": 2.0,
+			"slot": "amulet",
+			"stats": {
+				"max_mana": 5.0,
+				"spell_damage": 2.0
+			},
+			"suffixes": [],
+			"tags": [
+				"jewelry",
+				"fire",
+				"spell",
+				"caster",
+				"damage",
+				"mana"
+			],
+			"total_stats": {
+				"max_mana": 5.0,
+				"spell_damage": 2.0
+			},
+			"type": "jewelry",
+			"uid": "item_85897818_404355"
+		},
+		"boots": {
+			"affixes": {
+
+			},
+			"base_id": "traveler_boots",
+			"base_name": "Traveler Boots",
+			"crafted_mods": [],
+			"display_name": "Traveler Boots",
+			"forge_potential": 29.0,
+			"grid_h": 2.0,
+			"grid_w": 2.0,
+			"grid_x": 5.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Movement Speed": 0.03
+			},
+			"item_level": 1.0,
+			"item_type": "armor",
+			"prefixes": [],
+			"rarity": "normal",
+			"required_level": 1.0,
+			"slot": "boots",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"armor",
+				"boots",
+				"movement"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_238981655_1941874320"
+		},
+		"chest": {
+			"affixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"lightning"
+					],
+					"id": "res_lightning",
+					"min_level": 1.0,
+					"name": "Grounded",
+					"roll_quality": 106.0,
+					"slot": "suffix",
+					"stats": {
+						"Lightning Resistance": 0.15
+					},
+					"tier": 1.0
+				}
+			],
+			"base_id": "guard_chest",
+			"base_name": "Guard Chestplate",
+			"crafted_mods": [],
+			"display_name": "Guard Chestplate of Grounded",
+			"forge_potential": 28.0,
+			"grid_h": 3.0,
+			"grid_w": 2.0,
+			"grid_x": 2.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Armor": 24.0,
+				"Maximum Life": 8.0
+			},
+			"item_kind": "gear",
+			"item_level": 1.0,
+			"item_type": "armor",
+			"kind": "item",
+			"prefixes": [],
+			"quality": 0.0,
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "chest",
+			"stats": {
+
+			},
+			"suffixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"lightning"
+					],
+					"id": "res_lightning",
+					"min_level": 1.0,
+					"name": "Grounded",
+					"roll_quality": 106.0,
+					"slot": "suffix",
+					"stats": {
+						"Lightning Resistance": 0.15
+					},
+					"tier": 1.0
+				}
+			],
+			"tags": [
+				"armor",
+				"chest"
+			],
+			"total_stats": {
+				"Armor": 24.0
+			},
+			"uid": "item_222487098_77508967"
+		},
+		"gloves": {
+			"affixes": {
+
+			},
+			"base_id": "forge_gloves",
+			"base_name": "Forge Gloves",
+			"crafted_mods": [],
+			"display_name": "Plated Forge Gloves",
+			"forge_potential": 24.0,
+			"grid_h": 2.0,
+			"grid_w": 2.0,
+			"grid_x": 2.0,
+			"grid_y": 1.0,
+			"implicit_stats": {
+				"Armor": 10.0
+			},
+			"item_level": 1.0,
+			"item_type": "armor",
+			"prefixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots"
+					],
+					"id": "armor_rating",
+					"min_level": 1.0,
+					"name": "Plated",
+					"slot": "prefix",
+					"stats": {
+						"Armor": 28.0
+					},
+					"tags": [
+						"armor"
+					],
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"id": "armor_mana",
+					"min_level": 1.0,
+					"name": "Lucid",
+					"slot": "prefix",
+					"stats": {
+						"Maximum Mana": 18.0
+					},
+					"tags": [
+						"mana"
+					],
+					"tier": 1.0
+				}
+			],
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "gloves",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"armor",
+				"gloves"
+			],
+			"total_stats": {
+				"Armor": 38.0
+			},
+			"uid": "item_20246223_961214144"
+		},
+		"head": {
+			"affixes": {
+
+			},
+			"base_id": "leather_hood",
+			"base_tags": [
+				"armor",
+				"defense",
+				"life"
+			],
+			"crafted_mods": [],
+			"display_name": "Leather Hood",
+			"forge_potential": 10.0,
+			"implicit_stats": {
+				"armor": 4.0
+			},
+			"item_level": 7.0,
+			"item_type": "armor",
+			"level": 7.0,
+			"name": "Warden Leather Hood",
+			"prefixes": [
+				{
+					"group": "armor_rating",
+					"id": "p_armor_armor_01",
+					"kind": "prefix",
+					"name": "Plated",
+					"stats": {
+						"armor": 23.71
+					},
+					"tier": 2.0
+				},
+				{
+					"group": "maximum_life",
+					"id": "p_armor_life_01",
+					"kind": "prefix",
+					"name": "Stalwart",
+					"stats": {
+						"max_life": 33.3
+					},
+					"tier": 2.0
+				}
+			],
+			"quality": 0.0,
+			"rarity": "rare",
+			"required_level": 1.0,
+			"slot": "head",
+			"stats": {
+				"armor": 28.0,
+				"lightning_resist": 15.0,
+				"max_life": 33.0
+			},
+			"suffixes": [
+				{
+					"group": "lightning_resist",
+					"id": "s_lightning_res_01",
+					"kind": "suffix",
+					"name": "of Grounding",
+					"stats": {
+						"lightning_resist": 15.37
+					},
+					"tier": 2.0
+				}
+			],
+			"tags": [
+				"armor",
+				"defense",
+				"life"
+			],
+			"total_stats": {
+				"armor": 28.0,
+				"lightning_resist": 15.0,
+				"max_life": 33.0
+			},
+			"type": "armor",
+			"uid": "item_2588813150_482042"
+		},
+		"map": {
+			"affixes": {
+
+			},
+			"base_id": "ash_vault",
+			"bonus_requirement": "Bonus: complete this map.",
+			"category": "map",
+			"completion_requirement": "Clear the map.",
+			"display_name": "Ash Vault",
+			"entries": 6.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 4.0,
+			"grid_y": 0.0,
+			"item_kind": "map",
+			"item_quantity": 0.0,
+			"item_rarity": 0.0,
+			"kind": "map",
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"map_tier": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "map",
+			"stats": {
+
+			},
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"total_stats": {
+
+			},
+			"uid": "map_222487161_3700667686"
+		},
+		"offhand": {
+			"affixes": [
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"caster"
+					],
+					"id": "weapon_spell",
+					"min_level": 1.0,
+					"name": "Runic",
+					"roll_quality": 112.0,
+					"slot": "prefix",
+					"stats": {
+						"Spell Damage": 0.18
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"mana"
+					],
+					"id": "armor_mana",
+					"min_level": 1.0,
+					"name": "Lucid",
+					"roll_quality": 105.0,
+					"slot": "prefix",
+					"stats": {
+						"Maximum Mana": 21.0
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"lightning"
+					],
+					"id": "weapon_lightning",
+					"min_level": 1.0,
+					"name": "Stormbound",
+					"roll_quality": 89.0,
+					"slot": "prefix",
+					"stats": {
+						"Lightning Damage": 0.13
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"offhand"
+					],
+					"groups": [
+						"block"
+					],
+					"id": "offhand_block",
+					"min_level": 1.0,
+					"name": "Bulwark",
+					"roll_quality": 112.0,
+					"slot": "suffix",
+					"stats": {
+						"Block Chance": 0.08
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"cold"
+					],
+					"id": "res_cold",
+					"min_level": 1.0,
+					"name": "Frostguard",
+					"roll_quality": 107.0,
+					"slot": "suffix",
+					"stats": {
+						"Cold Resistance": 0.15
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"fire"
+					],
+					"id": "res_fire",
+					"min_level": 1.0,
+					"name": "Ashproof",
+					"roll_quality": 98.0,
+					"slot": "suffix",
+					"stats": {
+						"Fire Resistance": 0.14
+					},
+					"tier": 1.0
+				}
+			],
+			"base_id": "storm_focus",
+			"base_name": "Storm Focus",
+			"crafted_mods": [],
+			"display_name": "Ash-Crowned Storm Focus",
+			"forge_potential": 24.0,
+			"grid_h": 2.0,
+			"grid_w": 2.0,
+			"grid_x": 0.0,
+			"grid_y": 1.0,
+			"implicit_stats": {
+				"Lightning Damage": 0.05,
+				"Maximum Mana": 10.0
+			},
+			"item_kind": "gear",
+			"item_level": 1.0,
+			"item_type": "offhand",
+			"kind": "item",
+			"prefixes": [
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"caster"
+					],
+					"id": "weapon_spell",
+					"min_level": 1.0,
+					"name": "Runic",
+					"roll_quality": 112.0,
+					"slot": "prefix",
+					"stats": {
+						"Spell Damage": 0.18
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"mana"
+					],
+					"id": "armor_mana",
+					"min_level": 1.0,
+					"name": "Lucid",
+					"roll_quality": 105.0,
+					"slot": "prefix",
+					"stats": {
+						"Maximum Mana": 21.0
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"lightning"
+					],
+					"id": "weapon_lightning",
+					"min_level": 1.0,
+					"name": "Stormbound",
+					"roll_quality": 89.0,
+					"slot": "prefix",
+					"stats": {
+						"Lightning Damage": 0.13
+					},
+					"tier": 1.0
+				}
+			],
+			"quality": 0.0,
+			"rarity": "rare",
+			"required_level": 1.0,
+			"slot": "offhand",
+			"stats": {
+
+			},
+			"suffixes": [
+				{
+					"domain": [
+						"offhand"
+					],
+					"groups": [
+						"block"
+					],
+					"id": "offhand_block",
+					"min_level": 1.0,
+					"name": "Bulwark",
+					"roll_quality": 112.0,
+					"slot": "suffix",
+					"stats": {
+						"Block Chance": 0.08
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"cold"
+					],
+					"id": "res_cold",
+					"min_level": 1.0,
+					"name": "Frostguard",
+					"roll_quality": 107.0,
+					"slot": "suffix",
+					"stats": {
+						"Cold Resistance": 0.15
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic",
+						"offhand"
+					],
+					"groups": [
+						"resistance",
+						"fire"
+					],
+					"id": "res_fire",
+					"min_level": 1.0,
+					"name": "Ashproof",
+					"roll_quality": 98.0,
+					"slot": "suffix",
+					"stats": {
+						"Fire Resistance": 0.14
+					},
+					"tier": 1.0
+				}
+			],
+			"tags": [
+				"offhand",
+				"spell",
+				"lightning",
+				"caster"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_231942064_1397544613"
+		},
+		"relic": {
+			"affixes": {
+
+			},
+			"base_id": "penitent_relic",
+			"base_name": "Penitent Relic",
+			"crafted_mods": [],
+			"display_name": "Stalwart Penitent Relic",
+			"forge_potential": 25.0,
+			"grid_h": 1.0,
+			"grid_w": 1.0,
+			"grid_x": 4.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Maximum Life": 12.0
+			},
+			"item_level": 1.0,
+			"item_type": "relic",
+			"prefixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"id": "armor_life",
+					"min_level": 1.0,
+					"name": "Stalwart",
+					"slot": "prefix",
+					"stats": {
+						"Maximum Life": 22.0
+					},
+					"tags": [
+						"life"
+					],
+					"tier": 1.0
+				}
+			],
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "relic",
+			"stats": {
+
+			},
+			"suffixes": [
+				{
+					"domain": [
+						"head",
+						"chest",
+						"gloves",
+						"boots",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"id": "res_fire",
+					"min_level": 1.0,
+					"name": "Ashproof",
+					"slot": "suffix",
+					"stats": {
+						"Fire Resistance": 0.12
+					},
+					"tags": [
+						"resistance",
+						"fire"
+					],
+					"tier": 1.0
+				}
+			],
+			"tags": [
+				"relic",
+				"life",
+				"spirit"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_512774583_3710071030"
+		},
+		"ring1": {
+			"affixes": [
+				{
+					"amount": 25.528621673584,
+					"name": "of Vitality",
+					"stat": "max_life"
+				}
+			],
+			"base_id": "copper_ring",
+			"crafted_mods": [],
+			"display_name": "Tempered Copper Ring",
+			"forge_potential": 15.0,
+			"implicit_stats": {
+
+			},
+			"item_level": 1.0,
+			"item_type": "jewelry",
+			"level": 1.0,
+			"name": "of Vitality Tempered Copper Ring",
+			"prefixes": [
+				{
+					"amount": 25.528621673584,
+					"name": "of Vitality",
+					"stat": "max_life"
+				}
+			],
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "ring1",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"jewelry",
+				"mana",
+				"damage"
+			],
+			"total_stats": {
+
+			},
+			"type": "jewelry",
+			"uid": "item_618368393"
+		},
+		"ring2": {
+
+		},
+		"weapon": {
+			"affixes": [
+				{
+					"domain": [
+						"weapon",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"fire"
+					],
+					"id": "weapon_fire",
+					"min_level": 1.0,
+					"name": "Ember",
+					"roll_quality": 89.0,
+					"slot": "prefix",
+					"stats": {
+						"Fire Damage": 0.13
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"caster"
+					],
+					"id": "weapon_spell",
+					"min_level": 1.0,
+					"name": "Runic",
+					"roll_quality": 98.0,
+					"slot": "prefix",
+					"stats": {
+						"Spell Damage": 0.16
+					},
+					"tier": 1.0
+				}
+			],
+			"base_id": "void_relic_blade",
+			"base_name": "Void-Touched Blade",
+			"crafted_mods": [],
+			"display_name": "Ember Void-Touched Blade",
+			"forge_potential": 29.0,
+			"grid_h": 3.0,
+			"grid_w": 2.0,
+			"grid_x": 5.0,
+			"grid_y": 0.0,
+			"implicit_stats": {
+				"Void Damage": 0.05
+			},
+			"item_kind": "gear",
+			"item_level": 1.0,
+			"item_type": "weapon",
+			"kind": "item",
+			"prefixes": [
+				{
+					"domain": [
+						"weapon",
+						"ring",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"fire"
+					],
+					"id": "weapon_fire",
+					"min_level": 1.0,
+					"name": "Ember",
+					"roll_quality": 89.0,
+					"slot": "prefix",
+					"stats": {
+						"Fire Damage": 0.13
+					},
+					"tier": 1.0
+				},
+				{
+					"domain": [
+						"weapon",
+						"offhand",
+						"amulet",
+						"relic"
+					],
+					"groups": [
+						"caster"
+					],
+					"id": "weapon_spell",
+					"min_level": 1.0,
+					"name": "Runic",
+					"roll_quality": 98.0,
+					"slot": "prefix",
+					"stats": {
+						"Spell Damage": 0.16
+					},
+					"tier": 1.0
+				}
+			],
+			"quality": 0.0,
+			"rarity": "magic",
+			"required_level": 1.0,
+			"slot": "weapon",
+			"stats": {
+
+			},
+			"suffixes": [],
+			"tags": [
+				"weapon",
+				"attack",
+				"void",
+				"melee"
+			],
+			"total_stats": {
+
+			},
+			"uid": "item_222641810_1114493008"
+		}
+	},
+	"gem_progression_seeded": true,
+	"gold": 4233,
+	"inventory_cursor": 3,
+	"kills": 298,
+	"level": 14,
+	"map_completion": {
+
+	},
+	"map_cursor": 0,
+	"map_stash": [
+		{
+			"base_id": "ash_vault",
+			"bonus_requirement": "Bonus: complete this map.",
+			"category": "map",
+			"completion_requirement": "Clear the map.",
+			"display_name": "Ash Vault",
+			"entries": 2.0,
+			"item_kind": "map",
+			"item_quantity": 0.0,
+			"item_rarity": 0.0,
+			"kind": "map",
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"map_tier": 1.0,
+			"mods": [],
+			"rarity": "normal",
+			"slot": "map",
+			"tags": [
+				"map"
+			],
+			"tier": 1.0,
+			"uid": "map_205807783_1077852826"
+		},
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault",
+			"entries": 6.0,
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"mods": [
+				{
+					"id": "pack_size",
+					"name": "Crowded",
+					"stats": {
+						"Item Quantity": 0.08,
+						"Pack Size": 0.18
+					}
+				}
+			],
+			"tier": 1.0,
+			"uid": "map_51191549_3211001825"
+		},
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault",
+			"entries": 6.0,
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"mods": [
+				{
+					"id": "pack_size",
+					"name": "Crowded",
+					"stats": {
+						"Item Quantity": 0.08,
+						"Pack Size": 0.18
+					}
+				},
+				{
+					"id": "boss_reward",
+					"name": "Hoarded",
+					"stats": {
+						"Boss Rewards": 1.0
+					}
+				}
+			],
+			"tier": 1.0,
+			"uid": "map_56491309_2053439048"
+		},
+		{
+			"base_id": "ash_vault",
+			"display_name": "Ash Vault",
+			"entries": 6.0,
+			"layout": "box_blockers",
+			"map_level": 1.0,
+			"mods": [],
+			"tier": 1.0,
+			"uid": "map_107868940_2151768926"
+		}
+	],
+	"maps_completed": 13,
+	"materials": {
+		"echo_glass": 0.0,
+		"embers": 308.0,
+		"monster_crystals": 1.0,
+		"runes": 0.0,
+		"shards": 111.0,
+		"socket_prisms": 1.0
+	},
+	"passive_points": 13,
+	"selected_skill_slot": 2,
+	"selected_spirit_cursor": 0,
+	"selected_stash_category_id": "cat_general",
+	"selected_stash_tab_id": "tab_general_1",
+	"selected_support_cursor": 4,
+	"spirit_gem_slots": [],
+	"spirit_gems_owned": {
+		"clarity": true,
+		"ember_pact": false,
+		"vitality": true
+	},
+	"spirit_max": 40,
+	"spirit_reserved": 0,
+	"stash": [],
+	"stash_categories": [
+		{
+			"color": "#cfcfcf",
+			"icon": "box",
+			"id": "cat_general",
+			"name": "General"
+		},
+		{
+			"color": "#9fc7ff",
+			"icon": "star",
+			"id": "cat_affinity",
+			"name": "Affinity"
+		},
+		{
+			"color": "#cfa9ff",
+			"icon": "filter",
+			"id": "cat_custom",
+			"name": "Custom"
+		},
+		{
+			"color": "#cfcfcf",
+			"icon": "folder",
+			"id": "cat_player_426948_3",
+			"name": "Category 4"
+		}
+	],
+	"stash_search_all": false,
+	"stash_search_query": "",
+	"stash_selected_item_index": -1,
+	"stash_tabs": [
+		{
+			"affinity": "none",
+			"category_id": "cat_general",
+			"color": "#cfcfcf",
+			"custom_rules": {
+				"kind": "",
+				"max_tier": 0.0,
+				"min_tier": 0.0,
+				"rarity": "rare",
+				"slot": ""
+			},
+			"icon": "box",
+			"id": "tab_general_1",
+			"items": [
+				{
+					"_stash_item_index": 0.0,
+					"_stash_tab_id": "tab_general_1",
+					"_stash_tab_name": "Tab 1",
+					"affixes": {
+
+					},
+					"base_id": "iron_helm",
+					"base_name": "Iron Helm",
+					"crafted_mods": [],
+					"display_name": "Lucid Iron Helm",
+					"forge_potential": 24.0,
+					"grid_h": 2.0,
+					"grid_w": 2.0,
+					"implicit_stats": {
+						"Armor": 12.0
+					},
+					"item_level": 1.0,
+					"item_type": "armor",
+					"prefixes": [
+						{
+							"domain": [
+								"head",
+								"chest",
+								"gloves",
+								"boots",
+								"ring",
+								"amulet",
+								"relic",
+								"offhand"
+							],
+							"id": "armor_mana",
+							"min_level": 1.0,
+							"name": "Lucid",
+							"slot": "prefix",
+							"stats": {
+								"Maximum Mana": 18.0
+							},
+							"tags": [
+								"mana"
+							],
+							"tier": 1.0
+						}
+					],
+					"rarity": "magic",
+					"required_level": 1.0,
+					"slot": "head",
+					"stats": {
+
+					},
+					"suffixes": [
+						{
+							"domain": [
+								"head",
+								"chest",
+								"gloves",
+								"boots",
+								"ring",
+								"amulet",
+								"relic"
+							],
+							"id": "res_lightning",
+							"min_level": 1.0,
+							"name": "Grounded",
+							"slot": "suffix",
+							"stats": {
+								"Lightning Resistance": 0.12
+							},
+							"tags": [
+								"resistance",
+								"lightning"
+							],
+							"tier": 1.0
+						}
+					],
+					"tags": [
+						"armor",
+						"head"
+					],
+					"total_stats": {
+						"Armor": 12.0
+					},
+					"uid": "item_28138323_3000313902"
+				},
+				{
+					"_stash_item_index": 1.0,
+					"_stash_tab_id": "tab_general_1",
+					"_stash_tab_name": "Tab 1",
+					"affixes": {
+
+					},
+					"base_id": "vault_amulet",
+					"base_name": "Vault Amulet",
+					"crafted_mods": [],
+					"display_name": "Vault Amulet",
+					"forge_potential": 33.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"implicit_stats": {
+						"Maximum Spirit": 3.0
+					},
+					"item_level": 1.0,
+					"item_type": "jewelry",
+					"prefixes": [],
+					"rarity": "normal",
+					"required_level": 1.0,
+					"slot": "amulet",
+					"stats": {
+
+					},
+					"suffixes": [],
+					"tags": [
+						"amulet",
+						"spirit",
+						"caster"
+					],
+					"total_stats": {
+
+					},
+					"uid": "item_378748411_2514998428"
+				},
+				{
+					"_stash_item_index": 2.0,
+					"_stash_tab_id": "tab_general_1",
+					"_stash_tab_name": "Tab 1",
+					"affixes": {
+
+					},
+					"base_id": "vault_amulet",
+					"base_name": "Vault Amulet",
+					"crafted_mods": [],
+					"display_name": "Vault Amulet",
+					"forge_potential": 26.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"implicit_stats": {
+						"Maximum Spirit": 3.0
+					},
+					"item_level": 1.0,
+					"item_type": "jewelry",
+					"prefixes": [],
+					"rarity": "normal",
+					"required_level": 1.0,
+					"slot": "amulet",
+					"stats": {
+
+					},
+					"suffixes": [],
+					"tags": [
+						"amulet",
+						"spirit",
+						"caster"
+					],
+					"total_stats": {
+
+					},
+					"uid": "item_108271848_1864037802"
+				},
+				{
+					"_stash_item_index": 3.0,
+					"_stash_tab_id": "tab_general_1",
+					"_stash_tab_name": "Tab 1",
+					"affixes": {
+
+					},
+					"base_id": "penitent_relic",
+					"base_name": "Penitent Relic",
+					"crafted_mods": [],
+					"display_name": "Penitent Relic",
+					"forge_potential": 30.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"implicit_stats": {
+						"Maximum Life": 12.0
+					},
+					"item_level": 1.0,
+					"item_type": "relic",
+					"prefixes": [],
+					"rarity": "normal",
+					"required_level": 1.0,
+					"slot": "relic",
+					"stats": {
+
+					},
+					"suffixes": [],
+					"tags": [
+						"relic",
+						"life",
+						"spirit"
+					],
+					"total_stats": {
+
+					},
+					"uid": "item_236598343_4048151090"
+				},
+				{
+					"_stash_item_index": 4.0,
+					"_stash_tab_id": "tab_general_1",
+					"_stash_tab_name": "Tab 1",
+					"affixes": {
+
+					},
+					"base_id": "ember_ring",
+					"base_name": "Ember Ring",
+					"crafted_mods": [],
+					"display_name": "Ember Ring",
+					"forge_potential": 31.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"implicit_stats": {
+						"Fire Resistance": 0.05
+					},
+					"item_level": 1.0,
+					"item_type": "jewelry",
+					"prefixes": [],
+					"rarity": "normal",
+					"required_level": 1.0,
+					"slot": "ring",
+					"stats": {
+
+					},
+					"suffixes": [],
+					"tags": [
+						"ring",
+						"fire",
+						"mana"
+					],
+					"total_stats": {
+
+					},
+					"uid": "item_22349913_2363300924"
+				}
+			],
+			"locked_affinity": false,
+			"name": "Tab 1",
+			"system_tab": false
+		},
+		{
+			"affinity": "currency",
+			"category_id": "cat_affinity",
+			"color": "#d6b55a",
+			"custom_rules": {
+
+			},
+			"icon": "coin",
+			"id": "tab_currency",
+			"items": [],
+			"locked_affinity": true,
+			"name": "Currency",
+			"system_tab": true
+		},
+		{
+			"affinity": "maps",
+			"category_id": "cat_affinity",
+			"color": "#82aaff",
+			"custom_rules": {
+
+			},
+			"icon": "map",
+			"id": "tab_maps",
+			"items": [
+				{
+					"_stash_item_index": 0.0,
+					"_stash_tab_id": "tab_maps",
+					"_stash_tab_name": "Maps",
+					"affixes": {
+
+					},
+					"base_id": "ash_vault",
+					"category": "map",
+					"display_name": "Ash Vault",
+					"entries": 6.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"item_kind": "map",
+					"kind": "map",
+					"layout": "box_blockers",
+					"map_level": 1.0,
+					"mods": [
+						{
+							"id": "elite_presence",
+							"name": "Commanded",
+							"stats": {
+								"Elite Chance": 0.15,
+								"Item Rarity": 0.1
+							}
+						}
+					],
+					"rarity": "magic",
+					"slot": "map",
+					"stats": {
+
+					},
+					"tags": [
+						"map"
+					],
+					"tier": 1.0,
+					"total_stats": {
+
+					},
+					"uid": "map_28822350_3039471832"
+				},
+				{
+					"_stash_item_index": 1.0,
+					"_stash_tab_id": "tab_maps",
+					"_stash_tab_name": "Maps",
+					"affixes": {
+
+					},
+					"base_id": "ash_vault",
+					"category": "map",
+					"display_name": "Ash Vault",
+					"entries": 6.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"item_kind": "map",
+					"kind": "map",
+					"layout": "box_blockers",
+					"map_level": 1.0,
+					"mods": [
+						{
+							"id": "pack_size",
+							"name": "Crowded",
+							"stats": {
+								"Item Quantity": 0.08,
+								"Pack Size": 0.18
+							}
+						}
+					],
+					"rarity": "magic",
+					"slot": "map",
+					"stats": {
+
+					},
+					"tags": [
+						"map"
+					],
+					"tier": 1.0,
+					"total_stats": {
+
+					},
+					"uid": "map_238161111_3963716292"
+				},
+				{
+					"_stash_item_index": 2.0,
+					"_stash_tab_id": "tab_maps",
+					"_stash_tab_name": "Maps",
+					"affixes": {
+
+					},
+					"base_id": "ash_vault",
+					"category": "map",
+					"display_name": "Ash Vault",
+					"entries": 6.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"item_kind": "map",
+					"kind": "map",
+					"layout": "box_blockers",
+					"map_level": 1.0,
+					"mods": [
+						{
+							"id": "pack_size",
+							"name": "Crowded",
+							"stats": {
+								"Item Quantity": 0.08,
+								"Pack Size": 0.18
+							}
+						},
+						{
+							"id": "elite_presence",
+							"name": "Commanded",
+							"stats": {
+								"Elite Chance": 0.15,
+								"Item Rarity": 0.1
+							}
+						}
+					],
+					"rarity": "magic",
+					"slot": "map",
+					"stats": {
+
+					},
+					"tags": [
+						"map"
+					],
+					"tier": 1.0,
+					"total_stats": {
+
+					},
+					"uid": "map_28138359_1319798622"
+				}
+			],
+			"locked_affinity": true,
+			"name": "Maps",
+			"system_tab": true
+		},
+		{
+			"affinity": "gems",
+			"category_id": "cat_affinity",
+			"color": "#b49cff",
+			"custom_rules": {
+
+			},
+			"icon": "gem",
+			"id": "tab_gems",
+			"items": [
+				{
+					"_stash_item_index": 0.0,
+					"_stash_tab_id": "tab_gems",
+					"_stash_tab_name": "Gems",
+					"affixes": {
+
+					},
+					"base_color": "blue",
+					"base_id": "void_tithe",
+					"carved": true,
+					"category": "skill_gem",
+					"display_name": "Void Tithe",
+					"gem_color": "blue",
+					"gem_id": "void_tithe",
+					"gem_level": 1.0,
+					"gem_quality": 0.0,
+					"gem_type": "spirit",
+					"gem_xp": 0.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"id": "gem_void_tithe_138631_2572",
+					"item_kind": "spirit_gem",
+					"kind": "spirit_gem",
+					"level": 1.0,
+					"name": "Void Tithe",
+					"quality": 0.0,
+					"rarity": "magic",
+					"skill_gem_type": "spirit",
+					"slot": "spirit_gem",
+					"stats": {
+
+					},
+					"tags": [
+						"gem",
+						"spirit_gem",
+						"spirit"
+					],
+					"total_stats": {
+
+					},
+					"xp": 0.0
+				},
+				{
+					"_stash_item_index": 1.0,
+					"_stash_tab_id": "tab_gems",
+					"_stash_tab_name": "Gems",
+					"affixes": {
+
+					},
+					"base_color": "blue",
+					"base_id": "void_tithe",
+					"carved": true,
+					"category": "skill_gem",
+					"display_name": "Void Tithe",
+					"gem_color": "blue",
+					"gem_id": "void_tithe",
+					"gem_level": 1.0,
+					"gem_quality": 0.0,
+					"gem_type": "spirit",
+					"gem_xp": 0.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"id": "gem_void_tithe_139555_3662",
+					"item_kind": "spirit_gem",
+					"kind": "spirit_gem",
+					"level": 1.0,
+					"name": "Void Tithe",
+					"quality": 0.0,
+					"rarity": "magic",
+					"skill_gem_type": "spirit",
+					"slot": "spirit_gem",
+					"stats": {
+
+					},
+					"tags": [
+						"gem",
+						"spirit_gem",
+						"spirit"
+					],
+					"total_stats": {
+
+					},
+					"xp": 0.0
+				},
+				{
+					"_stash_item_index": 2.0,
+					"_stash_tab_id": "tab_gems",
+					"_stash_tab_name": "Gems",
+					"affixes": {
+
+					},
+					"base_color": "green",
+					"base_id": "efficient_casting",
+					"carved": true,
+					"category": "skill_gem",
+					"display_name": "Efficient Casting",
+					"gem_color": "green",
+					"gem_id": "efficient_casting",
+					"gem_level": 1.0,
+					"gem_quality": 0.0,
+					"gem_type": "support",
+					"gem_xp": 0.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"id": "gem_efficient_casting_29429_7215",
+					"item_kind": "support_gem",
+					"kind": "support_gem",
+					"level": 1.0,
+					"name": "Efficient Casting",
+					"quality": 0.0,
+					"rarity": "magic",
+					"skill_gem_type": "support",
+					"slot": "support_gem",
+					"stats": {
+
+					},
+					"tags": [
+						"gem",
+						"support_gem",
+						"support"
+					],
+					"total_stats": {
+
+					},
+					"xp": 0.0
+				},
+				{
+					"base_color": "green",
+					"base_id": "efficient_casting",
+					"carved": true,
+					"category": "skill_gem",
+					"display_name": "Efficient Casting",
+					"gem_color": "green",
+					"gem_id": "efficient_casting",
+					"gem_level": 1.0,
+					"gem_quality": 0.0,
+					"gem_type": "support",
+					"gem_xp": 0.0,
+					"grid_h": 1.0,
+					"grid_w": 1.0,
+					"id": "gem_efficient_casting_381352_6249",
+					"item_kind": "support_gem",
+					"kind": "support_gem",
+					"level": 1.0,
+					"name": "Efficient Casting",
+					"quality": 0.0,
+					"rarity": "magic",
+					"skill_gem_type": "support",
+					"slot": "support_gem",
+					"tags": [
+						"gem",
+						"support_gem",
+						"support"
+					],
+					"xp": 0.0
+				}
+			],
+			"locked_affinity": true,
+			"name": "Gems",
+			"system_tab": true
+		},
+		{
+			"affinity": "crystals",
+			"category_id": "cat_affinity",
+			"color": "#77d9d0",
+			"custom_rules": {
+
+			},
+			"icon": "crystal",
+			"id": "tab_crystals",
+			"items": [],
+			"locked_affinity": true,
+			"name": "Crystals",
+			"system_tab": true
+		},
+		{
+			"affinity": "uniques",
+			"category_id": "cat_affinity",
+			"color": "#ff963f",
+			"custom_rules": {
+
+			},
+			"icon": "unique",
+			"id": "tab_uniques",
+			"items": [],
+			"locked_affinity": true,
+			"name": "Uniques",
+			"system_tab": true
+		}
+	],
+	"support_gems_owned": {
+		"chain_current": 1.0,
+		"controlled_power": 1.0,
+		"efficient_casting": 1.0,
+		"greater_area": 3.0,
+		"ignition": 2.0,
+		"split_projectile": 2.0
+	},
+	"version": 87,
+	"xp": 2120.23381217142
+}

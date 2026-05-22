@@ -87,6 +87,16 @@ var active_map_entries: int = 0
 var active_map_max_entries: int = 6
 
 var active_skill_slots: Array[Dictionary] = []
+var gem_inventory: Array = []
+var equipped_gem_page: Array = []
+var hotbar_slots: Array = []
+var selected_hotbar_slot: int = 0
+var selected_gem_uid: String = ""
+var selected_support_uid: String = ""
+var selected_uncut_uid: String = ""
+var selected_spirit_uid: String = ""
+var gem_last_message: String = ""
+var gem_uid_counter: int = 1
 var active_gems_owned: Dictionary = {}
 var support_gems_owned: Dictionary = {}
 var spirit_gems_owned: Dictionary = {}
@@ -280,6 +290,16 @@ func _rf_pre_090f_to_save_dict() -> Dictionary:
 		"active_gems_owned": active_gems_owned,
 		"support_gems_owned": support_gems_owned,
 		"spirit_gems_owned": spirit_gems_owned,
+		"equipped_gem_page": equipped_gem_page,
+		"hotbar_slots": hotbar_slots,
+		"gem_inventory": gem_inventory,
+		"selected_hotbar_slot": selected_hotbar_slot,
+		"selected_gem_uid": selected_gem_uid,
+		"selected_support_uid": selected_support_uid,
+		"selected_uncut_uid": selected_uncut_uid,
+		"selected_spirit_uid": selected_spirit_uid,
+		"gem_last_message": gem_last_message,
+		"gem_uid_counter": gem_uid_counter,
 		"active_skill_slots": active_skill_slots,
 		"selected_skill_slot": selected_skill_slot,
 		"selected_support_cursor": selected_support_cursor,
@@ -324,6 +344,31 @@ func _rf_pre_090f_apply_save_dict(data: Dictionary) -> void:
 		support_gems_owned = Dictionary(data.get("support_gems_owned", {})).duplicate(true)
 	if typeof(data.get("spirit_gems_owned", {})) == TYPE_DICTIONARY:
 		spirit_gems_owned = Dictionary(data.get("spirit_gems_owned", {})).duplicate(true)
+	if typeof(data.get("equipped_gem_page", [])) == TYPE_ARRAY:
+		equipped_gem_page.clear()
+		for gem_page_value: Variant in Array(data.get("equipped_gem_page", [])):
+			if typeof(gem_page_value) == TYPE_DICTIONARY:
+				equipped_gem_page.append(Dictionary(gem_page_value))
+			else:
+				equipped_gem_page.append({})
+
+	if typeof(data.get("hotbar_slots", [])) == TYPE_ARRAY:
+		hotbar_slots = Array(data.get("hotbar_slots", []))
+
+	if typeof(data.get("gem_inventory", [])) == TYPE_ARRAY:
+		gem_inventory.clear()
+		for gem_inv_value: Variant in Array(data.get("gem_inventory", [])):
+			if typeof(gem_inv_value) == TYPE_DICTIONARY:
+				gem_inventory.append(Dictionary(gem_inv_value))
+
+	selected_hotbar_slot = int(data.get("selected_hotbar_slot", selected_hotbar_slot))
+	selected_gem_uid = str(data.get("selected_gem_uid", selected_gem_uid))
+	selected_support_uid = str(data.get("selected_support_uid", selected_support_uid))
+	selected_uncut_uid = str(data.get("selected_uncut_uid", selected_uncut_uid))
+	selected_spirit_uid = str(data.get("selected_spirit_uid", selected_spirit_uid))
+	gem_last_message = str(data.get("gem_last_message", gem_last_message))
+	gem_uid_counter = int(data.get("gem_uid_counter", gem_uid_counter))
+
 	if typeof(data.get("active_skill_slots", [])) == TYPE_ARRAY:
 		active_skill_slots.clear()
 		for slot_value: Variant in Array(data.get("active_skill_slots", [])):
@@ -353,6 +398,16 @@ func to_save_dict() -> Dictionary:
 	data["spirit_gem_slots"] = spirit_gem_slots
 	data["spirit_reserved"] = spirit_reserved
 	data["spirit_max"] = spirit_max
+	data["equipped_gem_page"] = equipped_gem_page
+	data["hotbar_slots"] = hotbar_slots
+	data["gem_inventory"] = gem_inventory
+	data["selected_hotbar_slot"] = selected_hotbar_slot
+	data["selected_gem_uid"] = selected_gem_uid
+	data["selected_support_uid"] = selected_support_uid
+	data["selected_uncut_uid"] = selected_uncut_uid
+	data["selected_spirit_uid"] = selected_spirit_uid
+	data["gem_last_message"] = gem_last_message
+	data["gem_uid_counter"] = gem_uid_counter
 	return data
 
 
@@ -379,6 +434,28 @@ func apply_save_dict(data: Dictionary) -> void:
 		spirit_gem_slots = Array(data.get("spirit_gem_slots", []))
 	spirit_reserved = int(data.get("spirit_reserved", spirit_reserved))
 	spirit_max = int(data.get("spirit_max", spirit_max))
+
+	if data.has("equipped_gem_page") and typeof(data.get("equipped_gem_page")) == TYPE_ARRAY:
+		equipped_gem_page.clear()
+		for gem_page_value2: Variant in Array(data.get("equipped_gem_page", [])):
+			if typeof(gem_page_value2) == TYPE_DICTIONARY:
+				equipped_gem_page.append(Dictionary(gem_page_value2))
+			else:
+				equipped_gem_page.append({})
+	if data.has("hotbar_slots") and typeof(data.get("hotbar_slots")) == TYPE_ARRAY:
+		hotbar_slots = Array(data.get("hotbar_slots", []))
+	if data.has("gem_inventory") and typeof(data.get("gem_inventory")) == TYPE_ARRAY:
+		gem_inventory.clear()
+		for gem_inv_value2: Variant in Array(data.get("gem_inventory", [])):
+			if typeof(gem_inv_value2) == TYPE_DICTIONARY:
+				gem_inventory.append(Dictionary(gem_inv_value2))
+	selected_hotbar_slot = int(data.get("selected_hotbar_slot", selected_hotbar_slot))
+	selected_gem_uid = str(data.get("selected_gem_uid", selected_gem_uid))
+	selected_support_uid = str(data.get("selected_support_uid", selected_support_uid))
+	selected_uncut_uid = str(data.get("selected_uncut_uid", selected_uncut_uid))
+	selected_spirit_uid = str(data.get("selected_spirit_uid", selected_spirit_uid))
+	gem_last_message = str(data.get("gem_last_message", gem_last_message))
+	gem_uid_counter = int(data.get("gem_uid_counter", gem_uid_counter))
 
 	_rf_090f_ensure_stash_state_defaults()
 	ensure_defaults()

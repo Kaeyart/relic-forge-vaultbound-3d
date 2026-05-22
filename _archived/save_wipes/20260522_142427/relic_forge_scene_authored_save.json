@@ -1,0 +1,76 @@
+{
+	"active_skills": [
+		"Fireball",
+		"Cleave"
+	],
+	"backpack": [],
+	"build_flags": [],
+	"build_stats": {
+
+	},
+	"crafting_shards": {
+
+	},
+	"deaths": 0,
+	"equipped": {
+
+	},
+	"glyph_counts": {
+
+	},
+	"gold": 0,
+	"level": 1,
+	"mastery_points": 0,
+	"materials": {
+		"echo_glass": 0.0,
+		"embers": 12.0,
+		"runes": 0.0,
+		"shards": 6.0
+	},
+	"passive_atlas_allocated": [
+		"center"
+	],
+	"passive_atlas_refund_stack": [],
+	"passives": {
+		"Cold Damage": 0.0,
+		"Fire Damage": 0.0,
+		"Lightning Damage": 0.0,
+		"Mana": 0.0,
+		"Maximum Life": 0.0,
+		"Melee Damage": 0.0,
+		"Trap Damage": 0.0,
+		"Void Damage": 0.0
+	},
+	"refund_points": 0,
+	"rune_counts": {
+
+	},
+	"selected_skill": 0,
+	"skill_gem_sockets": {
+		"Blade Trap": [],
+		"Cleave": [],
+		"Fireball": [],
+		"Frost Nova": [],
+		"Storm Lance": [],
+		"Void Rift": []
+	},
+	"skill_ranks": {
+		"Blade Trap": 0.0,
+		"Cleave": 0.0,
+		"Fireball": 0.0,
+		"Frost Nova": 0.0,
+		"Storm Lance": 0.0,
+		"Void Rift": 0.0
+	},
+	"spirit_gems_enabled": {
+
+	},
+	"spirit_max": 30,
+	"spirit_reserved": 0,
+	"stash": [],
+	"support_gem_inventory": {
+
+	},
+	"version": 19,
+	"xp": 0.0
+}

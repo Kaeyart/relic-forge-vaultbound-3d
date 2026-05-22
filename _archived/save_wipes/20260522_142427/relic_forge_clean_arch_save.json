@@ -1,0 +1,291 @@
+{
+	"active_skills": [
+		"Fireball"
+	],
+	"backpack": [
+		{
+			"affixes": [
+				{
+					"id": "global_damage",
+					"name": "Global Damage",
+					"sealed": false,
+					"tier": 1.0,
+					"value": 0.066
+				}
+			],
+			"desc": "Dropped item.",
+			"flags": [],
+			"forge_potential": 13.0,
+			"name": "Magic Chest",
+			"rarity": "Magic",
+			"slot": "chest",
+			"stats": {
+				"global_damage": 0.066
+			}
+		},
+		{
+			"affixes": [
+				{
+					"id": "max_hp",
+					"name": "Maximum Life",
+					"sealed": false,
+					"tier": 1.0,
+					"value": 12.0
+				}
+			],
+			"desc": "Dropped item.",
+			"flags": [],
+			"forge_potential": 13.0,
+			"name": "Magic Chest",
+			"rarity": "Magic",
+			"slot": "chest",
+			"stats": {
+				"max_hp": 12.0
+			}
+		},
+		{
+			"affixes": [
+				{
+					"id": "lightning_damage",
+					"name": "Lightning Damage",
+					"sealed": false,
+					"tier": 1.0,
+					"value": 0.066
+				}
+			],
+			"desc": "Dropped item.",
+			"flags": [],
+			"forge_potential": 13.0,
+			"name": "Magic Gloves",
+			"rarity": "Magic",
+			"slot": "gloves",
+			"stats": {
+				"lightning_damage": 0.066
+			}
+		}
+	],
+	"build_flags": [],
+	"build_stats": {
+		"max_hp": 10.0,
+		"max_mana": 10.0
+	},
+	"crafting_shards": {
+		"cold_damage": 12.0,
+		"cooldown_reduction": 8.0,
+		"fire_damage": 12.0,
+		"freeze_duration": 8.0,
+		"global_damage": 6.0,
+		"lightning_damage": 12.0,
+		"max_hp": 12.0,
+		"max_mana": 12.0,
+		"melee_damage": 12.0,
+		"spell_damage": 12.0,
+		"trap_damage": 12.0,
+		"void_damage": 12.0
+	},
+	"deaths": 1,
+	"equipped": {
+		"amulet": {
+
+		},
+		"boots": {
+			"desc": "Dropped at depth 1.",
+			"flags": [],
+			"name": "Rare Relic-Bound Boots",
+			"rarity": "Rare",
+			"slot": "boots",
+			"stats": {
+				"global_damage": 0.044,
+				"max_mana": 9.0
+			}
+		},
+		"chest": {
+			"desc": "Dropped at depth 1.",
+			"flags": [],
+			"name": "Magic Relic-Bound Chest",
+			"rarity": "Magic",
+			"slot": "chest",
+			"stats": {
+				"global_damage": 0.044
+			}
+		},
+		"gloves": {
+
+		},
+		"head": {
+			"desc": "Dropped at depth 2.",
+			"flags": [],
+			"name": "Magic Void Head",
+			"rarity": "Magic",
+			"slot": "head",
+			"stats": {
+				"max_mana": 7.0,
+				"void_damage": 0.092
+			}
+		},
+		"offhand": {
+			"desc": "Crafted at level 3.",
+			"flags": [
+				"trap_calls_rift",
+				"rift_calls_trap",
+				"rift_pull"
+			],
+			"name": "Void Trap Engine +1",
+			"rarity": "Crafted",
+			"slot": "offhand",
+			"stats": {
+				"max_mana": 19.35,
+				"trap_damage": 0.1935,
+				"void_damage": 0.215
+			}
+		},
+		"relic": {
+
+		},
+		"ring1": {
+
+		},
+		"ring2": {
+
+		},
+		"weapon": {
+			"desc": "Starter focus.",
+			"flags": [],
+			"name": "Cracked Initiate Focus",
+			"rarity": "Starter",
+			"slot": "weapon",
+			"stats": {
+				"spell_damage": 0.04
+			}
+		}
+	},
+	"forge_affix_cursor": 0,
+	"forge_focus_index": 0,
+	"gem_board_skill_cursor": 5,
+	"gem_board_support_cursor": 5,
+	"glyph_counts": {
+		"chaos": 5.0,
+		"despair": 3.0,
+		"hope": 8.0,
+		"order": 3.0
+	},
+	"gold": 168,
+	"kills": 0,
+	"level": 3,
+	"mastery_points": 0,
+	"materials": {
+		"echo_glass": 1.0,
+		"embers": 40.0,
+		"runes": 0.0,
+		"shards": 9.0
+	},
+	"passive_atlas_allocated": [
+		"center"
+	],
+	"passive_atlas_cursor": 8,
+	"passive_atlas_refund_stack": [],
+	"passives": {
+		"ash": 0.0,
+		"blood": 0.0,
+		"frost": 0.0,
+		"relic": 0.0,
+		"steel": 2.0,
+		"storm": 0.0,
+		"trap": 0.0,
+		"void": 0.0
+	},
+	"refund_points": 0,
+	"rooms_cleared": 1,
+	"rune_counts": {
+		"creation": 1.0,
+		"discovery": 3.0,
+		"refinement": 4.0,
+		"removal": 3.0,
+		"shattering": 5.0
+	},
+	"selected_skill": 0,
+	"skill_gem_sockets": {
+		"Blade Trap": [],
+		"Cleave": [],
+		"Fireball": [],
+		"Frost Nova": [],
+		"Storm Lance": [],
+		"Void Rift": []
+	},
+	"skill_ranks": {
+		"Blade Trap": 1.0,
+		"Cleave": 0.0,
+		"Fireball": 0.0,
+		"Frost Nova": 0.0,
+		"Storm Lance": 1.0,
+		"Void Rift": 0.0
+	},
+	"spirit_cursor": 0,
+	"spirit_gems_enabled": {
+		"blood_pact": false,
+		"ember_familiar": false,
+		"frost_guard": true,
+		"storm_choir": true,
+		"void_ward": true
+	},
+	"spirit_max": 100,
+	"spirit_reserved": 0,
+	"stash": [
+		{
+			"desc": "Crafted at level 3.",
+			"flags": [
+				"fire_calls_lance",
+				"cascade_engine"
+			],
+			"name": "Ashen Conductor +1",
+			"rarity": "Crafted",
+			"slot": "weapon",
+			"stats": {
+				"fire_damage": 0.215,
+				"lightning_damage": 0.1075,
+				"spell_damage": 0.086
+			}
+		},
+		{
+			"desc": "Dropped at depth 1.",
+			"flags": [],
+			"name": "Magic Ash Offhand",
+			"rarity": "Magic",
+			"slot": "offhand",
+			"stats": {
+				"fire_damage": 0.086
+			}
+		},
+		{
+			"desc": "Crafted at level 3.",
+			"flags": [
+				"slash_bleed",
+				"cleave_wave",
+				"execute_low_hp"
+			],
+			"name": "Butcher Moon Cleaver +1",
+			"rarity": "Crafted",
+			"slot": "weapon",
+			"stats": {
+				"max_hp": 23.65,
+				"melee_damage": 0.3225
+			}
+		}
+	],
+	"support_gem_inventory": {
+		"area_echo": 2.0,
+		"blood_price": 2.0,
+		"brutality": 2.0,
+		"chain": 2.0,
+		"controlled_destruction": 2.0,
+		"curse_brand": 2.0,
+		"hypothermia": 2.0,
+		"ignite": 2.0,
+		"overcharge": 2.0,
+		"scatter": 2.0,
+		"swift_cast": 2.0,
+		"trap_cache": 2.0
+	},
+	"version": 16,
+	"xp": 438.561512175303
+}

@@ -6,29 +6,58 @@ var _equipment_slots: Array[String] = ["weapon", "offhand", "helm", "chest", "gl
 
 func refresh_panel() -> void:
 	_clear()
-	var root: HBoxContainer = _hbox(10)
-	_set_expand(root, true, true)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_PASS
+
+	var root: MarginContainer = MarginContainer.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_theme_constant_override("margin_left", 6)
+	root.add_theme_constant_override("margin_right", 6)
+	root.add_theme_constant_override("margin_top", 6)
+	root.add_theme_constant_override("margin_bottom", 6)
 	add_child(root)
 
+	var row: HBoxContainer = _hbox(8)
+	_set_expand(row, true, true)
+	root.add_child(row)
+
 	var equipment_panel: PanelContainer = _panel("EQUIPMENT")
-	_set_expand(equipment_panel, true, true)
-	root.add_child(equipment_panel)
-	_build_equipment(_panel_content(equipment_panel))
+	equipment_panel.custom_minimum_size = Vector2(185, 0)
+	equipment_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(equipment_panel)
+	var eq_scroll: ScrollContainer = ScrollContainer.new()
+	eq_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_panel_content(equipment_panel).add_child(eq_scroll)
+	var eq_box: VBoxContainer = _vbox(4)
+	eq_scroll.add_child(eq_box)
+	_build_equipment(eq_box)
 
-	var backpack_panel: PanelContainer = _panel("BACKPACK · CLICK ITEM TO SELECT")
-	_set_expand(backpack_panel, true, true)
-	root.add_child(backpack_panel)
-	_build_backpack(_panel_content(backpack_panel))
+	var backpack_panel: PanelContainer = _panel("BACKPACK")
+	backpack_panel.custom_minimum_size = Vector2(430, 0)
+	backpack_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	backpack_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(backpack_panel)
+	var bp_scroll: ScrollContainer = ScrollContainer.new()
+	bp_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	bp_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_panel_content(backpack_panel).add_child(bp_scroll)
+	var bp_box: VBoxContainer = _vbox(6)
+	bp_scroll.add_child(bp_box)
+	_build_backpack(bp_box)
 
-	var detail_panel: PanelContainer = _panel("SELECTED ITEM")
-	_set_expand(detail_panel, true, true)
-	root.add_child(detail_panel)
-	_build_selected_detail(_panel_content(detail_panel))
-
-	var compare_panel: PanelContainer = _panel("COMPARE / ACTIONS")
-	_set_expand(compare_panel, true, true)
-	root.add_child(compare_panel)
-	_build_compare_actions(_panel_content(compare_panel))
+	var right_panel: PanelContainer = _panel("ITEM / ACTIONS")
+	right_panel.custom_minimum_size = Vector2(360, 0)
+	right_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(right_panel)
+	var right_scroll: ScrollContainer = ScrollContainer.new()
+	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_panel_content(right_panel).add_child(right_scroll)
+	var right_box: VBoxContainer = _vbox(6)
+	right_scroll.add_child(right_box)
+	_build_selected_detail(right_box)
+	right_box.add_child(_label("\n[color=#c59b4a][b]COMPARE / ACTIONS[/b][/color]", 14))
+	_build_compare_actions(right_box)
 
 func _build_equipment(box: VBoxContainer) -> void:
 	var equipped: Dictionary = _as_dict(_state_get("equipped", {}))
@@ -37,26 +66,22 @@ func _build_equipment(box: VBoxContainer) -> void:
 		if equipped.has(slot_name) and typeof(equipped[slot_name]) == TYPE_DICTIONARY:
 			item = Dictionary(equipped[slot_name])
 		var label_text: String = slot_name.replace("_", " ").capitalize()
-		if item.is_empty():
-			box.add_child(_button(label_text + "\n— empty —", self, "_click_equipped_slot", [slot_name], Vector2(150, 48)))
-		else:
-			box.add_child(_button(label_text + "\n" + _short(_item_name(item), 20), self, "_click_equipped_slot", [slot_name], Vector2(150, 54)))
+		var text: String = label_text + "\n" + ("— empty —" if item.is_empty() else _short(_item_name(item), 18))
+		box.add_child(_button(text, self, "_click_equipped_slot", [slot_name], Vector2(160, 42)))
 
 func _build_backpack(box: VBoxContainer) -> void:
 	var backpack: Array = _as_array(_state_get("backpack", []))
 	var cursor: int = _selected_backpack_index()
-	var grid: GridContainer = _grid(4, 5)
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(grid)
 	if backpack.is_empty():
-		grid.add_child(_label("[color=#8f8777]Backpack empty. Run a map and pick up loot.[/color]"))
+		box.add_child(_label("[color=#8f8777]Backpack empty. Run maps, pick up loot, or use the Gem Bench for gem items.[/color]"))
 		return
+	var grid: GridContainer = _grid(3, 5)
+	box.add_child(grid)
 	for i: int in range(backpack.size()):
-		var item: Dictionary = {}
-		if typeof(backpack[i]) == TYPE_DICTIONARY:
-			item = Dictionary(backpack[i])
+		if typeof(backpack[i]) != TYPE_DICTIONARY:
+			continue
+		var item: Dictionary = Dictionary(backpack[i])
 		var selected: bool = i == cursor
-		var prefix: String = "▶ " if selected else ""
 		var flags: String = ""
 		if bool(item.get("new_item", false)):
 			flags += " N"
@@ -67,8 +92,8 @@ func _build_backpack(box: VBoxContainer) -> void:
 		if not bool(item.get("identified", true)):
 			flags += " ?"
 		var size_text: String = str(_to_int(item.get("grid_w", 1))) + "x" + str(_to_int(item.get("grid_h", 1)))
-		var button_text: String = prefix + str(i + 1) + ". " + _short(_rarity_prefix(item) + _item_name(item), 24) + "\n" + _item_slot(item) + " · " + size_text + flags
-		var b: Button = _button(button_text, self, "_select_backpack", [i], Vector2(178, 58))
+		var button_text: String = ("▶ " if selected else "") + str(i + 1) + ". " + _short(_rarity_prefix(item) + _item_name(item), 20) + "\n" + _short(_item_slot(item), 12) + " · " + size_text + flags
+		var b: Button = _button(button_text, self, "_select_backpack", [i], Vector2(135, 54))
 		if selected:
 			b.modulate = Color(1.0, 0.82, 0.34, 1.0)
 		grid.add_child(b)
@@ -82,15 +107,16 @@ func _build_compare_actions(box: VBoxContainer) -> void:
 	if item.is_empty():
 		box.add_child(_label("Select an item with the mouse."))
 		return
-	box.add_child(_label(_compare_text(item)))
-	box.add_child(_button("Equip Selected", self, "_equip_selected", [], Vector2(180, 38)))
-	box.add_child(_button("Appraise", self, "_appraise_selected", [], Vector2(180, 34)))
-	box.add_child(_button("Toggle Favorite", self, "_favorite_selected", [], Vector2(180, 34)))
-	box.add_child(_button("Toggle Lock", self, "_lock_selected", [], Vector2(180, 34)))
-	box.add_child(_button("Send to Stash", self, "_stash_selected", [], Vector2(180, 34)))
-	box.add_child(_button("Open Forge", self, "_open_forge", [], Vector2(180, 34)))
-	box.add_child(_button("Drop Item", self, "_drop_selected", [], Vector2(180, 34)))
-	box.add_child(_label("[color=#8f8777]Mouse rule: every visible item row and action button is clickable. Keyboard shortcuts still work, but are no longer required.[/color]", 12))
+	box.add_child(_label(_compare_text(item), 12))
+	var actions: GridContainer = _grid(2, 5)
+	box.add_child(actions)
+	actions.add_child(_button("Equip", self, "_equip_selected", [], Vector2(160, 34)))
+	actions.add_child(_button("Appraise", self, "_appraise_selected", [], Vector2(160, 34)))
+	actions.add_child(_button("Favorite", self, "_favorite_selected", [], Vector2(160, 34)))
+	actions.add_child(_button("Lock", self, "_lock_selected", [], Vector2(160, 34)))
+	actions.add_child(_button("Send Stash", self, "_stash_selected", [], Vector2(160, 34)))
+	actions.add_child(_button("Open Forge", self, "_open_forge", [], Vector2(160, 34)))
+	actions.add_child(_button("Drop", self, "_drop_selected", [], Vector2(160, 34)))
 
 func _compare_text(item: Dictionary) -> String:
 	var equipped: Dictionary = _as_dict(_state_get("equipped", {}))
