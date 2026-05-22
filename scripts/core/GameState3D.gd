@@ -2,6 +2,7 @@ class_name RVGameState3D
 extends RefCounted
 
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
+const ItemizationSystemScript := preload("res://scripts/systems/ItemizationSystem3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
 const ClassSystemScript := preload("res://scripts/systems/CharacterClassSystem3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
@@ -139,6 +140,7 @@ func ensure_defaults() -> void:
 	rng.randomize()
 	ClassSystemScript.ensure_defaults(self)
 	GemSystemScript.ensure_defaults(self)
+	ItemizationSystemScript.ensure_itemization_defaults(self)
 	if Dictionary(equipped.get("weapon", {})).is_empty():
 		equipped["weapon"] = ItemDBScript.make_starter_weapon(rng)
 	if map_stash.is_empty():
@@ -253,7 +255,8 @@ func add_notice(text: String) -> void:
 func add_backpack_item(item: Dictionary) -> void:
 	if item.is_empty():
 		return
-	backpack.append(item.duplicate(true))
+	var normalized_item: Dictionary = ItemizationSystemScript.normalize_item(item.duplicate(true), rng)
+	backpack.append(normalized_item)
 	inventory_cursor = clampi(inventory_cursor, 0, max(0, backpack.size() - 1))
 
 func add_material(id: String, amount: int) -> void:
@@ -268,7 +271,7 @@ func add_map_item(map_item: Dictionary) -> void:
 func equip_backpack_index(index: int) -> bool:
 	if index < 0 or index >= backpack.size():
 		return false
-	var item: Dictionary = backpack[index]
+	var item: Dictionary = ItemizationSystemScript.normalize_item(Dictionary(backpack[index]), rng)
 	var slot: String = str(item.get("slot", ""))
 	if slot == "":
 		add_notice("Cannot equip this")

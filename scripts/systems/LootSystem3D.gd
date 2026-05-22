@@ -2,6 +2,7 @@ class_name RVLootSystem3D
 extends RefCounted
 
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
+const ItemizationSystemScript := preload("res://scripts/systems/ItemizationSystem3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 const SkillGemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
 
@@ -22,8 +23,13 @@ static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss
 		item_chance = 0.50
 	if boss:
 		item_chance = 1.0
+	# patch29_currency_roll
+	if boss or elite or rng.randf() < 0.12:
+		var currency_ids: Array[String] = ["transmutation_orb", "augmentation_orb", "regal_orb", "exalted_orb", "whetstone", "armour_scrap", "artificer_orb", "ember_seal_lesser", "ash_rune", "iron_rune"]
+		var currency_id: String = currency_ids[rng.randi_range(0, currency_ids.size() - 1)]
+		out.append({"kind": "material", "material_id": currency_id, "amount": 1, "label": currency_id.replace("_", " ").capitalize(), "auto_pickup": true, "rarity": "currency"})
 	if rng.randf() < item_chance:
-		out.append({"kind": "item", "item": ItemDBScript.random_equipment_drop(enemy_level, rng, boss), "auto_pickup": false, "rarity": "gear"})
+		out.append({"kind": "item", "item": ItemizationSystemScript.random_equipment_drop(enemy_level, rng, boss), "auto_pickup": false, "rarity": "gear"})
 	var gem_chance: float = 0.045
 	if elite:
 		gem_chance = 0.18
@@ -39,7 +45,7 @@ static func boss_reward_bundle(state: Object, map_level: int) -> Array[Dictionar
 	var rng: RandomNumberGenerator = _rng(state)
 	var out: Array[Dictionary] = []
 	for i: int in range(2):
-		out.append({"kind": "item", "item": ItemDBScript.random_equipment_drop(map_level + i, rng, true), "auto_pickup": false, "rarity": "gear"})
+		out.append({"kind": "item", "item": ItemizationSystemScript.random_equipment_drop(map_level + i, rng, true), "auto_pickup": false, "rarity": "gear"})
 	out.append({"kind": "material", "material_id": "shards", "amount": rng.randi_range(4, 8), "label": "Shards", "auto_pickup": true, "rarity": "currency"})
 	out.append(_random_gem_drop(rng, true))
 	out.append({"kind": "map", "map": MapDBScript.make_map_item("chain_crossing", max(1, int(map_level / 3) + 1), rng), "auto_pickup": false, "rarity": "map"})
