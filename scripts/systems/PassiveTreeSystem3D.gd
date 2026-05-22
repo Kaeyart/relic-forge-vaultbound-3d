@@ -1,239 +1,174 @@
-class_name RVPassiveTreeSystem3D
 extends RefCounted
+class_name RVPassiveTreeSystem3D
 
-const PassiveDBScript: GDScript = preload("res://scripts/data/PassiveTreeDB3D.gd")
+const PassiveTreeDBScript := preload("res://scripts/data/PassiveTreeDB3D.gd")
+const StatRegistryScript := preload("res://scripts/data/ProgressionStatRegistry3D.gd")
 
 static func ensure_defaults(state: Object) -> void:
 	if state == null:
 		return
-	if state.get("allocated_passive_nodes") == null or typeof(state.get("allocated_passive_nodes")) != TYPE_DICTIONARY:
-		state.set("allocated_passive_nodes", {})
-	if state.get("weapon_set_index") == null:
-		state.set("weapon_set_index", 0)
-	if state.get("weapon_set_passive_points") == null:
-		state.set("weapon_set_passive_points", 0)
-	if state.get("allocated_weapon_set_nodes_1") == null or typeof(state.get("allocated_weapon_set_nodes_1")) != TYPE_DICTIONARY:
-		state.set("allocated_weapon_set_nodes_1", {})
-	if state.get("allocated_weapon_set_nodes_2") == null or typeof(state.get("allocated_weapon_set_nodes_2")) != TYPE_DICTIONARY:
-		state.set("allocated_weapon_set_nodes_2", {})
+	_state_ensure_dict(state, "allocated_passive_nodes")
 	if state.get("passive_points") == null:
-		state.set("passive_points", 0)
+		_state_set(state, "passive_points", 0)
+	if state.get("passive_tree_filter") == null:
+		_state_set(state, "passive_tree_filter", "current_class")
+	if state.get("passive_tree_search") == null:
+		_state_set(state, "passive_tree_search", "")
+	if state.get("selected_passive_node_id") == null:
+		_state_set(state, "selected_passive_node_id", PassiveTreeDBScript.class_start_node(str(_state_get(state, "class_id", "sorceress"))))
+	if not bool(Dictionary(_state_get(state, "materials", {})).get("_passive_depth_seeded_037", false)):
+		var materials: Dictionary = Dictionary(_state_get(state, "materials", {}))
+		materials["_passive_depth_seeded_037"] = true
+		_state_set(state, "materials", materials)
+		_state_set(state, "passive_points", int(_state_get(state, "passive_points", 0)) + 18)
 
-static func allocated(state: Object) -> Dictionary:
+static func allocate_node(state: Object, node_id: String) -> Dictionary:
 	ensure_defaults(state)
-	return Dictionary(state.get("allocated_passive_nodes"))
-
-static func can_allocate(state: Object, node_id: String) -> bool:
-	return allocation_error(state, node_id) == ""
-
-static func allocation_error(state: Object, node_id: String) -> String:
-	if state == null:
-		return "No state."
-	ensure_defaults(state)
-	var node: Dictionary = PassiveDBScript.node(node_id)
+	var allocated: Dictionary = Dictionary(_state_get(state, "allocated_passive_nodes", {}))
+	var class_id: String = str(_state_get(state, "class_id", "sorceress"))
+	var node: Dictionary = PassiveTreeDBScript.node(node_id)
 	if node.is_empty():
-		return "Unknown passive node."
-	var allocated_nodes: Dictionary = allocated(state)
-	if allocated_nodes.has(node_id):
-		return "Already allocated."
-	var cost: int = int(node.get("cost", 1))
-	if int(state.get("passive_points")) < cost:
-		return "Need " + str(cost) + " passive point(s)."
-	for req: Variant in Array(node.get("requires", [])):
-		if not allocated_nodes.has(str(req)):
-			var req_node: Dictionary = PassiveDBScript.node(str(req))
-			return "Requires " + str(req_node.get("name", str(req))) + "."
-	return ""
+		return _result(false, "Unknown passive node: " + node_id)
+	if allocated.has(node_id):
+		return _result(false, "Already allocated: " + str(node.get("display_name", node_id)))
+	if int(_state_get(state, "passive_points", 0)) < int(node.get("cost", 1)):
+		return _result(false, "Not enough passive points.")
+	if not PassiveTreeDBScript.available(node_id, allocated, class_id):
+		return _result(false, "Passive node is locked or belongs to another class region.")
+	allocated[node_id] = true
+	_state_set(state, "allocated_passive_nodes", allocated)
+	_state_set(state, "passive_points", int(_state_get(state, "passive_points", 0)) - int(node.get("cost", 1)))
+	_state_set(state, "selected_passive_node_id", node_id)
+	_recompute(state)
+	return _result(true, "Allocated " + str(node.get("display_name", node_id)) + ".")
 
-static func allocate(state: Object, node_id: String) -> String:
-	if state == null:
-		return "No state."
+static func refund_node(state: Object, node_id: String) -> Dictionary:
 	ensure_defaults(state)
-	var node: Dictionary = PassiveDBScript.node(node_id)
-	if node.is_empty():
-		return "Unknown passive node."
-	var err: String = allocation_error(state, node_id)
-	if err != "":
-		return "Cannot allocate " + str(node.get("name", node_id)) + ": " + err
-	var allocated_nodes: Dictionary = allocated(state)
-	allocated_nodes[node_id] = true
-	state.set("allocated_passive_nodes", allocated_nodes)
-	state.set("passive_points", maxi(0, int(state.get("passive_points")) - int(node.get("cost", 1))))
-	if state.has_method("recompute_stats"):
-		state.call("recompute_stats")
-	return "Allocated " + str(node.get("name", node_id)) + "."
+	var allocated: Dictionary = Dictionary(_state_get(state, "allocated_passive_nodes", {}))
+	if not allocated.has(node_id):
+		return _result(false, "Node is not allocated.")
+	var dependent: String = _first_dependent_allocated(node_id, allocated)
+	if dependent != "":
+		return _result(false, "Cannot refund: " + dependent + " depends on this node.")
+	var node: Dictionary = PassiveTreeDBScript.node(node_id)
+	allocated.erase(node_id)
+	_state_set(state, "allocated_passive_nodes", allocated)
+	_state_set(state, "passive_points", int(_state_get(state, "passive_points", 0)) + int(node.get("cost", 1)))
+	_state_set(state, "selected_passive_node_id", node_id)
+	_recompute(state)
+	return _result(true, "Refunded " + str(node.get("display_name", node_id)) + ".")
 
-static func can_refund(state: Object, node_id: String) -> bool:
-	return refund_error(state, node_id) == ""
-
-static func refund_error(state: Object, node_id: String) -> String:
-	if state == null:
-		return "No state."
+static func set_selected_node(state: Object, node_id: String) -> void:
 	ensure_defaults(state)
-	var allocated_nodes: Dictionary = allocated(state)
-	if not allocated_nodes.has(node_id):
-		return "Node is not allocated."
-	for other_key: Variant in allocated_nodes.keys():
-		var other_id: String = str(other_key)
-		if other_id == node_id:
-			continue
-		var other: Dictionary = PassiveDBScript.node(other_id)
-		for req: Variant in Array(other.get("requires", [])):
-			if str(req) == node_id:
-				return "Refund would break " + str(other.get("name", other_id)) + "."
-	return ""
+	_state_set(state, "selected_passive_node_id", node_id)
 
-static func refund(state: Object, node_id: String) -> String:
-	if state == null:
-		return "No state."
+static func set_filter(state: Object, filter_id: String) -> void:
 	ensure_defaults(state)
-	var node: Dictionary = PassiveDBScript.node(node_id)
-	var err: String = refund_error(state, node_id)
-	if err != "":
-		return "Cannot refund " + str(node.get("name", node_id)) + ": " + err
-	var allocated_nodes: Dictionary = allocated(state)
-	allocated_nodes.erase(node_id)
-	state.set("allocated_passive_nodes", allocated_nodes)
-	state.set("passive_points", int(state.get("passive_points")) + int(node.get("cost", 1)))
-	if state.has_method("recompute_stats"):
-		state.call("recompute_stats")
-	return "Refunded " + str(node.get("name", node_id)) + "."
+	_state_set(state, "passive_tree_filter", filter_id)
 
-static func bundle(state: Object) -> Dictionary:
-	var result: Dictionary = {"stats": {}, "rules": []}
-	if state == null:
-		return result
+static func set_search(state: Object, search_text: String) -> void:
 	ensure_defaults(state)
-	var all_nodes: Dictionary = PassiveDBScript.nodes()
-	for node_key: Variant in allocated(state).keys():
-		var id: String = str(node_key)
-		if not all_nodes.has(id):
-			continue
-		var node: Dictionary = Dictionary(all_nodes[id])
-		_merge_stats(result, Dictionary(node.get("stats", {})))
-		_merge_rules(result, Array(node.get("rules", [])))
-	return result
+	_state_set(state, "passive_tree_search", search_text)
 
-static func preview_node_bundle(node_id: String) -> Dictionary:
-	var result: Dictionary = {"stats": {}, "rules": []}
-	var node: Dictionary = PassiveDBScript.node(node_id)
-	if node.is_empty():
-		return result
-	_merge_stats(result, Dictionary(node.get("stats", {})))
-	_merge_rules(result, Array(node.get("rules", [])))
-	return result
-
-static func sorted_nodes_for_ui(state: Object) -> Array[Dictionary]:
+static func visible_nodes(state: Object) -> Array:
 	ensure_defaults(state)
-	var out: Array[Dictionary] = []
-	var allocated_nodes: Dictionary = allocated(state)
-	var class_id: String = str(state.get("class_id"))
-	for id: String in PassiveDBScript.node_ids():
-		var n: Dictionary = PassiveDBScript.node(id)
-		n["allocated"] = allocated_nodes.has(id)
-		n["can_allocate"] = can_allocate(state, id)
-		n["can_refund"] = can_refund(state, id)
-		n["allocation_error"] = allocation_error(state, id)
-		n["refund_error"] = refund_error(state, id) if allocated_nodes.has(id) else ""
-		n["is_class_region"] = str(n.get("class_bias", "any")) == class_id or str(n.get("class_bias", "any")) == "any"
-		out.append(n)
-	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var ar: int = _region_order(str(a.get("region", "")))
-		var br: int = _region_order(str(b.get("region", "")))
-		if ar != br:
-			return ar < br
-		var aa: String = str(a.get("lane", "")) + str(int(a.get("tier", 0))).pad_zeros(3) + str(a.get("id", ""))
-		var bb: String = str(b.get("lane", "")) + str(int(b.get("tier", 0))).pad_zeros(3) + str(b.get("id", ""))
-		return aa < bb
-	)
-	return out
-
-static func nodes_for_ui_filtered(state: Object, filter_mode: String, search: String = "") -> Array[Dictionary]:
-	var class_id: String = str(state.get("class_id")) if state != null else ""
-	var q: String = search.to_lower().strip_edges()
-	var out: Array[Dictionary] = []
-	for n: Dictionary in sorted_nodes_for_ui(state):
+	var class_id: String = str(_state_get(state, "class_id", "sorceress"))
+	var filter_id: String = str(_state_get(state, "passive_tree_filter", "current_class"))
+	var search_text: String = str(_state_get(state, "passive_tree_search", "")).to_lower()
+	var allocated: Dictionary = Dictionary(_state_get(state, "allocated_passive_nodes", {}))
+	var source: Array = PassiveTreeDBScript.nodes_for_class(class_id, true)
+	var result: Array = []
+	for value: Variant in source:
+		var n: Dictionary = Dictionary(value)
+		var id: String = str(n.get("id", ""))
 		var include: bool = true
-		match filter_mode:
-			"class":
-				include = str(n.get("class_bias", "any")) == class_id or str(n.get("class_bias", "any")) == "any"
-			"sorceress", "warrior", "huntress":
-				include = str(n.get("class_bias", "any")) == filter_mode
-			"center":
-				include = str(n.get("region", "")) == "center_core"
+		match filter_id:
+			"available":
+				include = PassiveTreeDBScript.available(id, allocated, class_id)
+			"allocated":
+				include = allocated.has(id)
 			"keystone":
 				include = str(n.get("type", "")) == "keystone"
-			"allocated":
-				include = bool(n.get("allocated", false))
-			"available":
-				include = bool(n.get("can_allocate", false))
+			"notable":
+				include = str(n.get("type", "")) == "notable"
+			"center":
+				include = str(n.get("class_id", "")) == "center"
 			_:
 				include = true
-		if include and q != "":
-			var hay: String = (str(n.get("name", "")) + " " + str(n.get("lane_label", "")) + " " + str(n.get("description", "")) + " " + ",".join(Array(n.get("rules", []))) + " " + ",".join(Array(n.get("tags", [])))).to_lower()
-			include = hay.find(q) >= 0
+		if include and search_text != "":
+			var hay: String = (str(n.get("display_name", "")) + " " + str(n.get("lane", "")) + " " + str(n.get("tags", []))).to_lower()
+			include = hay.find(search_text) >= 0
 		if include:
-			out.append(n)
-	return out
+			result.append(n)
+	return result
 
-static func summary_text(state: Object) -> String:
+static func node_state(state: Object, node_id: String) -> String:
 	ensure_defaults(state)
-	var text: String = "Passive Points: " + str(int(state.get("passive_points"))) + "\n"
-	text += "Allocated: " + str(allocated(state).size()) + "\n"
-	var b: Dictionary = bundle(state)
-	var rules: Array = Array(b.get("rules", []))
-	text += "Rules: " + (", ".join(rules) if not rules.is_empty() else "none")
-	return text
+	var allocated: Dictionary = Dictionary(_state_get(state, "allocated_passive_nodes", {}))
+	if allocated.has(node_id):
+		return "allocated"
+	if PassiveTreeDBScript.available(node_id, allocated, str(_state_get(state, "class_id", "sorceress"))):
+		return "available"
+	return "locked"
 
-static func validation_report(state: Object) -> String:
-	var problems: Array[String] = []
-	if state == null:
-		return "No state."
+static func bundle(state: Object) -> Dictionary:
 	ensure_defaults(state)
-	var all_nodes: Dictionary = PassiveDBScript.nodes()
-	var seen: Dictionary = {}
-	for id_value: Variant in allocated(state).keys():
+	return PassiveTreeDBScript.bundle_for_allocations(Dictionary(_state_get(state, "allocated_passive_nodes", {})))
+
+static func validate(state: Object) -> Array[String]:
+	ensure_defaults(state)
+	var warnings: Array[String] = []
+	var allocated: Dictionary = Dictionary(_state_get(state, "allocated_passive_nodes", {}))
+	for id_value: Variant in allocated.keys():
 		var id: String = str(id_value)
-		if seen.has(id):
-			problems.append("Duplicate allocation: " + id)
-		seen[id] = true
-		if not all_nodes.has(id):
-			problems.append("Allocated missing node: " + id)
+		var node: Dictionary = PassiveTreeDBScript.node(id)
+		if node.is_empty():
+			warnings.append("Unknown allocated passive node: " + id)
 			continue
-		var node: Dictionary = Dictionary(all_nodes[id])
-		for req: Variant in Array(node.get("requires", [])):
-			if not seen.has(str(req)) and not allocated(state).has(str(req)):
-				problems.append(str(node.get("name", id)) + " missing required node " + str(req))
-	if problems.is_empty():
-		return "Passive validation: OK"
-	return "Passive validation:\n- " + "\n- ".join(problems)
+		for stat_key: Variant in Dictionary(node.get("stats", {})).keys():
+			var key: String = str(stat_key)
+			if not StatRegistryScript.is_known_stat(key):
+				warnings.append("Unknown passive stat: " + key + " on " + id)
+		for rule_value: Variant in Array(node.get("rules", [])):
+			var rule: String = str(rule_value)
+			if not StatRegistryScript.is_known_rule(rule):
+				warnings.append("Unknown passive rule: " + rule + " on " + id)
+		for req_value: Variant in Array(node.get("requires", [])):
+			var req: String = str(req_value)
+			if req != "" and not allocated.has(req):
+				warnings.append("Allocated node missing required path: " + id + " requires " + req)
+	return warnings
 
-static func _region_order(region: String) -> int:
-	match region:
-		"north_arcane":
-			return 10
-		"west_martial":
-			return 20
-		"east_hunt":
-			return 30
-		"center_core":
-			return 40
-		"keystone":
-			return 50
-		_:
-			return 99
+static func _first_dependent_allocated(node_id: String, allocated: Dictionary) -> String:
+	var nodes: Dictionary = PassiveTreeDBScript.all_nodes()
+	for id_value: Variant in allocated.keys():
+		var id: String = str(id_value)
+		if id == node_id:
+			continue
+		var n: Dictionary = Dictionary(nodes.get(id, {}))
+		if Array(n.get("requires", [])).has(node_id):
+			return id
+	return ""
 
-static func _merge_stats(result: Dictionary, stats: Dictionary) -> void:
-	var target: Dictionary = Dictionary(result.get("stats", {}))
-	for key: Variant in stats.keys():
-		var stat_key: String = str(key)
-		target[stat_key] = float(target.get(stat_key, 0.0)) + float(stats[key])
-	result["stats"] = target
+static func _recompute(state: Object) -> void:
+	if state != null and state.has_method("recompute_stats"):
+		state.call("recompute_stats")
 
-static func _merge_rules(result: Dictionary, rules: Array) -> void:
-	var target: Array = Array(result.get("rules", []))
-	for value: Variant in rules:
-		var rule: String = str(value)
-		if rule != "" and not target.has(rule):
-			target.append(rule)
-	result["rules"] = target
+static func _result(ok: bool, message: String) -> Dictionary:
+	return {"ok": ok, "message": message}
+
+static func _state_get(state: Object, key: String, fallback: Variant = null) -> Variant:
+	if state == null:
+		return fallback
+	var value: Variant = state.get(key)
+	return fallback if value == null else value
+
+static func _state_set(state: Object, key: String, value: Variant) -> void:
+	if state != null:
+		state.set(key, value)
+
+static func _state_ensure_dict(state: Object, key: String) -> void:
+	if state == null:
+		return
+	if typeof(state.get(key)) != TYPE_DICTIONARY:
+		state.set(key, {})

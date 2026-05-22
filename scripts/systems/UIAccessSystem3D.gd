@@ -22,6 +22,10 @@ static func normalize_mode(mode: String) -> String:
 			return "crafting"
 		"skill", "gems", "gem", "skill_gems", "skillgem", "skill_gem":
 			return "skills"
+		"passive", "passives", "passive_tree", "tree":
+			return "passives"
+		"asc", "ascend", "ascendancy", "ascendancies":
+			return "ascendancy"
 		"map", "map_device", "mapdevice", "atlas", "waystone":
 			return "maps"
 		"inventory", "inv", "bag", "backpack":
