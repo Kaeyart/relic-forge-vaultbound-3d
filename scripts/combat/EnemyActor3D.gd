@@ -17,6 +17,7 @@ var bleed_time: float = 0.0
 var bleed_dps: float = 0.0
 var shock_time: float = 0.0
 var shock_taken_more: float = 0.0
+var rf36_hit_flash_time: float = 0.0
 
 func _ready() -> void:
 	if get_child_count() == 0:
@@ -94,6 +95,8 @@ func update_ai(player_pos: Vector3, delta: float) -> void:
 		velocity = Vector3.ZERO
 
 func _tick_status(delta: float) -> void:
+	if rf36_hit_flash_time > 0.0:
+		rf36_hit_flash_time = maxf(0.0, rf36_hit_flash_time - delta)
 	var dot_damage: float = 0.0
 	if ignite_time > 0.0:
 		ignite_time = max(0.0, ignite_time - delta)
@@ -131,6 +134,7 @@ func take_damage(amount: float) -> bool:
 	var final_amount: float = safe_amount * shock_multiplier
 
 	hp -= final_amount
+	rf36_hit_flash_time = 0.08
 
 	if hp <= 0.0:
 		alive = false

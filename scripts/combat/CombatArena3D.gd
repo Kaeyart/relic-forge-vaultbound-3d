@@ -7,6 +7,7 @@ const LootActorScene := preload("res://scenes/prefabs/loot/LootActor3D.tscn")
 const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd")
 const LootPickupSystemScript := preload("res://scripts/systems/LootPickupSystem3D.gd")
 const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
+const VerticalSliceEncounterSystemScript := preload("res://scripts/systems/VerticalSliceEncounterSystem3D.gd")
 const ItemCombatIntegrationScript: GDScript = preload("res://scripts/systems/ItemCombatIntegrationSystem3D.gd")
 
 var enemies_root: Node3D
@@ -53,6 +54,8 @@ func start_map(state: Object, activity: Dictionary = {}) -> void:
 	_clear_children(projectiles_root)
 	_clear_children(decor_root)
 	_clear_children(loot_root)
+	if VerticalSliceEncounterSystemScript.try_start_map(self, state, activity):
+		return
 	_build_arena(str(activity.get("layout", "box_blockers")))
 	var pack_bonus: int = int(round(float(_map_stat(activity, "Pack Size")) * 10.0))
 	var danger_bonus: int = clampi(int(activity.get("danger_score", 1)) / 4, 0, 5)
@@ -72,6 +75,7 @@ func stop_map() -> void:
 func update_combat(state: Object, player: Node3D, delta: float) -> void:
 	if not active or state == null or player == null:
 		return
+	VerticalSliceEncounterSystemScript.update_encounter(self, state, player, delta)
 	_process_pending_pulses(state, delta)
 	var player_pos: Vector3 = player.global_position
 	for enemy_node: Node in enemies_root.get_children():
@@ -164,6 +168,30 @@ func cast_skill(state: Object, origin: Vector3, aim_world: Vector3, cast_data: D
 			_damage_area(origin, float(cast_data.get("base_area", 2.7)) * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
 		"shield_burst":
 			_damage_cone(origin, dir, 2.8 * float(cast_data.get("area_mult", 1.0)), 2.2, float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+		"heavy_slam":
+			var slam_radius: float = 3.0 * float(cast_data.get("area_mult", 1.0))
+			_damage_cone(origin, dir, slam_radius, 2.2, float(cast_data.get("damage", 1.0)) * 1.18, state, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+			_schedule_pulse(origin + dir * 2.0, 0.16, 1.65 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)) * 0.78, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+		"ground_rupture":
+			_damage_line(origin, dir, float(cast_data.get("range", 5.8)), 0.85 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)), state, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+			_schedule_pulse(origin + dir * 2.8, 0.18, 1.15 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)) * 0.62, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+			_schedule_pulse(origin + dir * 4.6, 0.34, 1.15 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)) * 0.55, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+		"piercing_shot", "marked_shot":
+			_cast_projectile_fan(origin, dir, cast_data, 1.0)
+			if active_id == "marked_shot":
+				var marked_target: Node = _closest_enemy_to(origin + dir * 4.0, 6.0, [])
+				if marked_target != null:
+					marked_target.set_meta("rf_marked", true)
+					marked_target.set_meta("rf_mark_time", 5.0)
+		"rain_of_arrows":
+			var rain_center: Vector3 = _clamped_target(origin, aim_world, float(cast_data.get("range", 7.5)))
+			var rain_radius: float = float(cast_data.get("base_area", 2.4)) * float(cast_data.get("area_mult", 1.0))
+			_damage_area(rain_center, rain_radius * 0.85, float(cast_data.get("damage", 1.0)) * 0.55, state, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+			_schedule_pulse(rain_center + Vector3(0.7, 0.0, 0.4), 0.18, rain_radius, float(cast_data.get("damage", 1.0)) * 0.70, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+			_schedule_pulse(rain_center + Vector3(-0.6, 0.0, -0.5), 0.36, rain_radius, float(cast_data.get("damage", 1.0)) * 0.70, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
+		"snare_trap":
+			var trap_center: Vector3 = _clamped_target(origin, aim_world, float(cast_data.get("range", 6.0)))
+			_schedule_pulse(trap_center, 0.36, float(cast_data.get("base_area", 1.8)) * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)), Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))
 		"infernal_step":
 			var end_pos := origin + dir * float(cast_data.get("range", 4.5))
 			_damage_line(origin, dir, float(cast_data.get("range", 4.5)), 0.65 * float(cast_data.get("area_mult", 1.0)), float(cast_data.get("damage", 1.0)) * 0.55, state, Array(cast_data.get("tags", [])), Dictionary(cast_data.get("rules", {})))

@@ -281,3 +281,9 @@ static func _drop_to_uncut_gem_item(drop: Dictionary) -> Dictionary:
 		"grid_w": 1,
 		"grid_h": 1,
 	}
+
+static func ash_foundry_vertical_slice_bonus(state: Object, map_level: int = 1) -> Array[Dictionary]:
+	var rewards: Array[Dictionary] = []
+	rewards.append({"kind": "material", "material_id": "embers", "amount": 8 + map_level})
+	rewards.append({"kind": "material", "material_id": "shards", "amount": 4 + int(map_level / 2)})
+	return rewards
