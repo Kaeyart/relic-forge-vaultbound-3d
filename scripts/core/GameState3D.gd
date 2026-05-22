@@ -167,6 +167,7 @@ func recompute_stats() -> void:
 		var item_value: Variant = equipped[slot_key]
 		if typeof(item_value) == TYPE_DICTIONARY:
 			_merge_stats(Dictionary(item_value).get("total_stats", {}))
+			_merge_rules(Array(Dictionary(item_value).get("build_rules", [])))
 	var spirit_bundle: Dictionary = GemSystemScript.collect_spirit_bundle(self)
 	_merge_stats(Dictionary(spirit_bundle.get("stats", {})))
 	_merge_rules(Array(spirit_bundle.get("rules", [])))

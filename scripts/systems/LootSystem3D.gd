@@ -28,6 +28,11 @@ static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss
 		var currency_ids: Array[String] = ["transmutation_orb", "augmentation_orb", "regal_orb", "exalted_orb", "whetstone", "armour_scrap", "artificer_orb", "ember_seal_lesser", "ash_rune", "iron_rune"]
 		var currency_id: String = currency_ids[rng.randi_range(0, currency_ids.size() - 1)]
 		out.append({"kind": "material", "material_id": currency_id, "amount": 1, "label": currency_id.replace("_", " ").capitalize(), "auto_pickup": true, "rarity": "currency"})
+	# patch30_item_identity_roll
+	if boss or elite or rng.randf() < 0.16:
+		var material_ids: Array[String] = ["transmutation_orb", "augmentation_orb", "regal_orb", "exalted_orb", "chaos_orb", "whetstone", "armour_scrap", "artificer_orb", "ember_seal_lesser", "storm_seal_lesser", "arcanist_seal_lesser", "ash_rune", "storm_rune", "iron_rune", "vault_rune", "seeker_rune"]
+		var material_id: String = material_ids[rng.randi_range(0, material_ids.size() - 1)]
+		out.append({"kind": "material", "material_id": material_id, "amount": 1, "label": ItemizationSystemScript.material_label(material_id), "auto_pickup": true, "rarity": "currency"})
 	if rng.randf() < item_chance:
 		out.append({"kind": "item", "item": ItemizationSystemScript.random_equipment_drop(enemy_level, rng, boss), "auto_pickup": false, "rarity": "gear"})
 	var gem_chance: float = 0.045

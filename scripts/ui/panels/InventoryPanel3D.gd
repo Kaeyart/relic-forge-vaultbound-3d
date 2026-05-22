@@ -3,28 +3,37 @@ extends "res://scripts/ui/panels/BaseTextPanel3D.gd"
 const I: GDScript = preload("res://scripts/systems/ItemizationSystem3D.gd")
 const C: GDScript = preload("res://scripts/systems/ItemCraftingSystem3D.gd")
 
+var _filters: Array[String] = ["all", "gear", "unique", "high", "currency", "rune", "seal", "gem", "map"]
+
 func refresh_panel() -> void:
 	_clear()
-	var root: HBoxContainer = _hbox(10)
+	var root: HBoxContainer = _hbox(8)
 	_set_expand(root, true, true)
 	add_child(root)
 
-	var equipment_panel: PanelContainer = _panel("EQUIPMENT")
-	equipment_panel.custom_minimum_size = Vector2(250, 0)
-	root.add_child(equipment_panel)
-	_build_equipment(_panel_content(equipment_panel))
+	var left: PanelContainer = _panel("EQUIPMENT / FILTER")
+	left.custom_minimum_size = Vector2(220, 0)
+	root.add_child(left)
+	_build_left(_panel_content(left))
 
-	var backpack_panel: PanelContainer = _panel("BACKPACK")
-	backpack_panel.custom_minimum_size = Vector2(340, 0)
-	root.add_child(backpack_panel)
-	_build_backpack(_panel_content(backpack_panel))
+	var middle: PanelContainer = _panel("BACKPACK")
+	middle.custom_minimum_size = Vector2(340, 0)
+	root.add_child(middle)
+	_build_backpack(_panel_content(middle))
 
-	var detail_panel: PanelContainer = _panel("ITEM DETAIL / ACTIONS")
-	_set_expand(detail_panel, true, true)
-	root.add_child(detail_panel)
-	_build_detail(_panel_content(detail_panel))
+	var detail: PanelContainer = _panel("ITEM CARD / DECISION")
+	_set_expand(detail, true, true)
+	root.add_child(detail)
+	_build_detail(_panel_content(detail))
 
-func _build_equipment(box: VBoxContainer) -> void:
+func _build_left(box: VBoxContainer) -> void:
+	var active: String = str(_state_get("inventory_filter", "all"))
+	var grid: GridContainer = _grid(2, 4)
+	box.add_child(grid)
+	for filter: String in _filters:
+		var label: String = ("▶ " if filter == active else "") + filter.capitalize()
+		grid.add_child(_button(label, self, "_set_filter", [filter], Vector2(96, 30)))
+	box.add_child(_label("\n[color=#c59b4a]Equipped[/color]", 13))
 	var equipped: Dictionary = _as_dict(_state_get("equipped", {}))
 	var slots: Array[String] = ["weapon", "offhand", "head", "chest", "gloves", "boots", "amulet", "ring1", "ring2", "relic"]
 	for slot: String in slots:
@@ -33,13 +42,16 @@ func _build_equipment(box: VBoxContainer) -> void:
 		if typeof(raw) == TYPE_DICTIONARY:
 			item = I.normalize_item(Dictionary(raw))
 		var item_name: String = "—"
+		var rarity: String = "normal"
 		if not item.is_empty():
 			item_name = str(item.get("display_name", "—"))
-		box.add_child(_label("[color=#c59b4a]" + slot.capitalize() + "[/color]\n" + item_name, 12))
+			rarity = str(item.get("rarity", "normal"))
+		box.add_child(_label("[color=#8f8777]" + slot.capitalize() + "[/color]\n[color=" + I.rarity_color(rarity) + "]" + _short(item_name, 26) + "[/color]", 11))
 
 func _build_backpack(box: VBoxContainer) -> void:
 	var backpack: Array = _as_array(_state_get("backpack", []))
 	var cursor: int = _selected_backpack_index()
+	var filter: String = str(_state_get("inventory_filter", "all"))
 	var scroll: ScrollContainer = ScrollContainer.new()
 	_set_expand(scroll, true, true)
 	var list: VBoxContainer = _vbox(4)
@@ -52,20 +64,59 @@ func _build_backpack(box: VBoxContainer) -> void:
 		if typeof(backpack[i]) != TYPE_DICTIONARY:
 			continue
 		var item: Dictionary = I.normalize_item(Dictionary(backpack[i]))
-		var prefix: String = "▶ " if i == cursor else ""
-		var label_text: String = prefix + str(i + 1) + ". " + str(item.get("display_name", item.get("label", "Item")))
-		label_text += "\n" + str(item.get("rarity", "")).capitalize() + " · " + str(item.get("slot", item.get("kind", "")))
-		list.add_child(_button(label_text, self, "_select", [i], Vector2(305, 54)))
+		if not _passes_filter(item, filter):
+			continue
+		var selected: bool = i == cursor
+		var rarity: String = str(item.get("rarity", "normal"))
+		var label_text: String = ("▶ " if selected else "") + str(i + 1) + ". " + _short(str(item.get("display_name", item.get("label", "Item"))), 30)
+		label_text += "\n[color=" + I.rarity_color(rarity) + "]" + rarity.capitalize() + "[/color] · " + str(item.get("slot", item.get("kind", "")))
+		if I.is_equipment(item):
+			label_text += " · FP " + str(int(item.get("forge_potential", 0))) + "/" + str(int(item.get("forge_potential_max", 0)))
+			if not bool(item.get("identified", true)):
+				label_text += " · ?"
+			if int(item.get("loot_priority", 0)) >= 75:
+				label_text += " · HIGH"
+		var button: Button = _button(label_text, self, "_select", [i], Vector2(320, 58))
+		if selected:
+			button.modulate = Color(1.0, 0.84, 0.36, 1.0)
+		list.add_child(button)
 
 func _build_detail(box: VBoxContainer) -> void:
 	var item: Dictionary = I.normalize_item(_selected_backpack_item())
-	box.add_child(_label(I.item_detail_text(item), 12))
-	box.add_child(_label(_comparison(item), 12))
-	var grid: GridContainer = _grid(4, 6)
-	box.add_child(grid)
-	var actions: Array[String] = ["equip", "forge", "sell", "disenchant", "salvage", "favorite", "lock", "drop"]
-	for action: String in actions:
-		grid.add_child(_button(action.capitalize(), self, "_act", [action], Vector2(118, 34)))
+	var scroll: ScrollContainer = ScrollContainer.new()
+	_set_expand(scroll, true, true)
+	var inner: VBoxContainer = _vbox(6)
+	scroll.add_child(inner)
+	box.add_child(scroll)
+	inner.add_child(_label(I.item_detail_text(item), 12))
+	inner.add_child(_label(_comparison(item), 12))
+	var actions: GridContainer = _grid(4, 5)
+	inner.add_child(actions)
+	var action_list: Array[String] = ["appraise", "equip", "forge", "favorite", "lock", "sell", "disenchant", "salvage", "drop"]
+	for action: String in action_list:
+		actions.add_child(_button(action.capitalize(), self, "_act", [action], Vector2(118, 34)))
+
+func _passes_filter(item: Dictionary, filter: String) -> bool:
+	if filter == "all":
+		return true
+	if filter == "gear":
+		return I.is_equipment(item)
+	if filter == "unique":
+		return str(item.get("rarity", "")) == "unique"
+	if filter == "high":
+		return int(item.get("loot_priority", 0)) >= 75
+	var kind: String = str(item.get("kind", item.get("item_kind", "")))
+	if filter == "currency":
+		return kind == "currency" or kind == "material"
+	if filter == "rune":
+		return str(item.get("display_name", "")).to_lower().find("rune") >= 0 or str(item.get("material_id", "")).find("rune") >= 0
+	if filter == "seal":
+		return str(item.get("display_name", "")).to_lower().find("seal") >= 0 or str(item.get("material_id", "")).find("seal") >= 0
+	if filter == "gem":
+		return kind.find("gem") >= 0
+	if filter == "map":
+		return kind == "map"
+	return true
 
 func _comparison(item: Dictionary) -> String:
 	if item.is_empty() or not I.is_equipment(item):
@@ -77,8 +128,12 @@ func _comparison(item: Dictionary) -> String:
 	if typeof(raw) == TYPE_DICTIONARY:
 		current = Dictionary(raw)
 	if current.is_empty():
-		return "[color=#8f8777]No equipped item in this slot.[/color]"
+		return "[color=#8f8777]No equipped item in this slot.[/color]\n" + I.build_relevance_text(item)
 	return I.compare_items_text(item, current)
+
+func _set_filter(filter: String) -> void:
+	_state_set("inventory_filter", filter)
+	refresh_panel()
 
 func _select(index: int) -> void:
 	_set_selected_backpack_index(index)
@@ -89,6 +144,8 @@ func _act(action: String) -> void:
 			state_ref.call("equip_backpack_index", _selected_backpack_index())
 	elif action == "forge":
 		_open_panel("crafting")
+	elif action == "appraise":
+		C.apply_to_selected(state_ref, "appraise")
 	elif action in ["sell", "disenchant", "salvage"]:
 		C.apply_to_selected(state_ref, action)
 	elif action in ["favorite", "lock"]:
