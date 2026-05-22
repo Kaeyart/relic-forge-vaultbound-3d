@@ -4,6 +4,8 @@ const I: GDScript = preload("res://scripts/systems/ItemizationSystem3D.gd")
 const C: GDScript = preload("res://scripts/systems/ItemCraftingSystem3D.gd")
 const E: GDScript = preload("res://scripts/systems/ItemEndgameSystem3D.gd")
 const F: GDScript = preload("res://scripts/systems/LootFilterSystem3D.gd")
+const ItemRuntimeScript: GDScript = preload("res://scripts/systems/ItemCombatIntegrationSystem3D.gd")
+const ItemValidationScript: GDScript = preload("res://scripts/systems/ItemValidationSystem3D.gd")
 
 var _filters: Array[String] = ["all", "gear", "unique", "boss", "endgame", "high", "currency", "rune", "seal", "gem", "map"]
 
@@ -90,6 +92,8 @@ func _build_detail(box: VBoxContainer) -> void:
 	box.add_child(scroll)
 	inner.add_child(_label(I.item_detail_text(item), 12))
 	inner.add_child(_label(E.endgame_item_text(item), 12))
+	inner.add_child(_label(ItemRuntimeScript.selected_skill_impact_text(state_ref, item), 12))
+	inner.add_child(_label(ItemValidationScript.item_runtime_text(item), 11))
 	inner.add_child(_label(_comparison(item), 12))
 	var actions: GridContainer = _grid(4, 5)
 	inner.add_child(actions)

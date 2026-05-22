@@ -3,6 +3,8 @@ extends "res://scripts/ui/panels/BaseTextPanel3D.gd"
 const I: GDScript = preload("res://scripts/systems/ItemizationSystem3D.gd")
 const C: GDScript = preload("res://scripts/systems/ItemCraftingSystem3D.gd")
 const E: GDScript = preload("res://scripts/systems/ItemEndgameSystem3D.gd")
+const ItemRuntimeScript: GDScript = preload("res://scripts/systems/ItemCombatIntegrationSystem3D.gd")
+const ItemValidationScript: GDScript = preload("res://scripts/systems/ItemValidationSystem3D.gd")
 
 var _basic_actions: Array[String] = [
 	"appraise", "transmute", "augment", "regal", "exalt", "chaos", "annul", "alchemy",
@@ -65,7 +67,9 @@ func _build_preview(box: VBoxContainer) -> void:
 		inner.add_child(_label("\n[color=#c59b4a]Oracle[/color]\n" + str(_state_get("item_oracle_preview", "")), 12))
 	if not item.is_empty():
 		inner.add_child(_label("\n" + I.build_relevance_text(item), 12))
+		inner.add_child(_label(ItemRuntimeScript.selected_skill_impact_text(state_ref, item), 12))
 		inner.add_child(_label(E.build_aware_delta(item, _equipped_for(item)), 12))
+	inner.add_child(_label("\n" + ItemValidationScript.runtime_report_text(state_ref), 11))
 	inner.add_child(_label("\n[color=#8f8777]Crafting rule: basic currency mutates rarity/affixes; higher-tier currency raises tier floors; omens prepare control; Vaultbinding is irreversible corruption; Relic Reforge upgrades uniques.[/color]", 12))
 	box.add_child(_button("CONFIRM SELECTED CRAFT", self, "_confirm", [], Vector2(240, 44)))
 

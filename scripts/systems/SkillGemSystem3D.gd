@@ -15,6 +15,7 @@ const ACTIVE_ORDER: Array = [
 ]
 
 const SUPPORT_ORDER: Array = [
+const ItemCombatIntegrationScript: GDScript = preload("res://scripts/systems/ItemCombatIntegrationSystem3D.gd")
 	"split_projectile",
 	"chain_current",
 	"ignition",
@@ -303,8 +304,9 @@ static func selected_cast_data(state: Object) -> Dictionary:
 	ensure_defaults(state)
 	var active: Dictionary = selected_hotbar_active_gem(state)
 	if active.is_empty():
-		return _fallback_cast_data()
-	return build_cast_data(state, active)
+		return ItemCombatIntegrationScript.enhance_cast_data(state, _fallback_cast_data())
+	var cast_data: Dictionary = build_cast_data(state, active)
+	return ItemCombatIntegrationScript.enhance_cast_data(state, cast_data)
 
 
 static func build_cast_data(state: Object, active: Dictionary) -> Dictionary:

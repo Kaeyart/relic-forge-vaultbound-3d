@@ -7,6 +7,7 @@ const LootActorScene := preload("res://scenes/prefabs/loot/LootActor3D.tscn")
 const LootSystemScript := preload("res://scripts/systems/LootSystem3D.gd")
 const LootPickupSystemScript := preload("res://scripts/systems/LootPickupSystem3D.gd")
 const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
+const ItemCombatIntegrationScript: GDScript = preload("res://scripts/systems/ItemCombatIntegrationSystem3D.gd")
 
 var enemies_root: Node3D
 var projectiles_root: Node3D
@@ -83,10 +84,8 @@ func update_combat(state: Object, player: Node3D, delta: float) -> void:
 				_on_enemy_died(enemy_node, state)
 			continue
 		if (enemy_node as Node3D).global_position.distance_to(player_pos) < 0.9:
-			var armor: float = float(state.get("armor"))
-			var mitigation: float = armor / (armor + 160.0)
-			var dmg: float = float(enemy_node.get("damage")) * (1.0 - mitigation)
-			state.set("player_hp", max(0.0, float(state.get("player_hp")) - dmg * delta))
+			var dmg: float = ItemCombatIntegrationScript.player_damage_taken(state, float(enemy_node.get("damage")), "physical", delta)
+			state.set("player_hp", max(0.0, float(state.get("player_hp")) - dmg))
 			if float(state.get("player_hp")) <= 0.0:
 				state.set("deaths", int(state.get("deaths")) + 1)
 				state.call("add_notice", "You died.\nPress T to return to hub.")
@@ -255,11 +254,12 @@ func _damage_area(center: Vector3, radius_value: float, damage: float, state: Ob
 func _damage_enemy(enemy: Node, damage: float, state: Object, tags: Array, rules: Dictionary, source_pos: Vector3) -> void:
 	if enemy == null or not is_instance_valid(enemy) or not bool(enemy.get("alive")):
 		return
-	var final_damage := damage
+	var final_damage: float = ItemCombatIntegrationScript.skill_damage_to_enemy(state, damage, tags, rules, enemy)
 	if float(rules.get("execute_more", 0.0)) > 0.0 and enemy.has_method("health_ratio") and float(enemy.call("health_ratio")) <= 0.35:
 		final_damage *= 1.0 + float(rules.get("execute_more", 0.0))
 	if bool(enemy.call("take_damage", final_damage)):
 		_apply_on_hit_rules(enemy, final_damage, state, tags, rules, source_pos)
+		ItemCombatIntegrationScript.after_player_hit(state, enemy, final_damage, tags, rules)
 	if not bool(enemy.get("alive")):
 		_on_enemy_died(enemy, state)
 

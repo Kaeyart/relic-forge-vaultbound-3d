@@ -6,6 +6,7 @@ const StationAccessSystemScript := preload("res://scripts/systems/StationAccessS
 const GemProgressionSystemScript := preload("res://scripts/systems/GemProgressionSystem3D.gd")
 const UIAccessSystemScript := preload("res://scripts/systems/UIAccessSystem3D.gd")
 const InventoryGridSystemScript := preload("res://scripts/systems/InventoryGridSystem3D.gd")
+const ItemValidationSystemScript: GDScript = preload("res://scripts/systems/ItemValidationSystem3D.gd")
 var _rf_087r_hud: Node = null
 var _rf_087r_ui: Node = null
 
@@ -116,6 +117,8 @@ func _handle_key(keycode: int) -> void:
 			state.call("add_notice", "Saved")
 		KEY_F8:
 			state.set("panel_mode", "")
+		KEY_F9:
+			ItemValidationSystemScript.run_smoke_test(state)
 		KEY_Z:
 			state.call("use_health_flask")
 		KEY_X:

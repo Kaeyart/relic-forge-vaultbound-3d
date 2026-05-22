@@ -3,6 +3,8 @@ extends RefCounted
 
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const ItemizationSystemScript := preload("res://scripts/systems/ItemizationSystem3D.gd")
+const ItemCombatIntegrationSystemScript := preload("res://scripts/systems/ItemCombatIntegrationSystem3D.gd")
+const ItemValidationSystemScript := preload("res://scripts/systems/ItemValidationSystem3D.gd")
 const ItemEndgameSystemScript := preload("res://scripts/systems/ItemEndgameSystem3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
 const ClassSystemScript := preload("res://scripts/systems/CharacterClassSystem3D.gd")
@@ -143,6 +145,7 @@ func ensure_defaults() -> void:
 	GemSystemScript.ensure_defaults(self)
 	ItemizationSystemScript.ensure_itemization_defaults(self)
 	ItemEndgameSystemScript.ensure_endgame_defaults(self)
+	ItemValidationSystemScript.ensure_runtime_defaults(self)
 	if Dictionary(equipped.get("weapon", {})).is_empty():
 		equipped["weapon"] = ItemDBScript.make_starter_weapon(rng)
 	if map_stash.is_empty():
@@ -182,6 +185,7 @@ func recompute_stats() -> void:
 	spirit_reserved = int(spirit_bundle.get("reserved", 0))
 	player_hp = clampf(player_hp, 0.0, max_hp)
 	player_mana = clampf(player_mana, 0.0, max_mana)
+	ItemCombatIntegrationSystemScript.apply_character_defense_stats(self)
 
 func _merge_stats(stats: Dictionary) -> void:
 	for key_value: Variant in stats.keys():
@@ -276,6 +280,10 @@ func equip_backpack_index(index: int) -> bool:
 		return false
 	var item: Dictionary = ItemizationSystemScript.normalize_item(Dictionary(backpack[index]), rng)
 	var slot: String = str(item.get("slot", ""))
+	var invalid_reasons: Array[String] = ItemCombatIntegrationSystemScript.invalid_equip_reasons(self, item)
+	if not invalid_reasons.is_empty():
+		add_notice("Cannot equip: " + ", ".join(invalid_reasons))
+		return false
 	if slot == "":
 		add_notice("Cannot equip this")
 		return false
@@ -421,6 +429,8 @@ func to_save_dict() -> Dictionary:
 	data["spirit_gem_slots"] = spirit_gem_slots
 	data["spirit_reserved"] = spirit_reserved
 	data["spirit_max"] = spirit_max
+	data["runic_ward_current"] = get("runic_ward_current")
+	data["runic_ward_max"] = get("runic_ward_max")
 	data["equipped_gem_page"] = equipped_gem_page
 	data["hotbar_slots"] = hotbar_slots
 	data["gem_inventory"] = gem_inventory
@@ -488,6 +498,8 @@ func apply_save_dict(data: Dictionary) -> void:
 		spirit_gem_slots = Array(data.get("spirit_gem_slots", []))
 	spirit_reserved = int(data.get("spirit_reserved", spirit_reserved))
 	spirit_max = int(data.get("spirit_max", spirit_max))
+	set("runic_ward_current", data.get("runic_ward_current", get("runic_ward_current")))
+	set("runic_ward_max", data.get("runic_ward_max", get("runic_ward_max")))
 
 	if data.has("equipped_gem_page") and typeof(data.get("equipped_gem_page")) == TYPE_ARRAY:
 		equipped_gem_page.clear()
