@@ -2,6 +2,7 @@ class_name RVItemCraftingSystem3D
 extends RefCounted
 
 const ItemizationScript: GDScript = preload("res://scripts/systems/ItemizationSystem3D.gd")
+const EndgameScript: GDScript = preload("res://scripts/systems/ItemEndgameSystem3D.gd")
 
 static func craft_selected(state: Object, action: String) -> bool:
 	return apply_to_selected(state, action)
@@ -9,6 +10,8 @@ static func craft_selected(state: Object, action: String) -> bool:
 static func apply_to_selected(state: Object, action: String) -> bool:
 	if state == null:
 		return false
+	if EndgameScript.is_endgame_action(action):
+		return EndgameScript.apply_to_selected(state, action)
 	var backpack: Array = Array(state.get("backpack"))
 	var index: int = clampi(int(state.get("inventory_cursor")), 0, max(0, backpack.size() - 1))
 	if backpack.is_empty() or index < 0 or index >= backpack.size() or typeof(backpack[index]) != TYPE_DICTIONARY:
@@ -114,6 +117,8 @@ static func apply_to_selected(state: Object, action: String) -> bool:
 static func preview_action(state: Object, action: String) -> String:
 	if state == null:
 		return "No state."
+	if EndgameScript.is_endgame_action(action):
+		return EndgameScript.preview_action(state, action)
 	var backpack: Array = Array(state.get("backpack"))
 	if backpack.is_empty():
 		return "No selected item."

@@ -3,6 +3,7 @@ extends RefCounted
 
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const ItemizationSystemScript := preload("res://scripts/systems/ItemizationSystem3D.gd")
+const ItemEndgameSystemScript := preload("res://scripts/systems/ItemEndgameSystem3D.gd")
 const GemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
 const ClassSystemScript := preload("res://scripts/systems/CharacterClassSystem3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
@@ -141,6 +142,7 @@ func ensure_defaults() -> void:
 	ClassSystemScript.ensure_defaults(self)
 	GemSystemScript.ensure_defaults(self)
 	ItemizationSystemScript.ensure_itemization_defaults(self)
+	ItemEndgameSystemScript.ensure_endgame_defaults(self)
 	if Dictionary(equipped.get("weapon", {})).is_empty():
 		equipped["weapon"] = ItemDBScript.make_starter_weapon(rng)
 	if map_stash.is_empty():

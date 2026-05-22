@@ -5,6 +5,7 @@ const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
 const ItemizationSystemScript := preload("res://scripts/systems/ItemizationSystem3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
 const SkillGemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
+const ItemEndgameScript: GDScript = preload("res://scripts/systems/ItemEndgameSystem3D.gd")
 
 static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss: bool) -> Array[Dictionary]:
 	var rng: RandomNumberGenerator = _rng(state)
@@ -44,6 +45,8 @@ static func enemy_drop_bundle(state: Object, enemy_level: int, elite: bool, boss
 		out.append(_random_gem_drop(rng, boss))
 	if boss or rng.randf() < (0.08 if elite else 0.025):
 		out.append({"kind": "map", "map": MapDBScript.make_map_item("ash_vault", max(1, int(enemy_level / 3) + 1), rng), "auto_pickup": false, "rarity": "map"})
+	# patch31_endgame_enemy_drops
+	ItemEndgameScript.inject_endgame_drops(state, out, enemy_level, elite, boss)
 	return out
 
 static func boss_reward_bundle(state: Object, map_level: int) -> Array[Dictionary]:
@@ -54,6 +57,8 @@ static func boss_reward_bundle(state: Object, map_level: int) -> Array[Dictionar
 	out.append({"kind": "material", "material_id": "shards", "amount": rng.randi_range(4, 8), "label": "Shards", "auto_pickup": true, "rarity": "currency"})
 	out.append(_random_gem_drop(rng, true))
 	out.append({"kind": "map", "map": MapDBScript.make_map_item("chain_crossing", max(1, int(map_level / 3) + 1), rng), "auto_pickup": false, "rarity": "map"})
+	# patch31_endgame_boss_rewards
+	ItemEndgameScript.inject_endgame_drops(state, out, map_level, true, true)
 	return out
 
 
