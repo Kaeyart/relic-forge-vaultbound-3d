@@ -11,12 +11,24 @@ static func ensure_progression_defaults(state: Object) -> void:
 	ClassSystemScript.ensure_defaults(state)
 	PassiveTreeSystemScript.ensure_defaults(state)
 	AscendancySystemScript.ensure_defaults(state)
-	if state.get("class_progression_seeded_033") == null:
-		state.set("class_progression_seeded_033", true)
-		if int(state.get("passive_points")) < 3:
-			state.set("passive_points", 3)
-		if int(state.get("level")) >= 8 and int(state.get("ascendancy_points")) < 2:
-			state.set("ascendancy_points", 2)
+	_seed_demo_progression_once(state)
+
+static func _seed_demo_progression_once(state: Object) -> void:
+	# Store the patch marker in materials because older GameState builds do not declare a dedicated field yet.
+	var materials_value: Variant = state.get("materials")
+	if typeof(materials_value) != TYPE_DICTIONARY:
+		return
+	var materials: Dictionary = Dictionary(materials_value)
+	if bool(materials.get("_class_identity_seeded_034", false)):
+		return
+	materials["_class_identity_seeded_034"] = true
+	state.set("materials", materials)
+	if int(state.get("passive_points")) < 12:
+		state.set("passive_points", 12)
+	if int(state.get("ascendancy_points")) < 4:
+		state.set("ascendancy_points", 4)
+	if state.has_method("add_notice"):
+		state.call("add_notice", "Passive Tree expanded. Prototype points granted for testing.")
 
 static func award_level_rewards(state: Object, new_level: int) -> void:
 	if state == null:
@@ -48,6 +60,11 @@ static func full_progression_bundle(state: Object) -> Dictionary:
 	_merge_bundle(result, PassiveTreeSystemScript.bundle(state))
 	_merge_bundle(result, AscendancySystemScript.bundle(state))
 	return result
+
+static func validation_report(state: Object) -> String:
+	if state == null:
+		return "No state."
+	return PassiveTreeSystemScript.validation_report(state) + "\n" + AscendancySystemScript.validation_report(state)
 
 static func _merge_bundle(result: Dictionary, bundle: Dictionary) -> void:
 	var stats: Dictionary = Dictionary(result.get("stats", {}))

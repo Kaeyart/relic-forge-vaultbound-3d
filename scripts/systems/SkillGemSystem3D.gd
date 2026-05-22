@@ -10,6 +10,12 @@ const ACTIVE_ORDER: Array = [
 	"bone_spear",
 	"ash_nova",
 	"shield_burst",
+	"heavy_slam",
+	"ground_rupture",
+	"piercing_shot",
+	"rain_of_arrows",
+	"snare_trap",
+	"marked_shot",
 	"infernal_step",
 	"furnace_totem",
 ]
@@ -218,7 +224,99 @@ const ACTIVE_DATA: Dictionary = {
 		"area_mult": 1.0,
 		"requirements": {"int": 14},
 		"weapon_requirements": []
-	}
+	},
+
+	"heavy_slam": {
+		"name": "Heavy Slam",
+		"description": "A committed mace slam that crushes enemies in a short area.",
+		"tags": ["attack", "melee", "physical", "slam", "area", "hit"],
+		"damage": 48.0,
+		"damage_per_level": 5.6,
+		"mana_cost": 8,
+		"cost_per_level": 1,
+		"cast_time": 0.42,
+		"cooldown": 0.28,
+		"area_mult": 1.15,
+		"stun_buildup": 0.35,
+		"requirements": {"str": 12},
+		"weapon_requirements": ["mace", "two_handed_mace"]
+	},
+	"ground_rupture": {
+		"name": "Ground Rupture",
+		"description": "Sends a cracking line of physical force through the ground.",
+		"tags": ["attack", "melee", "physical", "slam", "area", "hit"],
+		"damage": 40.0,
+		"damage_per_level": 4.9,
+		"mana_cost": 9,
+		"cost_per_level": 1,
+		"cast_time": 0.36,
+		"cooldown": 0.45,
+		"range": 5.0,
+		"area_mult": 1.0,
+		"requirements": {"str": 10},
+		"weapon_requirements": ["mace", "two_handed_mace"]
+	},
+	"piercing_shot": {
+		"name": "Piercing Shot",
+		"description": "Fires a precise arrow that pierces enemies.",
+		"tags": ["attack", "projectile", "physical", "bow", "hit"],
+		"damage": 28.0,
+		"damage_per_level": 4.0,
+		"mana_cost": 6,
+		"cost_per_level": 1,
+		"cast_time": 0.22,
+		"cooldown": 0.08,
+		"projectile_count": 1,
+		"pierce": 2,
+		"projectile_speed": 16.0,
+		"requirements": {"dex": 10},
+		"weapon_requirements": ["bow"]
+	},
+	"rain_of_arrows": {
+		"name": "Rain of Arrows",
+		"description": "Marks an area and rains arrows after a short delay.",
+		"tags": ["attack", "projectile", "physical", "bow", "area", "hit"],
+		"damage": 24.0,
+		"damage_per_level": 3.6,
+		"mana_cost": 11,
+		"cost_per_level": 1,
+		"cast_time": 0.32,
+		"cooldown": 0.75,
+		"base_area": 2.4,
+		"area_mult": 1.0,
+		"requirements": {"dex": 12},
+		"weapon_requirements": ["bow"]
+	},
+	"snare_trap": {
+		"name": "Snare Trap",
+		"description": "Throws a trap that damages and slows enemies in an area.",
+		"tags": ["attack", "trap", "area", "physical", "duration", "hit"],
+		"damage": 26.0,
+		"damage_per_level": 3.8,
+		"mana_cost": 10,
+		"cost_per_level": 1,
+		"cast_time": 0.20,
+		"cooldown": 1.10,
+		"base_area": 1.8,
+		"area_mult": 1.0,
+		"requirements": {"dex": 12},
+		"weapon_requirements": []
+	},
+	"marked_shot": {
+		"name": "Marked Shot",
+		"description": "A projectile attack that marks prey for execution damage.",
+		"tags": ["attack", "projectile", "physical", "bow", "mark", "hit"],
+		"damage": 32.0,
+		"damage_per_level": 4.2,
+		"mana_cost": 8,
+		"cost_per_level": 1,
+		"cast_time": 0.25,
+		"cooldown": 0.18,
+		"projectile_count": 1,
+		"pierce": 1,
+		"requirements": {"dex": 12},
+		"weapon_requirements": ["bow"]
+	},
 }
 
 const SUPPORT_DATA: Dictionary = {
@@ -236,7 +334,11 @@ const SUPPORT_DATA: Dictionary = {
 	"minefield": {"name": "Minefield", "description": "Supported mine skills place more mines but arm slower.", "requires_any": ["mine"], "forbids_any": [], "tier": 1, "mods": {"mine_count": 2, "cooldown_more": 0.25, "mana_cost_more": 0.20}},
 	"life_leech": {"name": "Life Leech", "description": "Supported hits recover life from damage.", "requires_any": ["hit"], "forbids_any": [], "tier": 1, "mods": {"life_leech": 0.04, "mana_cost_more": 0.08}},
 	"blood_price": {"name": "Blood Price", "description": "Supported skills spend life instead of part of their mana cost.", "requires_any": ["spell", "attack"], "forbids_any": [], "tier": 1, "mods": {"life_cost_ratio": 0.45, "mana_cost_more": -0.35, "damage_more": 0.08}},
-	"execution": {"name": "Execution", "description": "Supported skills deal more damage to injured enemies.", "requires_any": ["hit"], "forbids_any": [], "tier": 1, "mods": {"execute_more": 0.30, "mana_cost_more": 0.10}}
+	"execution": {"name": "Execution", "description": "Supported skills deal more damage to injured enemies.", "requires_any": ["hit"], "forbids_any": [], "tier": 1, "mods": {"execute_more": 0.30, "mana_cost_more": 0.10}},
+
+	"brutality": {"name": "Brutality", "description": "Supported physical attacks hit harder but lose elemental scaling.", "requires_any": ["physical", "attack"], "forbids_any": ["spell"], "tier": 1, "mods": {"damage_more": 0.30, "mana_cost_more": 0.12}},
+	"bloodletting": {"name": "Bloodletting", "description": "Supported physical hits bleed more often.", "requires_any": ["physical", "hit"], "forbids_any": [], "tier": 1, "mods": {"bleed_chance": 0.35, "execute_more": 0.12, "mana_cost_more": 0.10}},
+	"predator_focus": {"name": "Predator Focus", "description": "Supported mark/projectile skills execute wounded prey.", "requires_any": ["projectile", "mark"], "forbids_any": [], "tier": 1, "mods": {"execute_more": 0.25, "mana_cost_more": 0.12}},
 }
 
 const SPIRIT_DATA: Dictionary = {

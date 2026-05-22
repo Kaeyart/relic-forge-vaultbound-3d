@@ -14,6 +14,9 @@ var _rf_087r_ui: Node = null
 const GameStateScript := preload("res://scripts/core/GameState3D.gd")
 const SaveSystemScript := preload("res://scripts/systems/SaveSystem3D.gd")
 const SkillGemSystemScript := preload("res://scripts/systems/SkillGemSystem3D.gd")
+const ProgressionRuntimeSystemScript := preload("res://scripts/systems/ProgressionRuntimeSystem3D.gd")
+const ProgressionValidationSystemScript := preload("res://scripts/systems/ProgressionValidationSystem3D.gd")
+const ClassStarterBuildSystemScript := preload("res://scripts/systems/ClassStarterBuildSystem3D.gd")
 const CraftingSystemScript := preload("res://scripts/systems/CraftingSystem3D.gd")
 const MapLoopSystemScript := preload("res://scripts/systems/MapLoopSystem3D.gd")
 const ItemDBScript := preload("res://scripts/data/ItemDB3D.gd")
@@ -54,6 +57,7 @@ func _rf_pre_091a_ready() -> void:
 	_rf_087r_ensure_final_ui()
 	SaveSystemScript.load_into(state)
 	state.call("ensure_defaults")
+	ClassStarterBuildSystemScript.ensure_defaults(state)
 	_return_to_hub(false)
 	set_process(true)
 
@@ -244,6 +248,7 @@ func _return_to_hub(save_now: bool) -> void:
 
 func _cast_selected_skill(aim: Vector3) -> void:
 	var cast_data: Dictionary = SkillGemSystemScript.selected_cast_data(state)
+	cast_data = ProgressionRuntimeSystemScript.enhance_cast_data(state, cast_data)
 	combat.call("cast_skill", state, player.global_position, aim, cast_data)
 	GemProgressionSystemScript.award_selected_skill_xp(state, 5)
 

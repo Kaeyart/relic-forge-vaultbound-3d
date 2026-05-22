@@ -8,6 +8,7 @@ const PANEL_SCENES: Dictionary = {
 	"crafting": "res://scenes/ui/panels/ForgePanel3D.tscn",
 	"skills": "res://scenes/ui/panels/SkillGemPanel3D.tscn",
 	"passives": "res://scenes/ui/panels/PassiveTreePanel3D.tscn",
+	"atlas_passives": "res://scenes/ui/panels/AtlasPassivePanel3D.tscn",
 	"ascendancy": "res://scenes/ui/panels/AscendancyPanel3D.tscn",
 	"maps": "res://scenes/ui/panels/MapDevicePanel3D.tscn",
 	"character": "res://scenes/ui/panels/CharacterPanel3D.tscn"
@@ -136,6 +137,7 @@ func _build_sidebar(active: String) -> void:
 	_add_sidebar_button("skills", active)
 	_add_sidebar_button("passives", active)
 	_add_sidebar_button("ascendancy", active)
+	_add_sidebar_button("atlas_passives", active)
 
 	var close_button: Button = Button.new()
 	close_button.text = "Close"

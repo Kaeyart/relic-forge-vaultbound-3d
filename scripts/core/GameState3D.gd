@@ -12,6 +12,9 @@ const ClassProgressionSystemScript: GDScript = preload("res://scripts/systems/Cl
 const PassiveTreeSystemScript: GDScript = preload("res://scripts/systems/PassiveTreeSystem3D.gd")
 const AscendancySystemScript: GDScript = preload("res://scripts/systems/AscendancySystem3D.gd")
 const MapDBScript := preload("res://scripts/data/MapDB3D.gd")
+const AtlasPassiveSystemScript := preload("res://scripts/systems/AtlasPassiveSystem3D.gd")
+const ClassStarterBuildSystemScript := preload("res://scripts/systems/ClassStarterBuildSystem3D.gd")
+const ProgressionRuntimeSystemScript := preload("res://scripts/systems/ProgressionRuntimeSystem3D.gd")
 
 const SAVE_VERSION: int = 87
 
@@ -158,6 +161,9 @@ func ensure_defaults() -> void:
 	ClassSystemScript.ensure_defaults(self)
 	ClassProgressionSystemScript.ensure_progression_defaults(self)
 	GemSystemScript.ensure_defaults(self)
+	AtlasPassiveSystemScript.ensure_defaults(self)
+	ClassStarterBuildSystemScript.ensure_defaults(self)
+	ProgressionRuntimeSystemScript.ensure_runtime_defaults(self)
 	ItemizationSystemScript.ensure_itemization_defaults(self)
 	ItemEndgameSystemScript.ensure_endgame_defaults(self)
 	ItemValidationSystemScript.ensure_runtime_defaults(self)
@@ -191,6 +197,9 @@ func recompute_stats() -> void:
 		if typeof(item_value) == TYPE_DICTIONARY:
 			_merge_stats(Dictionary(item_value).get("total_stats", {}))
 			_merge_rules(Array(Dictionary(item_value).get("build_rules", [])))
+	var atlas_bundle: Dictionary = AtlasPassiveSystemScript.bundle(self)
+	_merge_stats(Dictionary(atlas_bundle.get("stats", {})))
+	_merge_rules(Array(atlas_bundle.get("rules", [])))
 	var spirit_bundle: Dictionary = GemSystemScript.collect_spirit_bundle(self)
 	_merge_stats(Dictionary(spirit_bundle.get("stats", {})))
 	_merge_rules(Array(spirit_bundle.get("rules", [])))

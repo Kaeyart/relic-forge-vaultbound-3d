@@ -4,6 +4,7 @@ extends RefCounted
 const AtlasSystemScript := preload("res://scripts/systems/AtlasSystem3D.gd")
 const WaystoneSystemScript := preload("res://scripts/systems/WaystoneSystem3D.gd")
 const TabletSystemScript := preload("res://scripts/systems/PrecursorTabletSystem3D.gd")
+const AtlasPassiveSystemScript := preload("res://scripts/systems/AtlasPassiveSystem3D.gd")
 
 static func ensure_defaults(state: Object) -> void:
 	if state == null:
@@ -106,7 +107,7 @@ static func _build_activity(state: Object, node: Dictionary, waystone: Dictionar
 	var danger: int = WaystoneSystemScript.danger_score(waystone) + TabletSystemScript.danger_score(tablets) + _node_danger(node)
 	var reward: int = WaystoneSystemScript.reward_score(waystone) + TabletSystemScript.reward_score(tablets) + _node_reward(node)
 	var seed: int = int(Time.get_ticks_msec()) if launched else int(str(node.get("id", "0")).hash())
-	return {
+	return AtlasPassiveSystemScript.apply_to_activity(state, {
 		"kind": "map_activity",
 		"atlas_node_id": str(node.get("id", "")),
 		"display_name": AtlasSystemScript.node_display_name(node),
@@ -128,7 +129,7 @@ static func _build_activity(state: Object, node: Dictionary, waystone: Dictionar
 		"tablet_slots": WaystoneSystemScript.tablet_slots_for_waystone(waystone),
 		"seed": seed,
 		"completion_rule": "Kill the map boss",
-	}
+	})
 
 
 static func _grant_completion_rewards(state: Object, activity: Dictionary, result: Dictionary) -> void:
@@ -136,6 +137,11 @@ static func _grant_completion_rewards(state: Object, activity: Dictionary, resul
 	var tier: int = int(activity.get("tier", 1))
 	var node_type: String = str(activity.get("node_type", "normal"))
 	var reward_score: int = int(activity.get("reward_score", 1))
+	var atlas_rewards: Dictionary = AtlasPassiveSystemScript.completion_rewards(state, activity)
+	if rng.randf() < float(atlas_rewards.get("forge_material_chance", 0.0)) and state.has_method("add_material"):
+		state.call("add_material", "embers", rng.randi_range(4, 10))
+	if rng.randf() < float(atlas_rewards.get("boss_relic_chance", 0.0)) and state.has_method("add_material"):
+		state.call("add_material", "boss_relic_fragments", 1)
 	var next_tier: int = tier + (1 if rng.randf() < 0.28 + float(reward_score) * 0.015 else 0)
 	WaystoneSystemScript.add_waystone(state, WaystoneSystemScript.make_random_waystone(rng, clampi(next_tier, 1, 16), node_type == "powerful_boss"))
 	if node_type == "tower" or rng.randf() < 0.20 + float(reward_score) * 0.02:
