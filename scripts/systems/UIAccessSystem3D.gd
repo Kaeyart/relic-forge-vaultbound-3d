@@ -1,31 +1,33 @@
 class_name RVUIAccessSystem3D
 extends RefCounted
 
-# Patch 18: one source of truth for UI access.
+# Patch 26: one source of truth for UI access.
 # Global screens: Inventory and Skill Gems.
-# Station screens: Map Device, Forge, Stash, Character Shrine.
+# Physical station screens: Map Device, Forge, Stash.
+# Character shrine / extra stations are intentionally not exposed in this pass.
 
 const GLOBAL_PANEL_MODES: Array[String] = ["inventory", "skills"]
-const STATION_PANEL_MODES: Array[String] = ["maps", "crafting", "stash", "character"]
+const STATION_PANEL_MODES: Array[String] = ["maps", "crafting", "stash"]
 
 const STATION_NAMES: Dictionary = {
 	"maps": "Map Device",
 	"crafting": "Forge",
 	"stash": "Stash",
-	"character": "Character Shrine",
 }
 
 static func normalize_mode(mode: String) -> String:
 	var m: String = str(mode).strip_edges().to_lower()
 	match m:
-		"forge", "craft", "crafting_panel":
+		"forge", "craft", "crafting_panel", "forge_panel":
 			return "crafting"
 		"skill", "gems", "gem", "skill_gems", "skillgem", "skill_gem":
 			return "skills"
-		"map", "map_device", "mapdevice":
+		"map", "map_device", "mapdevice", "atlas", "waystone":
 			return "maps"
-		"char", "stats", "character_sheet":
-			return "character"
+		"inventory", "inv", "bag", "backpack":
+			return "inventory"
+		"stash", "vault", "storage":
+			return "stash"
 		_:
 			return m
 
@@ -39,11 +41,13 @@ static func request_panel(state: Object, mode: String, from_station: bool = fals
 		return true
 
 	if not can_open_panel(state, m, from_station):
-		# Patch 18 intentionally avoids noisy screen notices here.
 		return false
 
 	state.set("panel_mode", m)
 	return true
+
+static func request_station_panel(state: Object, mode: String) -> bool:
+	return request_panel(state, mode, true)
 
 static func toggle_panel(state: Object, mode: String, from_station: bool = false) -> bool:
 	if state == null:
@@ -93,8 +97,6 @@ static func panel_title(mode: String) -> String:
 			return "Forge"
 		"stash":
 			return "Stash"
-		"character":
-			return "Character"
 		_:
 			return m.replace("_", " ").capitalize()
 
@@ -104,34 +106,22 @@ static func panel_hint(mode: String) -> String:
 		"inventory":
 			return "Inspect, equip, appraise, favorite, lock, stash, or drop items."
 		"skills":
-			return "Manage active gems, support sockets, spirit gems, uncut gems, and hotbar bindings."
+			return "Manage active gems, supports, spirit gems, uncut gems, and hotbar bindings."
 		"maps":
-			return "Map Device station. Select a map, inspect danger, then launch."
+			return "Physical station only. Choose Atlas node, Waystone, Tablets, then launch."
 		"crafting":
-			return "Forge station. Select an item and apply controlled upgrades."
+			return "Physical station only. Select an item and apply forge actions."
 		"stash":
-			return "Stash station. Store and retrieve long-term loot."
-		"character":
-			return "Character Shrine. Review offense, defense, resources, and build rules."
+			return "Physical station only. Store and retrieve long-term loot."
 		_:
 			return "Click visible rows, slots, and actions."
 
 static func _near_station_allows(state: Object, mode: String) -> bool:
 	var m: String = normalize_mode(mode)
-
-	var direct_keys: Array[String] = [
-		"near_station_mode",
-		"near_station_panel",
-		"near_station_target",
-		"near_station_panel_mode",
-		"station_mode",
-		"station_panel",
-	]
-
-	for key: String in direct_keys:
-		var value: String = normalize_mode(str(_state_get(state, key, "")))
-		if value == m:
-			return true
+	var near_mode: String = normalize_mode(str(_state_get(state, "near_station_mode", "")))
+	var near_panel: String = normalize_mode(str(_state_get(state, "near_station_panel", "")))
+	if near_mode == m or near_panel == m:
+		return true
 
 	var id_text: String = str(_state_get(state, "near_station_id", "")).to_lower()
 	var name_text: String = str(_state_get(state, "near_station_name", "")).to_lower()
@@ -143,9 +133,7 @@ static func _near_station_allows(state: Object, mode: String) -> bool:
 		"crafting":
 			return combined.find("forge") >= 0 or combined.find("craft") >= 0
 		"stash":
-			return combined.find("stash") >= 0
-		"character":
-			return combined.find("character") >= 0 or combined.find("shrine") >= 0
+			return combined.find("stash") >= 0 or combined.find("vault") >= 0
 		_:
 			return false
 
